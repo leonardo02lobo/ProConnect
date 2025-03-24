@@ -1,9 +1,24 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Publicacion from "../components/Tarjetas/Publicacion.astro";
 ---
 
 <Layout title="ProConnect">
-	<div class=" bg-red-500 col-span-2 p-6 mt-20">
+	<div class="bg-red-500 col-span-2 p-6 mt-20">
 		<h1 class="text-3xl font-bold">Bienvenido a ProConnect</h1>
+		<Publicacion
+			imagenPost="https://i.ytimg.com/vi/QqheS8yJ7QU/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLC968RmzLk8RjL8EkIVHqCrgjCFeg"
+			imagenPerfil="https://yt3.googleusercontent.com/BaWrdCez09FC6hT6ItEnPBPy9iU-q3ko5kuaGXPaPlI0EuZtqnklw9dd6H2cWVbAy7NlILOXaW0=s160-c-k-c0x00ffffff-no-rj"
+			titulo="Me voy de youtube"
+			perfil="Dalton"
+			descripcion="Hola amigos esta es una triste noticia, me voy de youtube, pero no se preocupen, me voy a twitch"
+		/>
+		<Publicacion
+			imagenPost=""
+			imagenPerfil="https://yt3.googleusercontent.com/BaWrdCez09FC6hT6ItEnPBPy9iU-q3ko5kuaGXPaPlI0EuZtqnklw9dd6H2cWVbAy7NlILOXaW0=s160-c-k-c0x00ffffff-no-rj"
+			titulo="Me voy de youtube"
+			perfil="Dalton"
+			descripcion="Hola amigos esta es una triste noticia, me voy de youtube, pero no se preocupen, me voy a twitch"
+		/>
 	</div>
 </Layout>

@@ -1,0 +1,40 @@
+---
+interface Props {
+    NombreEmpresa: string;
+    descripcion: string;
+}
+const { NombreEmpresa, descripcion } = Astro.props;
+---
+
+<div class="flex flex-row p-4 gap-3 mb-2">
+    <div class="flex flex-col">
+        <span class="text-blue-600"
+            ><a href="/MirarPerfil">{NombreEmpresa}</a></span
+        >
+        <p class="text-blue-700">
+            <a href="">{descripcion}</a>
+        </p>
+    </div>
+    <div class="flex flex-col justify-center items-center">
+        <button
+            class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-4xl cursor-pointer"
+            id="seguir"
+        >
+            Seguir +
+        </button>
+    </div>
+</div>
+
+<script>
+    const seguir = document.querySelectorAll("#seguir");
+
+    seguir?.forEach((element) => {
+        element?.addEventListener("click", () => {
+            if (element) {
+                element.innerHTML = "Siguiendo✓";
+            }
+            element?.classList.remove("bg-blue-500");
+            element?.classList.add("bg-green-500");
+        });
+    });
+</script>
