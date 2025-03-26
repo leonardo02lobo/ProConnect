@@ -10,24 +10,34 @@ interface Props {
 const { titulo, descripcion, imagenPerfil, perfil, imagenPost } = Astro.props;
 ---
 
-<div
-    class="flex flex-col p-4 gap-3 b-2 bg bg-white shadow-lg border border-gray-200 rounded-lg mb-5"
->
-    <div class="flex flex-col gap-3">
-        {imagenPost && (
-            <img src={imagenPost} alt="fotoPost" class="w-[100%] rounded-3xl" />
-        )}
-        <div class="flex flex-row gap-4">
-            <img
-                src={imagenPerfil}
-                alt="fotoPerfil"
-                class="rounded-3xl w-20 h-20"
-            />
-            <div class="flex flex-col gap-1">
-                <h1 class="font-bold">{titulo}</h1>
-                <span><a href="">{perfil}</a></span>
-                <p>{descripcion}</p>
+<a href="/MirarPublicacion">
+    <div
+        class="flex flex-col p-4 gap-3 b-2 bg bg-white shadow-lg border border-gray-200 rounded-lg mb-5 cursor-pointer"
+    >
+        <div class="flex flex-col gap-3">
+            {
+                imagenPost && (
+                    <img
+                        src={imagenPost}
+                        alt="fotoPost"
+                        class="w-[100%] rounded-3xl"
+                    />
+                )
+            }
+            <div class="flex flex-row gap-4">
+                <a href="/MirarPerfil">
+                    <img
+                        src={imagenPerfil}
+                        alt="fotoPerfil"
+                        class="rounded-3xl w-20 h-20"
+                    />
+                </a>
+                <div class="flex flex-col gap-1">
+                    <h1 class="font-bold">{titulo}</h1>
+                        <span class="hover:underline"><a href="/MirarPerfil">{perfil}</a></span>
+                    <p>{descripcion}</p>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</a>
