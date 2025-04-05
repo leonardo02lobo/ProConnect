@@ -1,0 +1,90 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Publicacion from "../components/Tarjetas/Publicacion.astro";
+---
+
+<Layout title="Perfil-">
+    <main class="col-span-2 px-6 mt-20">
+        <section class="p-4 flex flex-row gap-4 items-center">
+            <div>
+                <img
+                    src=""
+                    alt=""
+                    width="100"
+                    height="100"
+                    class="rounded-full"
+                    id="FotoPerfil"
+                />
+            </div>
+            <div class="flex flex-col gap-3">
+                <h1 class="font-bold" id="nombre"></h1>
+                <span id="puesto"></span>
+                <div class="flex flex-row gap-4">
+                    <a href=""><p id="NSeguidores"></p> seguidores</a>
+                    <a href=""><p id="NSeguidos"></p> seguidos</a>
+                </div>
+            </div>
+        </section>
+        <section class="m-3 p-3 rounded-3xl flex flex-col gap-4">
+            <div>
+                <button
+                    class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-4xl cursor-pointer"
+                >
+                    Conectar +
+                </button>
+                <button
+                    class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-4xl cursor-pointer"
+                >
+                    Mensaje al Privado
+                </button>
+            </div>
+            <div class="flex flex-row gap-4">
+                <img
+                    src="https://yt3.googleusercontent.com/BaWrdCez09FC6hT6ItEnPBPy9iU-q3ko5kuaGXPaPlI0EuZtqnklw9dd6H2cWVbAy7NlILOXaW0=s160-c-k-c0x00ffffff-no-rj"
+                    alt=""
+                    class="rounded-full w-20"
+                />
+                <textarea
+                    name=""
+                    id=""
+                    placeholder="Publica algo"
+                    class="w-full resize-none bg-white"></textarea>
+                <button
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-2 rounded-4xl cursor-pointer"
+                >
+                    <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><path stroke="none" d="M0 0h24v24H0z" fill="none"
+                        ></path><path
+                            d="M4.698 4.034l16.302 7.966l-16.302 7.966a.503 .503 0 0 1 -.546 -.124a.555 .555 0 0 1 -.12 -.568l2.468 -7.274l-2.468 -7.274a.555 .555 0 0 1 .12 -.568a.503 .503 0 0 1 .546 -.124z"
+                        ></path><path d="M6.5 12h14.5"></path></svg
+                    >
+                </button>
+            </div>
+        </section>
+        <section>
+            <Publicacion
+			imagenPost="https://i.ytimg.com/vi/QqheS8yJ7QU/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLC968RmzLk8RjL8EkIVHqCrgjCFeg"
+			imagenPerfil="https://yt3.googleusercontent.com/BaWrdCez09FC6hT6ItEnPBPy9iU-q3ko5kuaGXPaPlI0EuZtqnklw9dd6H2cWVbAy7NlILOXaW0=s160-c-k-c0x00ffffff-no-rj"
+			titulo="Me voy de youtube"
+			perfil="Dalton"
+			descripcion="Hola amigos esta es una triste noticia, me voy de youtube, pero no se preocupen, me voy a twitch"
+		/>
+		<Publicacion
+			imagenPost=""
+			imagenPerfil="https://yt3.googleusercontent.com/BaWrdCez09FC6hT6ItEnPBPy9iU-q3ko5kuaGXPaPlI0EuZtqnklw9dd6H2cWVbAy7NlILOXaW0=s160-c-k-c0x00ffffff-no-rj"
+			titulo="Me voy de youtube"
+			perfil="Dalton"
+			descripcion="Hola amigos esta es una triste noticia, me voy de youtube, pero no se preocupen, me voy a twitch"
+		/>
+        </section>
+    </main>
+</Layout>
+<script src="./../scripts/js/MirarPerfil.js"></script>

@@ -1,0 +1,216 @@
+---
+import CRUD from "../layouts/CRUD.astro";
+---
+
+<CRUD title="Registrarse">
+    <div
+        class="flex flex-col items-center justify-center h-auto p-10 gap-4 border-2 border-gray-400 rounded-md m-4"
+    >
+        <img src="/assets/ProConnect.webp" alt="" class="w-14 rounded-2xl" />
+        <h1>Registrarse</h1>
+        <form
+            action=""
+            class="flex flex-col items-center justify-center gap-4"
+            id="formulario"
+        >
+            <div class="flex flex-col gap-4" id="datos">
+                <label for="nombre" class="flex flex-col w-full">
+                    Nombre
+                    <input
+                        type="text"
+                        name="nombre"
+                        id="nombre"
+                        class="input"
+                    />
+                    <span class="text-red-600 hidden" id="warning"
+                        >⚠️Falta el nombre de usuario</span
+                    >
+                </label>
+                <label for="nombreUsuario" class="flex flex-col w-full">
+                    Nombre de Usuario
+                    <input
+                        type="text"
+                        name="nombreUsuario"
+                        id="nombreUsuario"
+                        class="input"
+                    />
+                    <span class="text-red-600 hidden" id="warning"
+                        >⚠️Falta el nombre de usuario</span
+                    >
+                </label>
+                <label for="email" class="flex flex-col w-full">
+                    Correo Electronico
+                    <input type="email" name="email" id="email" class="input" />
+                    <span class="text-red-600 hidden" id="warning"
+                        >⚠️Falta el nombre de usuario</span
+                    >
+                </label>
+                <label for="contraseña" class="flex flex-col w-full">
+                    Contraseña
+                    <input
+                        type="password"
+                        name="contraseña"
+                        id="contraseña"
+                        class="input"
+                    />
+                    <span class="text-red-600 hidden" id="warning"
+                        >⚠️Falta el nombre de usuario</span
+                    >
+                </label>
+                <label for="confirmarContraseña" class="flex flex-col w-full">
+                    Confirmar Contraseña
+                    <input
+                        type="password"
+                        name="confirmarContraseña"
+                        id="confirmarContraseña"
+                        class="input"
+                    />
+                    <span class="text-red-600 hidden" id="warning"
+                        >⚠️Falta el nombre de usuario</span
+                    >
+                </label>
+                <label for="check">
+                    <input
+                        type="checkbox"
+                        name="check"
+                        id="check"
+                        class="input"
+                    />
+                    Acepto los terminos y condiciones
+                </label>
+                <button
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md"
+                    id="crear">Crear</button
+                >
+            </div>
+            <div class="flex flex-col gap-4" id="datosExtra">
+                <label for="skill" class="flex flex-col gap-4 mt-4">
+                    Puesto
+                    <select name="puesto" id="puesto">
+                        <option value="">Selecciona un puesto</option>
+                        <option value="desarrollador_web"
+                            >Desarrollador Web</option
+                        >
+                        <option value="desarrollador_backend"
+                            >Desarrollador Backend</option
+                        >
+                        <option value="desarrollador_frontend"
+                            >Desarrollador Frontend</option
+                        >
+                        <option value="desarrollador_fullstack"
+                            >Desarrollador Full Stack</option
+                        >
+                        <option value="ingeniero_de_datos"
+                            >Ingeniero de Datos</option
+                        >
+                        <option value="cientifico_de_datos"
+                            >Científico de Datos</option
+                        >
+                        <option value="administrador_de_base_de_datos"
+                            >Administrador de Base de Datos</option
+                        >
+                        <option value="especialista_en_seguridad"
+                            >Especialista en Seguridad Informática</option
+                        >
+                        <option value="desarrollador_movil"
+                            >Desarrollador Móvil</option
+                        >
+                        <option value="arquitecto_de_software"
+                            >Arquitecto de Software</option
+                        >
+                        <option value="tester_qa">Tester QA</option>
+                        <option value="devops_engineer">Ingeniero DevOps</option
+                        >
+                        <option value="consultor_tecnologico"
+                            >Consultor Tecnológico</option
+                        >
+                        <option value="administrador_sistemas"
+                            >Administrador de Sistemas</option
+                        >
+                        <option value="programador_junior"
+                            >Programador Junior</option
+                        >
+                        <option value="programador_senior"
+                            >Programador Senior</option
+                        >
+                    </select>
+                </label>
+                <label for="tipoUsuario" class="flex flex-col gap-4 mt-4">
+                    Empresa o Usuario
+                    <select name="tipoUsuario" id="tipoUsuario">
+                        <option value="">Selecciona un tipo de usuario</option>
+                        <option value="empresa">Empresa</option>
+                        <option value="usuario">Usuario</option>
+                    </select>
+                </label>
+                <button
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md"
+                    id="terminar">Terminar</button
+                >
+            </div>
+            <div id="ExtraEmpresa" class="flex flex-col gap-4">
+                <label for="NombreEmpresa" class="flex flex-col gap-4 mt-4">
+                    Nombre de la Empresa
+                    <input
+                        type="text"
+                        name="NombreEmpresa"
+                        id="NombreEmpresa"
+                        class="input"
+                    />
+                </label>
+                <label for="Descripcion" class="flex flex-col gap-4 mt-4">
+                    Descripcion Sobre la Empresa
+                    <textarea
+                        name="Descripcion"
+                        id="Descripcion"
+                        class="w-full h-30 input"
+                        placeholder="Este Campo puede quedar vacio"></textarea>
+                </label>
+                <label for="pais" class="flex flex-col gap-4 mt-4">
+                    Seleccione el pais
+                    <select name="pais" id="pais">
+                        <option value="">Selecciona un país</option>
+                        <option value="estados_unidos">Estados Unidos</option>
+                        <option value="china">China</option>
+                        <option value="india">India</option>
+                        <option value="alemania">Alemania</option>
+                        <option value="japon">Japón</option>
+                        <option value="reino_unido">Reino Unido</option>
+                        <option value="canada">Canadá</option>
+                        <option value="francia">Francia</option>
+                        <option value="suecia">Suecia</option>
+                        <option value="singapur">Singapur</option>
+                        <option value="corea_del_sur">Corea del Sur</option>
+                        <option value="israel">Israel</option>
+                        <option value="australia">Australia</option>
+                        <option value="nueva_zelanda">Nueva Zelanda</option>
+                        <option value="brasil">Brasil</option>
+                        <option value="mexico">México</option>
+                        <option value="rusia">Rusia</option>
+                        <option value="espana">España</option>
+                        <option value="italia">Italia</option>
+                        <option value="sudafrica">Sudáfrica</option>
+                        <option value="argentina">Argentina</option>
+                        <option value="turquia">Turquía</option>
+                    </select>
+                </label>
+                <button
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md"
+                    id="terminar2">Terminar</button
+                >
+            </div>
+            <div id="iniciarSesion" class="flex flex-col gap-4">
+                <span
+                    >Ya tienes cuenta. <a
+                        href=""
+                        class="text-blue-600 cursor-pointer"
+                        id="iniciarSesionBoton">Inicia Sesion</a
+                    ></span
+                >
+            </div>
+        </form>
+    </div>
+</CRUD>
+
+<script src="./../scripts/js/Registrarse.js"></script>
+<script src="./../scripts/ts/Registrarse.ts"></script>

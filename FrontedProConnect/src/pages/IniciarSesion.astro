@@ -1,0 +1,41 @@
+---
+import CRUD from "../layouts/CRUD.astro";
+---
+
+<CRUD title="Iniciar Sesion">
+    <div
+        class="flex flex-col items-center justify-center h-auto p-10 gap-4 border-2 border-gray-400 rounded-md m-4"
+    >
+        <img src="/assets/ProConnect.webp" alt="" class="w-14 rounded-2xl" />
+        <h1>Iniciar Sesion</h1>
+        <form action="" class="flex flex-col items-center justify-center gap-4" id="formulario">
+            <label for="usuario" class="flex flex-col w-full">
+                Digite su Nombre de Usuario
+                <input type="text" name="usuario" id="usuario" />
+            </label>
+            <label for="contraseña" class="flex flex-col w-full">
+                Digite su Contraseña
+                <input type="password" name="contraseña" id="contraseña" />
+            </label>
+            <button
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md"
+                id="login"
+                >Iniciar</button
+            >
+            <span
+                >No tienes cuenta Todavia. <a
+                    href="Registrarse"
+                    class="text-blue-600 cursor-pointer">Registrarte aqui</a
+                ></span
+            >
+            <span
+                >Perdiste tu Contraseña. <a
+                    href="RecuperarContrasenia"
+                    class="text-blue-600 cursor-pointer">Recuperar</a
+                ></span
+            >
+        </form>
+    </div>
+</CRUD>
+<script src="./../scripts/ts/IniciarSesion.ts"></script>
+<script src="./../scripts/js/IniciarSesion.js"></script>

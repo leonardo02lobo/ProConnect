@@ -1,0 +1,23 @@
+---
+import TarjetaEmpresa from "../components/Tarjetas/TarjetaEmpresa.astro"
+import TarjetaAmigos from "./Tarjetas/TarjetaAmigos.astro"
+---
+
+<aside class="col-span-1 mt-20">
+    <div class="flex flex-col p-6 fixed">
+        <section class="p-4 rounded-lg mb-4">
+            <span class="font-bold ">Empresas a Seguir</span>
+            <div class="bg-white shadow-lg border border-gray-200 rounded-lg">
+                <TarjetaEmpresa NombreEmpresa="Amazon" descripcion="4 Personas que conocen la siguen" />
+                <TarjetaEmpresa NombreEmpresa="Google" descripcion="1 Personas que conocen la siguen" />
+            </div>
+        </section>
+        <section class="p-4 rounded-lg mb-4">
+            <span class="font-bold">Amigos a Seguir</span>
+            <div class="bg-white shadow-lg border border-gray-200 rounded-lg">
+                <TarjetaAmigos imagen="https://yt3.googleusercontent.com/BaWrdCez09FC6hT6ItEnPBPy9iU-q3ko5kuaGXPaPlI0EuZtqnklw9dd6H2cWVbAy7NlILOXaW0=s160-c-k-c0x00ffffff-no-rj" Nombre="Dalton" />
+                <TarjetaAmigos imagen="https://yt3.googleusercontent.com/aPuVOhE66m_en_vzdz5SpbytqxUd-xHyAfLyn_lIVcC88dYT85WVhdYKrbZgRz7QMXvF7Ap_4fQ=s900-c-k-c0x00ffffff-no-rj" Nombre="MoureDev"/>
+            </div>
+        </section>
+    </div>
+</aside>
