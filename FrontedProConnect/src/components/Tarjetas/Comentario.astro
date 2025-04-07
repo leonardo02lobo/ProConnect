@@ -1,16 +1,24 @@
-<div class="flex flex-row gap-4 justify-between items-center p-4">
+---
+interface Props {
+    id: number;
+    nombre: string;
+    comentario: string;
+    imagenPerfil: string;
+    fecha: string;
+}
+const { id, nombre, comentario, imagenPerfil, fecha} = Astro.props;
+---
+<div class="flex flex-row gap-4 justify-between items-center p-4 mt-4 rounded-3xl border-2 border-gray-400 cursor-pointer">
     <div class="flex flex-row gap-4">
         <img
-            src="https://yt3.googleusercontent.com/aPuVOhE66m_en_vzdz5SpbytqxUd-xHyAfLyn_lIVcC88dYT85WVhdYKrbZgRz7QMXvF7Ap_4fQ=s900-c-k-c0x00ffffff-no-rj"
+            src={imagenPerfil || "/assets/ImagenesPerfil/predeterminado.png"}
             alt="perfil"
             class="w-13 rounded-4xl"
         />
         <div>
-            <h1>Nombre</h1>
-            <p>Comentario</p>
+            <span>{fecha}</span>
+            <h1>{nombre}</h1>
+            <p>{comentario}</p>
         </div>
-    </div>
-    <div>
-        <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md">Reaccionar</button>
     </div>
 </div>

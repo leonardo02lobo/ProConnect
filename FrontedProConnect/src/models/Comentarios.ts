@@ -1,11 +1,10 @@
+import type { PublicacionModel } from "./Publicacion";
 import type { Usuario } from "./Usuario";
 
-export interface PublicacionModel{
+export interface Comentarios {
     id: number;
     usuario: Usuario;
+    publicacion: PublicacionModel;
     contenido: string;
-    titulo: string;
-    foto: string;
     fecha: Date;
-    likes: number;
 }

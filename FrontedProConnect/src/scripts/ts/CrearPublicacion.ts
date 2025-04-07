@@ -14,7 +14,8 @@ const usu: Usuario = {
     fotoPerfil: "",
     fotoFondo: "",
     puesto: "",
-    tipoUsuario: ""
+    tipoUsuario: "",
+    id: 0
 }
 const publicacion: PublicacionModel = {
     usuario: usu,
@@ -22,7 +23,8 @@ const publicacion: PublicacionModel = {
     titulo: "",
     foto: "",
     fecha: new Date(),
-    likes: 0
+    likes: 0,
+    id: 0
 }
 
 CrearPublicacion?.addEventListener('click',async () => {

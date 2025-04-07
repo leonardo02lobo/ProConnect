@@ -1,6 +1,8 @@
+import { LikesModel } from "./Like";
 import {User, UserModel} from "./User";
 import pool from "./database";
 export interface Publicacion{
+    id: number;
     usuario: User;
     contenido: string;
     foto: string;
@@ -27,5 +29,21 @@ export const PublicacionModel = {
     async GetById(id: string){
         const [rows] = await pool.query('SELECT * FROM proconnect.publicaciones WHERE id = ?;', [id])
         return rows;
+    },
+    async DarLikePublicacionModel(publicacion: Publicacion){
+        const result = await LikesModel.CrearLike(publicacion);
+        if(result){
+            await LikesModel.AumentarLikes(publicacion)
+        }
+    },
+    async BuscarLikePublicacion(publicacion: Publicacion){
+        const [rows] = await pool.query('SELECT * FROM proconnect.likes WHERE usuario_id = ? && publicacion_id = ?;',
+            [(publicacion.usuario as any)[0]['id'],(publicacion as any)[0]['id']])
+        return rows;
+    },
+    async EliminarLikePublicacion(publicacion: Publicacion){
+        const [row] = await pool.query('UPDATE proconnect.publicaciones SET likes = likes - 1 WHERE id = ?;',
+            [(publicacion as any)[0]['id']])
+            return row;
     }
 }

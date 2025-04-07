@@ -1,14 +1,21 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import Comentario from "../../components/Tarjetas/Comentario.astro"
+import Comentario from "../../components/Tarjetas/Comentario.astro";
+import type { PublicacionModel } from "../../models/Publicacion";
+import {
+    ObtenerNumerosLikes,
+    ObtenerPublicacion,
+    ObtenerComentarios,
+} from "../../scripts/ts/MirarPublicacion";
+import type { Comentarios } from "../../models/Comentarios";
 
 export async function getStaticPaths() {
-    const response = await fetch('http://localhost:3000/api/Publicacion', {
+    const response = await fetch("http://localhost:3000/api/Publicacion", {
         method: "GET",
         headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
         },
-    })
+    });
 
     const data = await response.json();
     return data.map((publicacion: { id: number }) => ({
@@ -18,82 +25,106 @@ export async function getStaticPaths() {
 
 const { id } = Astro.params;
 
-async function ObtenerPublicacion(id: number | undefined) {
-    if (!id) {
-        throw new Error("ID is undefined");
-    }
-    const response = await fetch(`http://localhost:3000/api/Publicacion/Publicacion/${id}`,{
-        method: "GET",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    })
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-    }
-    const data = await response.json();
-    return data;
-}
+const result: string[] = await ObtenerNumerosLikes(id);
 
-const publicacion = await ObtenerPublicacion(id);
+const publicaciones: PublicacionModel = await ObtenerPublicacion(id);
 
-console.log(publicacion)
+const comentarios: Comentarios[] = await ObtenerComentarios(id);
+console.log(comentarios[0].fecha.toLocaleDateString())
 ---
 
 <Layout title="Publicacion">
     <main class="col-span-2 p-6 mt-20">
         <header class="flex flex-row justify-between items-center gap-4s">
             <div class="flex flex-row gap-4">
-                <a href="/">Volver</a>
+                <a href="/" class="hover:text-blue-600">Volver</a>
                 <a href="/MirarPerfil" class="flex flex-row gap-4 items-center">
                     <img
-                        src="https://yt3.googleusercontent.com/aPuVOhE66m_en_vzdz5SpbytqxUd-xHyAfLyn_lIVcC88dYT85WVhdYKrbZgRz7QMXvF7Ap_4fQ=s900-c-k-c0x00ffffff-no-rj"
+                        src={publicaciones.usuario.fotoPerfil ||
+                            "/assets/ImagenesPerfil/predeterminado.png"}
                         alt="perfil"
                         class="w-13 rounded-4xl"
                     />
-                    <span>Nombre Perfil</span>
+                    <span>{publicaciones.usuario.nombreUsuario}</span>
                 </a>
             </div>
             <div>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md cursor-pointer" id="seguir">Seguir</button>
+                <button
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md cursor-pointer"
+                    id="seguir">Seguir</button
+                >
             </div>
         </header>
         <section class="flex flex-col gap-4 pt-4">
-            <span>Descripcion</span>
-            <img
-                src="https://camo.githubusercontent.com/99c0e392770d7252464a8ca4e63abf27193b6000c67c874b013205d3b5821e79/687474703a2f2f69332e7974696d672e636f6d2f76692f4b70344d7661706f356b632f6d617872657364656661756c742e6a7067"
-                alt="Foto"
-                class="rounded-3xl"
-            />
+            <h1 class="text-4xl text-zinc-950">{publicaciones.titulo}</h1>
+            <span>{publicaciones.contenido}</span>
+            {
+                publicaciones.foto && (
+                    <img
+                        src={publicaciones.foto}
+                        alt="fotoPost"
+                        class="w-[100%] rounded-3xl"
+                    />
+                )
+            }
             <div class="flex flex-row gap-4">
-                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md">Like</button>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md">Comentar</button>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md">Compartir</button>
+                {
+                    result.length > 0 ? (
+                        <button
+                            class="bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 px-4 rounded-lg cursor-pointer"
+                            id="nolike"
+                        >
+                            No Like
+                        </button>
+                    ) : (
+                        <button
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-lg cursor-pointer"
+                            id="like"
+                        >
+                            Like
+                        </button>
+                    )
+                }
             </div>
             <div>
                 <h1 class="font-bold">Comentarios</h1>
                 <div class="flex flex-row gap-4">
                     <img
-                        src="https://yt3.googleusercontent.com/aPuVOhE66m_en_vzdz5SpbytqxUd-xHyAfLyn_lIVcC88dYT85WVhdYKrbZgRz7QMXvF7Ap_4fQ=s900-c-k-c0x00ffffff-no-rj"
+                        src={publicaciones.usuario.fotoPerfil ||
+                            "/assets/ImagenesPerfil/predeterminado.png"}
                         alt=""
                         class="rounded-full w-20"
                     />
                     <textarea
-                        name=""
-                        id=""
+                        name="contenido"
+                        id="contenido"
                         placeholder="Escribe un comentario"
-                        class="w-full resize-none bg-white"
-                    ></textarea>
+                        class="w-full resize-none bg-white"></textarea>
                     <button
                         class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md cursor-pointer"
+                        id="comentar"
                     >
                         Comentar
                     </button>
                 </div>
             </div>
             <div>
-                <Comentario />
+                {
+                comentarios && (
+                    comentarios.map((comentario) => (
+                        <Comentario
+                            id={comentario.id}
+                            nombre={comentario.usuario.nombreUsuario}
+                            imagenPerfil={comentario.usuario.fotoPerfil}
+                            comentario={comentario.contenido}
+                            fecha={comentario.fecha.toLocaleDateString()}
+                        />
+                    ))
+                )
+                }
             </div>
         </section>
     </main>
 </Layout>
+<script src="./../../scripts/ts/Like.ts"></script>
+<script src="./../../scripts/ts/CrearComentario.ts"></script>

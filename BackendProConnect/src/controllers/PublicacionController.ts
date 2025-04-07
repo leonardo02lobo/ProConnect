@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
-import { PublicacionModel } from "../models/Publicacion";
+import { Publicacion, PublicacionModel } from "../models/Publicacion";
+import { UserModel } from "../models/User";
+import { LikesModel } from "../models/Like";
 
 export const publicacionController = {
     async ObtenerPublicaciones(req: Request, res: Response) {
@@ -24,20 +26,55 @@ export const publicacionController = {
             res.status(500).json({ error: (e as Error).message })
         }
     },
-    async CrearNuevaPublicacion(req:Request, res: Response){
-        try{
+    async CrearNuevaPublicacion(req: Request, res: Response) {
+        try {
             await PublicacionModel.CreatePublicacion(req.body)
-            res.status(200).json({message: "Publicacion Creada Chabal"})
-        }catch(e){
+            res.status(200).json({ message: "Publicacion Creada Chabal" })
+        } catch (e) {
             res.status(500).json({ error: (e as Error).message })
         }
     },
-    async TodasLasPublicaciones(req: Request, res: Response){
-        try{
+    async TodasLasPublicaciones(req: Request, res: Response) {
+        try {
             const result = await PublicacionModel.BuscarTodasLasPublicacionesUsuario(req.body);
             res.status(200).json(result);
+        } catch (e) {
+            res.status(500).json({ err: (e as Error).message })
+        }
+    },
+    async DarLikePublicacion(req: Request, res: Response) {
+        try {
+            const publicacion: Publicacion = await ObtenerPublicacion(req)
+            await PublicacionModel.DarLikePublicacionModel(publicacion)
+        } catch (e) {
+            res.status(500).json({ error: (e as Error).message })
+        }
+        res.status(200).json({ message: "Like Agregado" })
+    },
+    async BuscarLikePublicacion(req: Request, res: Response) {
+        try {
+            const publicacion: Publicacion = await ObtenerPublicacion(req)
+            const result = await LikesModel.BuscarLike(publicacion)
+            res.status(200).json(result)
+        } catch (e) {
+            res.status(500).json({ error: (e as Error).message })
+        }
+    },
+    async EliminarLikePublicacion(req: Request, res: Response) {
+        try{
+            const publicacion: Publicacion = await ObtenerPublicacion(req)
+            const result = await LikesModel.EliminarLike(publicacion)
+            await PublicacionModel.EliminarLikePublicacion(publicacion)
+            res.status(200).json(result)
         }catch(e){
-            res.status(500).json({err: (e as Error).message})
+            res.status(500).json({error: (e as Error).message})
         }
     }
+}
+
+async function ObtenerPublicacion(req: Request): Promise<Publicacion> {
+    const publicacion: Publicacion = await PublicacionModel.GetById(req.params.id) as unknown as Publicacion
+    const usuario = await UserModel.FiltrarUsuario((publicacion as any)[0]['usuario_id'])
+    publicacion.usuario = usuario as unknown as Publicacion['usuario']
+    return publicacion;
 }
