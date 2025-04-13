@@ -63,24 +63,28 @@ async function ObtenerDatosUsuario(usuarioId: number) {
 
 export async function ObtenerComentarios(id: number){
     let ComentariosPost: Comentarios[] = []
-    const response = await fetch(`http://localhost:3000/api/Comentarios/ObtenerComentariosPorPublicacion/${id}`,{
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    })
-    const data: Comentarios[] = await response.json();
-    const usuario = await ObtenerDatosUsuario((data as any)[0]["usuario_id"])
-    data.map(async (element: Comentarios) => {
-        element = {
-            ...element,
-            fecha: new Date(element.fecha),
-            usuario : {
-                ...usuario[0],
-                nombreUsuario: usuario[0]['nombre_usuario']
+    try{
+        const response = await fetch(`http://localhost:3000/api/Comentarios/ObtenerComentariosPorPublicacion/${id}`,{
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+        const data: Comentarios[] = await response.json();
+        const usuario = await ObtenerDatosUsuario((data as any)[0]["usuario_id"])
+        data.map(async (element: Comentarios) => {
+            element = {
+                ...element,
+                fecha: new Date(element.fecha),
+                usuario : {
+                    ...usuario[0],
+                    nombreUsuario: usuario[0]['nombre_usuario']
+                }
             }
-        }
-        ComentariosPost.push(element)
-    })
-    return ComentariosPost;
+            ComentariosPost.push(element)
+        })
+        return ComentariosPost;
+    }catch(e){
+        return ComentariosPost;
+    }
 }

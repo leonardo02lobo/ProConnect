@@ -6,12 +6,12 @@ interface Props {
 const { imagen, Nombre } = Astro.props;
 ---
 
-<div class="flex flex-row p-4 gap-3 mb-2 justify-between">
+<div class="flex flex-row p-4 gap-3 mb-2 justify-between dark:text-gray-400 text-black">
     <div class="flex flex-row gap-3">
         <img src={imagen} alt="fotoPerfil" class="w-13 h-13 rounded-2xl" />
         <div class="flex flex-col">
             <span class="text-blue-600"
-                ><a href="/MirarPerfil">{Nombre}</a></span
+                ><a href="/MirarPerfil" class="dark:text-gray-300 text-black">{Nombre}</a></span
             >
         </div>
     </div>
@@ -24,17 +24,4 @@ const { imagen, Nombre } = Astro.props;
         </button>
     </div>
 </div>
-
-<script>
-    const seguir = document.querySelectorAll("#seguir");
-
-    seguir?.forEach((element) => {
-        element?.addEventListener("click", () => {
-            if (element) {
-                element.innerHTML = "Siguiendo✓";
-            }
-            element?.classList.remove("bg-blue-500");
-            element?.classList.add("bg-green-500");
-        });
-    });
-</script>
+<script src="./../../scripts/js/SeguirUsuario.js"></script>

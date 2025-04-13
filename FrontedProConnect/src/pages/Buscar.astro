@@ -3,9 +3,13 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="Buscar">
-    <main class="col-span-2 px-6 mt-20">
-        <h1>
-            Hola como estas
-        </h1>
+    <main class="col-span-2 px-6 mt-20 flex flex-col gap-7" id="buscador">
+        <label for="Buscar" class="flex items-center space-x-2">
+            <input type="text" name="Buscar" id="Buscar" class="border-2 border-gray-300 rounded-md py-2 px-4 text-black dark:text-white" placeholder="Buscar..." transition:persist/>
+            <a href="Buscar" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md" id="BuscarUsuario">Buscar</a>
+        </label>
+        <div class="flex flex-col gap-5 listado">
+        </div>
     </main>
 </Layout>
+<script src="./../scripts/js/BuscadorResultados.js"></script>

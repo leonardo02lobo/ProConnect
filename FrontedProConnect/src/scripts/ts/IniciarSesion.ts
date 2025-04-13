@@ -7,7 +7,8 @@ let usuario: Usuario = {
     fotoPerfil: "",
     fotoFondo: "",
     puesto: "",
-    tipoUsuario: ""
+    tipoUsuario: "",
+    id: 0
 }
 const formulario = document.getElementById("formulario") as HTMLFormElement | null;
 

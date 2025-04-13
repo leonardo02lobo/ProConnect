@@ -6,6 +6,8 @@ const felicidades = document.getElementById('Felicidades') as HTMLElement | null
 
 import type { PublicacionModel } from "../../models/Publicacion";
 import type { Usuario } from "../../models/Usuario";
+import { setPublicacion } from "../../services/AgregarPublicacion";
+import { getCookie } from "../../services/GetCookie";
 const usu: Usuario = {
     nombre: "",
     nombreUsuario: "",
@@ -27,60 +29,41 @@ const publicacion: PublicacionModel = {
     id: 0
 }
 
-CrearPublicacion?.addEventListener('click',async () => {
+CrearPublicacion?.addEventListener('click', async () => {
     publicacion.contenido = Contenido?.value || ""
     publicacion.titulo = Titulo?.value || "";
     await ObtenerUsuario()
-    if(publicacion.contenido === "" || publicacion.titulo === ""){
+    if (publicacion.contenido === "" || publicacion.titulo === "") {
         if (alerta) {
             alerta.style.display = 'block';
 
             setTimeout(() => {
                 alerta.style.display = 'none'
-            },2000);
+            }, 2000);
         }
         return;
     }
-    try{
-        const response = await fetch('http://localhost:3000/api/Publicacion/CrearPublicacion',{
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(publicacion)
-        })
-        const data = await response.json();
-        if(response.ok){
-            if (felicidades) {
-                felicidades.style.display = 'block';
-    
-                setTimeout(() => {
-                    felicidades.style.display = 'none'
-                    location.reload()
-                },2000);
-            }
-            if (Contenido && Titulo) {
-                Contenido.value = "";
-                Titulo.value = "";
-            }
+    const response = await setPublicacion(publicacion);
+    if (response?.ok) {
+        if (felicidades) {
+            felicidades.style.display = 'block';
+
+            setTimeout(() => {
+                felicidades.style.display = 'none'
+                location.reload()
+            }, 2000);
         }
-    }catch(e){
-        console.log("Error al verificar autenticacion");
+        if (Contenido && Titulo) {
+            Contenido.value = "";
+            Titulo.value = "";
+        }
     }
 })
 
-async function ObtenerUsuario(){
-    try {
-        const response = await fetch("http://localhost:3000/api/usuario/getCookie", {
-            method: "GET",
-            credentials: "include",
-        });
-        const data = await response.json();
-        if (!response.ok) {
-            return;
-        }
-        publicacion.usuario = data.user.row[0];
-    } catch (e) {
-        console.log("Error al verificar autenticación:");
+async function ObtenerUsuario() {
+    const usuario = await getCookie()
+    if (usuario == null) {
+        return;
     }
+    publicacion.usuario = usuario;
 }

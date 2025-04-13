@@ -4,7 +4,6 @@ async function ObtenerCerrarSesion(){
         credentials: "include"
     });
     if(response.ok){
-        console.log("Sesion Cerrada")
         window.location.href = "/"
     }else{
         window.location.href = "/IniciarSesion"

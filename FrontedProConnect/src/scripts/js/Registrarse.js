@@ -1,4 +1,5 @@
-import { GuardarDatosUsuario, GuardarDatosExtraUsuario, ObtenerUsuario, GuardarDatosEmpresa, ObtenerEmpresa } from "./../ts/Registrarse.ts"
+import { setEmpresa, SetUsuario } from "../../services/CrearUsuario.js"
+import { GuardarDatosUsuario, GuardarDatosExtraUsuario, GuardarDatosEmpresa } from "./../ts/Registrarse.ts"
 const datos = document.getElementById("datos")
 const datosExtra = document.getElementById("datosExtra")
 const iniciarSesion = document.getElementById("iniciarSesion")
@@ -17,7 +18,7 @@ if (datosExtra && iniciarSesion) {
     ExtraEmpresa.style.display = "none";
 }
 
-Crear?.addEventListener('click',async (e) => {
+Crear?.addEventListener('click', async (e) => {
     e.preventDefault()
     if (await GuardarDatosUsuario()) {
         datos.classList.add("opacity-0")
@@ -88,42 +89,21 @@ iniciarSesionBoton?.addEventListener('click', async (e) => {
 })
 
 async function RegistrarUsuario() {
-    try {
-        const response = await fetch('http://localhost:3000/api/usuario/crearUsuario', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(ObtenerUsuario())
-        })
-        const result = await response.json();
-        if (response.ok) {
-            alert(`Usuario creado: ${result.message}`);
-            window.location.href = "/IniciarSesion";
-        } else {
-            throw new Error(result.error || 'Error desconocido');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert(error.message);
+    const result = await SetUsuario()
+    if (result.ok) {
+        alert(`Usuario creado: ${result.message}`);
+        window.location.href = "/IniciarSesion";
+    } else {
+        throw new Error(result.error || 'Error desconocido');
     }
 }
 
 async function RegistrarEmpresa() {
-    try {
-        const response = await fetch('http://localhost:3000/api/Empresas/CrearEmpresa', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(ObtenerEmpresa())
-        })
-        const result = await response.json();
-        console.log(result)
-        if (response.ok) {
-            alert(`Empresa creada: ${result.message}`);
-            window.location.href = "/IniciarSesion";
-        } else {
-            throw new Error(result.error || 'Error desconocido');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert(error.message);
+    const result = await setEmpresa();
+    if (result.ok) {
+        alert(`Empresa creada: ${result.message}`);
+        window.location.href = "/IniciarSesion";
+    } else {
+        throw new Error(result.error || 'Error desconocido');
     }
 }

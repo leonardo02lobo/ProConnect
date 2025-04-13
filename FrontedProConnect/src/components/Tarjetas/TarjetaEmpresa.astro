@@ -9,9 +9,9 @@ const { NombreEmpresa, descripcion } = Astro.props;
 <div class="flex flex-row p-4 gap-3 mb-2">
     <div class="flex flex-col">
         <span class="text-blue-600"
-            ><a href="/MirarPerfil">{NombreEmpresa}</a></span
+            ><a href="/MirarPerfil" class="dark:text-gray-300 text-black">{NombreEmpresa}</a></span
         >
-        <p class="text-blue-700">
+        <p class="dark:text-gray-300 text-black">
             <a href="">{descripcion}</a>
         </p>
     </div>
@@ -24,17 +24,4 @@ const { NombreEmpresa, descripcion } = Astro.props;
         </button>
     </div>
 </div>
-
-<script>
-    const seguir = document.querySelectorAll("#seguir");
-
-    seguir?.forEach((element) => {
-        element?.addEventListener("click", () => {
-            if (element) {
-                element.innerHTML = "Siguiendo✓";
-            }
-            element?.classList.remove("bg-blue-500");
-            element?.classList.add("bg-green-500");
-        });
-    });
-</script>
+<script src="./../../scripts/js/SeguirUsuario.js"></script>

@@ -1,6 +1,8 @@
 const likeButton = document.getElementById('like') as HTMLButtonElement | null;
 const nolikeButton = document.getElementById('nolike') as HTMLButtonElement | null;
+import { DarLikeId, QuitarLikeId } from "../../services/Likes";
 import { darLike } from "../js/DarLike";
+import { MostrarMensaje } from "../js/Manejoalerta";
 
 likeButton?.addEventListener('click', async () => {
     const url = new URL(window.location.href);
@@ -14,25 +16,19 @@ nolikeButton?.addEventListener('click', async () => {
 
 
 async function DarLikePublicacion(id: number){
-    const response = await fetch(`http://localhost:3000/api/Publicacion/Publicacion/DarLike/${id}`,{
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    })
-    if(response.ok){
+    const response = await DarLikeId(id);
+    if(response?.ok){
         darLike();
+    }else{
+        MostrarMensaje()
     }
 }
 
 async function QuitarLikePublicacion(id:number){
-    const response = await fetch(`http://localhost:3000/api/Publicacion/Publicacion/EliminarLike/${id}`,{
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    })
-    if(response.ok){
+    const response = await QuitarLikeId(id);
+    if(response?.ok){
         darLike();
+    }else{
+        MostrarMensaje();
     }
 }

@@ -1,46 +1,35 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Publicacion from "../components/Tarjetas/Publicacion.astro";
+import { ObtenerPublicacionesIndex } from "../scripts/ts/ObtenerPublicaciones";
 import type { PublicacionModel } from "../models/Publicacion";
 
-const response = await fetch("http://localhost:3000/api/Publicacion", {
-	method: "GET",
-	headers: {
-		"Content-Type": "application/json",
-	},
-});
-const data = await response.json();
-const publicaciones: PublicacionModel[] = data;
-for (let i = 0; i < publicaciones.length; i++) {
-	const usuarioId = data[i]["usuario_id"];
-	const response2 = await fetch(
-		`http://localhost:3000/api/usuario/Filtrar/${usuarioId}`,
-		{
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-			},
-		},
-	);
-
-	const usuarioData = await response2.json();
-	publicaciones[i].usuario = usuarioData[0];
-}
+const publicaciones: PublicacionModel[] = await ObtenerPublicacionesIndex();
 ---
 
 <Layout title="ProConnect">
-	<div class="col-span-2 p-6 mt-20">
+	<div class="col-span-2 p-6 mt-20 dark:bg-gray-900 bg-white">
 		{
-			publicaciones.map((publicacion) => (
-				<Publicacion
-					id={publicacion.id}
-					imagenPost={publicacion.foto}
-					imagenPerfil={publicacion.usuario.fotoPerfil || "/assets/ImagenesPerfil/predeterminado.png"}
-					titulo={publicacion.titulo}
-					perfil={publicacion.usuario.nombre}
-					descripcion={publicacion.contenido}
-				/>
-			))
+			publicaciones.length > 0 ? (
+				publicaciones.map((publicacion) => (
+					<Publicacion
+						id={publicacion.id}
+						imagenPost={publicacion.foto}
+						imagenPerfil={
+							publicacion.usuario.fotoPerfil ||
+							"/assets/ImagenesPerfil/predeterminado.png"
+						}
+						titulo={publicacion.titulo}
+						perfil={publicacion.usuario.nombre}
+						descripcion={publicacion.contenido}
+					/>
+				))
+			) : (
+				<span class="dark:text-white text-black text-4xl text-center">
+					Existe algunos errores con los servidores. Ponte en contacto
+					con nosotros para solucionarlo lo antes posible
+				</span>
+			)
 		}
 	</div>
 </Layout>

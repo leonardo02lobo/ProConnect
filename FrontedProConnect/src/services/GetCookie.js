@@ -5,8 +5,8 @@ export async function getCookie() {
             credentials: "include",
         });
         if (!response.ok) {
-            return;
-        }
+            return null;
+        } 
         const data = await response.json();
         if (data) {
             return data['user']['row'][0]
