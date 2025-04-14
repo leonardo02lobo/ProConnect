@@ -62,29 +62,33 @@ async function ObtenerDatosUsuario(usuarioId: number) {
 }
 
 export async function ObtenerComentarios(id: number) {
-    let ComentariosPost: Comentarios[] = []
+    let ComentariosPost: Comentarios[] = [];
     try {
         const response = await fetch(`http://localhost:3000/api/Comentarios/ObtenerComentariosPorPublicacion/${id}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
-        })
+        });
         const data: Comentarios[] = await response.json();
-        const usuario = await ObtenerDatosUsuario((data as any)[0]["usuario_id"])
-        data.map(async (element: Comentarios) => {
-            element = {
+
+        const comentariosConDatos = await Promise.all(data.map(async (element) => {
+            const usuario = await ObtenerDatosUsuario((element as any)["usuario_id"]);
+            return {
                 ...element,
                 fecha: new Date(element.fecha),
                 usuario: {
                     ...usuario[0],
                     nombreUsuario: usuario[0]['nombre_usuario']
                 }
-            }
-            ComentariosPost.push(element)
-        })
+            };
+        }));
+
+        ComentariosPost = comentariosConDatos;
+
         return ComentariosPost;
     } catch (e) {
+        console.error("Error al obtener comentarios:", e);
         return ComentariosPost;
     }
 }
