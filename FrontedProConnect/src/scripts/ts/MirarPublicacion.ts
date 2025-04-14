@@ -1,5 +1,4 @@
 import type { Comentarios } from "../../models/Comentarios";
-import type { Usuario } from "../../models/Usuario";
 
 export async function ObtenerNumerosLikes(id: number) {
     const likes = await fetch(
@@ -59,12 +58,13 @@ async function ObtenerDatosUsuario(usuarioId: number) {
         },
     );
 
-    return await response2.json();}
+    return await response2.json();
+}
 
-export async function ObtenerComentarios(id: number){
+export async function ObtenerComentarios(id: number) {
     let ComentariosPost: Comentarios[] = []
-    try{
-        const response = await fetch(`http://localhost:3000/api/Comentarios/ObtenerComentariosPorPublicacion/${id}`,{
+    try {
+        const response = await fetch(`http://localhost:3000/api/Comentarios/ObtenerComentariosPorPublicacion/${id}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -76,7 +76,7 @@ export async function ObtenerComentarios(id: number){
             element = {
                 ...element,
                 fecha: new Date(element.fecha),
-                usuario : {
+                usuario: {
                     ...usuario[0],
                     nombreUsuario: usuario[0]['nombre_usuario']
                 }
@@ -84,7 +84,7 @@ export async function ObtenerComentarios(id: number){
             ComentariosPost.push(element)
         })
         return ComentariosPost;
-    }catch(e){
+    } catch (e) {
         return ComentariosPost;
     }
 }

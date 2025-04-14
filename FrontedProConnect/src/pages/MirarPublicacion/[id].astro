@@ -55,8 +55,12 @@ const comentarios: Comentarios[] = await ObtenerComentarios(id);
             </div>
         </header>
         <section class="flex flex-col gap-4 pt-4">
-            <h1 class="text-4xl dark:text-gray-400 text-black">{publicaciones.titulo}</h1>
-            <span class="dark:text-gray-200 text-black">{publicaciones.contenido}</span>
+            <h1 class="text-4xl dark:text-gray-400 text-black">
+                {publicaciones.titulo}
+            </h1>
+            <span class="dark:text-gray-200 text-black"
+                >{publicaciones.contenido}</span
+            >
             {
                 publicaciones.foto && (
                     <img
@@ -66,24 +70,14 @@ const comentarios: Comentarios[] = await ObtenerComentarios(id);
                     />
                 )
             }
-            <div class="flex flex-row gap-4">
-                {
-                    result.length > 0 ? (
-                        <button
-                            class="bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 px-4 rounded-lg cursor-pointer"
-                            id="nolike"
-                        >
-                            No Like
-                        </button>
-                    ) : (
-                        <button
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-lg cursor-pointer"
-                            id="like"
-                        >
-                            Like
-                        </button>
-                    )
-                }
+            <span>{result.length} Likes</span>
+            <div class="flex flex-row gap-4" id="botonLike">
+                <button
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-lg cursor-pointer"
+                    id="like"
+                >
+                    Like
+                </button>
             </div>
             <div>
                 <h1 class="font-bold">Comentarios</h1>
@@ -98,7 +92,8 @@ const comentarios: Comentarios[] = await ObtenerComentarios(id);
                         name="contenido"
                         id="contenido"
                         placeholder="Escribe un comentario"
-                        class="w-full resize-none bg-white text-black rounded-2xl p-2"></textarea>
+                        class="w-full resize-none bg-white text-black rounded-2xl p-2"
+                    ></textarea>
                     <button
                         class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md cursor-pointer"
                         id="comentar"
@@ -109,19 +104,22 @@ const comentarios: Comentarios[] = await ObtenerComentarios(id);
             </div>
             <div>
                 {
-                comentarios.length > 0 ? (
-                    comentarios.map((comentario) => (
-                        <Comentario
-                            id={comentario.id}
-                            nombre={comentario.usuario.nombreUsuario}
-                            imagenPerfil={comentario.usuario.fotoPerfil}
-                            comentario={comentario.contenido}
-                            fecha={comentario.fecha.toLocaleDateString()}
-                        />
-                    ))
-                ): (
-                    <span>No existen Comentarios en esta publicacion, se el primero en comentar</span>
-                )
+                    comentarios.length > 0 ? (
+                        comentarios.map((comentario) => (
+                            <Comentario
+                                id={comentario.id}
+                                nombre={comentario.usuario.nombreUsuario}
+                                imagenPerfil={comentario.usuario.fotoPerfil}
+                                comentario={comentario.contenido}
+                                fecha={comentario.fecha.toLocaleDateString()}
+                            />
+                        ))
+                    ) : (
+                        <span>
+                            No existen Comentarios en esta publicacion, se el
+                            primero en comentar
+                        </span>
+                    )
                 }
             </div>
         </section>

@@ -25,14 +25,12 @@ export const UserModel = {
         const [row] = await pool.query('SELECT * FROM usuario WHERE id = ?',[id]);
         return row;
     },
-
     async getUser(user: Omit<User,'id'>){
         const [row] = await pool.query('SELECT * FROM usuario WHERE nombre_usuario = ?',
             [user.nombreUsuario]
         )
         return row
     },
-
     async createUser(user: Omit<User, 'id'>) {
         const hashedPassword = await bcrypt.hash(user.contrasena, saltRounds);
         const result = await pool.query(
@@ -41,9 +39,7 @@ export const UserModel = {
         );
         return result;
     },
-
     async LoginUser(user: Omit<User, 'id'>) {
-        console.log(user)
         const [rowPassword] = await pool.query('SELECT contrasena FROM usuario where nombre = ?',
             [user.nombre]
         );
@@ -90,7 +86,6 @@ export const UserModel = {
         );
         return (row as any[]).length !== 0;
     },
-
     async RecuperarContrasena(user: Omit<User,'id'>): Promise<Boolean>{
         const hashedPassword = await bcrypt.hash(user.contrasena,saltRounds);
         const [row] = await pool.query('update proconnect.usuario set contrasena = ? where nombre_usuario = ?',

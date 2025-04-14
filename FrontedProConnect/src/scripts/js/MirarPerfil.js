@@ -26,17 +26,14 @@ addEventListener('load', async () => {
 async function MostrarPublicaciones(usuario) {
     const data = await ObtenerPublicacionesUsuario(usuario);
     data.forEach(element => {
+        console.log(element)
         publicaciones.innerHTML += `
             <a>
                 <div
                     class="flex flex-col p-4 gap-3 b-2 bg dark:bg-gray-800 bg-white shadow-lg border border-gray-200 rounded-lg mb-5 cursor-pointer"
                 >
                     <div class="flex flex-col gap-3">
-                                <img
-                                    src=${element['foto']}
-                                    alt="fotoPost"
-                                    class="w-[100%] rounded-3xl"
-                                />
+                                ${(element['foto'] !== "") ? `<img src="${element['foto']}" alt="fotoPost" class="w-[100%] rounded-3xl"/>` : ''}
                         <div class="flex flex-row gap-4">
                             <a href="/MirarPerfil">
                                 <img

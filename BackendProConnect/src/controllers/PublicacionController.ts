@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Publicacion, PublicacionModel } from "../models/Publicacion";
 import { UserModel } from "../models/User";
 import { LikesModel } from "../models/Like";
+import jwt from "jsonwebtoken";
 
 export const publicacionController = {
     async ObtenerPublicaciones(req: Request, res: Response) {
@@ -45,7 +46,8 @@ export const publicacionController = {
     async DarLikePublicacion(req: Request, res: Response) {
         try {
             const publicacion: Publicacion = await ObtenerPublicacion(req)
-            await PublicacionModel.DarLikePublicacionModel(publicacion)
+            const dataUser = (req as any).user['row'][0]
+            await PublicacionModel.DarLikePublicacionModel(publicacion,dataUser)
         } catch (e) {
             res.status(500).json({ error: (e as Error).message })
         }
@@ -63,7 +65,8 @@ export const publicacionController = {
     async EliminarLikePublicacion(req: Request, res: Response) {
         try{
             const publicacion: Publicacion = await ObtenerPublicacion(req)
-            const result = await LikesModel.EliminarLike(publicacion)
+            const dataUser = (req as any).user['row'][0]
+            const result = await LikesModel.EliminarLike(publicacion,dataUser)
             await PublicacionModel.EliminarLikePublicacion(publicacion)
             res.status(200).json(result)
         }catch(e){

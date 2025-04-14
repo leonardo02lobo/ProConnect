@@ -10,9 +10,9 @@ export interface Likes {
 }
 
 export const LikesModel = {
-    async CrearLike(publicacion: Publicacion){
+    async CrearLike(publicacion: Publicacion,dataUser: any){
         const [row] = await pool.query('INSERT INTO proconnect.likes(usuario_id,publicacion_id) VALUES (?,?);',
-            [(publicacion.usuario as any)[0]['id'],(publicacion as any)[0]['id']])
+            [dataUser.id,(publicacion as any)[0]['id']])
         return row;
     },
     async AumentarLikes(publicacion: Publicacion){
@@ -21,13 +21,13 @@ export const LikesModel = {
         return row;
     },
     async BuscarLike(publicacion: Publicacion){
-        const [row] = await pool.query('SELECT * FROM proconnect.likes WHERE usuario_id = ? && publicacion_id = ?;',
-            [(publicacion.usuario as any)[0]['id'],(publicacion as any)[0]['id']])
+        const [row] = await pool.query('SELECT * FROM proconnect.likes WHERE publicacion_id = ?;',
+            [(publicacion as any)[0]['id']])
         return row;
     },
-    async EliminarLike(publicacion: Publicacion){
+    async EliminarLike(publicacion: Publicacion,dataUser: any){
         const [row] = await pool.query('DELETE FROM proconnect.likes WHERE usuario_id = ? && publicacion_id = ?;',
-            [(publicacion.usuario as any)[0]['id'],(publicacion as any)[0]['id']])
+            [dataUser.id,(publicacion as any)[0]['id']])
         return row;
     },
 }

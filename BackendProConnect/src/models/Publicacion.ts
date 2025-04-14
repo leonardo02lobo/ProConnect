@@ -30,8 +30,8 @@ export const PublicacionModel = {
         const [rows] = await pool.query('SELECT * FROM proconnect.publicaciones WHERE id = ?;', [id])
         return rows;
     },
-    async DarLikePublicacionModel(publicacion: Publicacion){
-        const result = await LikesModel.CrearLike(publicacion);
+    async DarLikePublicacionModel(publicacion: Publicacion,dataUser:any){
+        const result = await LikesModel.CrearLike(publicacion,dataUser);
         if(result){
             await LikesModel.AumentarLikes(publicacion)
         }
