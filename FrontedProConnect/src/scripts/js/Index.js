@@ -2,7 +2,11 @@ import { getCookie } from "../../services/GetCookie"
 
 const BotonDinamico = document.getElementById('BotonDinamico')
 const Opciones = document.getElementById("options")
+const index = document.getElementById('index')
 
+index.addEventListener('click', () => {
+    window.location.href = "/"
+})
 
 addEventListener('load', async () => {
     BotonDinamico.style.display = 'none'

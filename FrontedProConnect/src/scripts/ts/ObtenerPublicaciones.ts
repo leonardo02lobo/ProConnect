@@ -23,7 +23,10 @@ export async function ObtenerPublicacionesIndex() : Promise<PublicacionModel[]>{
             );
         
             const usuarioData = await response2.json();
-            publicaciones[i].usuario = usuarioData[0];
+            publicaciones[i].usuario = {
+                ...usuarioData[0],
+                nombreUsuario: usuarioData[0]['nombre_usuario']
+            }
         }
         return publicaciones;
     } catch (e) {

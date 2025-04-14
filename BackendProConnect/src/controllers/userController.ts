@@ -31,7 +31,9 @@ export const UserController = {
 
     async SetUser(req: Request, res: Response) {
         try {
-            await UserModel.createUser(req.body);
+            console.log(req.body)
+            const result = await UserModel.createUser(req.body);
+            console.log(result)
             res.status(201).json({ message: "Usuario Agregado" })
         } catch (e) {
             res.status(400).json({ e: "Error al crear el usuario" })
@@ -41,7 +43,10 @@ export const UserController = {
     async getFindOneUSer(req: Request, res: Response) {
         try {
             const { token, user } = await UserModel.LoginUser(req.body);
-
+            if(token === null || user === null){
+                res.status(401).json({e: "No se pudo iniciar Sesion"})
+                return;
+            }
             // Configurar cookie segura
             res.cookie('authToken', token, {
                 httpOnly: true,
@@ -116,6 +121,14 @@ export const UserController = {
             res.status(200).json({ isAuthenticated: true, user: decoded });
         } catch (e) {
             console.log('Token Invalido');
+        }
+    },
+    async BuscarUsuarioNombre(req: Request, res: Response){
+        try{
+            const resultado = await UserModel.BuscarUsuarioNombre(req.params.nombre)
+            res.status(200).json(resultado)
+        }catch(e){
+            res.status(500).json({error: e})
         }
     }
 }

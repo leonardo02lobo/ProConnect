@@ -14,13 +14,14 @@ const publicaciones: PublicacionModel[] = await ObtenerPublicacionesIndex();
 				publicaciones.map((publicacion) => (
 					<Publicacion
 						id={publicacion.id}
+						idUsuario={publicacion.usuario.id}
 						imagenPost={publicacion.foto}
 						imagenPerfil={
 							publicacion.usuario.fotoPerfil ||
 							"/assets/ImagenesPerfil/predeterminado.png"
 						}
 						titulo={publicacion.titulo}
-						perfil={publicacion.usuario.nombre}
+						perfil={publicacion.usuario.nombreUsuario}
 						descripcion={publicacion.contenido}
 					/>
 				))

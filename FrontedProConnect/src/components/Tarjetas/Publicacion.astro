@@ -6,9 +6,10 @@ interface Props {
     imagenPerfil: string;
     perfil: string;
     imagenPost: string;
+    idUsuario: number;
 }
 
-const { id, titulo, descripcion, imagenPerfil, perfil, imagenPost } =
+const { id, titulo, descripcion, imagenPerfil, perfil, imagenPost, idUsuario } =
     Astro.props;
 ---
 
@@ -36,11 +37,16 @@ const { id, titulo, descripcion, imagenPerfil, perfil, imagenPost } =
             <div class="flex flex-col gap-1">
                 <h1 class="font-bold">{titulo}</h1>
                 <span class="hover:underline"
-                    ><a href="/MirarPerfil">{perfil}</a></span
+                    ><a href="" id="Perfil">{perfil}</a></span
                 >
                 <p>{descripcion}</p>
-                <a href=`/MirarPublicacion/${id}` class="text-gray-400 underline cursor-pointer">Mirar Publicacion</a>
+                <a
+                    href=`/MirarPublicacion/${id}`
+                    class="text-gray-400 underline cursor-pointer"
+                    >Mirar Publicacion</a
+                >
             </div>
         </div>
     </div>
 </div>
+<script src="./../../scripts/js/IrPerfil.js"></script>

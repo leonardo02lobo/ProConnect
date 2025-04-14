@@ -43,6 +43,7 @@ export const UserModel = {
     },
 
     async LoginUser(user: Omit<User, 'id'>) {
+        console.log(user)
         const [rowPassword] = await pool.query('SELECT contrasena FROM usuario where nombre = ?',
             [user.nombre]
         );
@@ -50,10 +51,16 @@ export const UserModel = {
             password = row['contrasena']
         }
         const isMatch = await bcrypt.compare(user.contrasena, password)
-
         const [row] = await pool.query('SELECT * FROM usuario WHERE nombre = ? && ?;',
             [user.nombre, isMatch]
         );
+        //console.log(row)
+        if(!row || Object.keys(row).length === 0){
+            return{
+                token: null,
+                user: null
+            }
+        }
         //Generar JWT
         const token = jwt.sign({
             row
@@ -100,5 +107,9 @@ export const UserModel = {
         } catch (error) {
             console.log('Token inválido o expirado');
         }
-    }
+    },
+    async FiltrarUsuarioNombre(name: string){
+        const [row] = await pool.query('SELECT * FROM usuario WHERE nombre_usuario = ?',[name]);
+        return row;
+    },
 }

@@ -7,6 +7,7 @@ const router = Router();
 router.get('/',UserController.getUser);
 router.get('/Buscador/:nombreUsuario',UserController.Buscador);
 router.get('/Filtrar/:id',UserController.ObtenerUsuarioID);
+router.get('/FiltrarNombre/:nombre',UserController.BuscarUsuarioNombre)
 
 router.post('/crearUsuario',UserController.SetUser);
 router.post('/ValidarNombreUsuario',UserController.ValidarDatosCrearUsuarioNombreUsuario);

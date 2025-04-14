@@ -15,5 +15,6 @@ export async function getCookie() {
         }
     } catch (e) {
         console.log("Error al verificar autenticación:");
+        return null;
     }
 }
