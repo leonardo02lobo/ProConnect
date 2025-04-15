@@ -1,6 +1,6 @@
 ---
 interface Props {
-    id: number;
+    id?: number;
     titulo: string;
     descripcion: string;
     imagenPerfil: string;
@@ -9,8 +9,15 @@ interface Props {
     idUsuario: number;
 }
 
-const { id, titulo, descripcion, imagenPerfil, perfil, imagenPost, idUsuario } =
-    Astro.props;
+const {
+    id = 0,
+    titulo,
+    descripcion,
+    imagenPerfil,
+    perfil,
+    imagenPost,
+    idUsuario,
+} = Astro.props;
 ---
 
 <div
@@ -40,11 +47,18 @@ const { id, titulo, descripcion, imagenPerfil, perfil, imagenPost, idUsuario } =
                     ><a href="" id="Perfil">{perfil}</a></span
                 >
                 <p>{descripcion}</p>
-                <a
-                    href=`/MirarPublicacion/${id}`
-                    class="text-gray-400 underline cursor-pointer"
-                    >Mirar Publicacion</a
-                >
+                {
+                    id === 0 ? (
+                        <span class="text-gray-400" />
+                    ) : (
+                        <a
+                            href={`/MirarPublicacion/${id}`}
+                            class="text-gray-400 underline cursor-pointer"
+                        >
+                            Mirar Publicacion
+                        </a>
+                    )
+                }
             </div>
         </div>
     </div>

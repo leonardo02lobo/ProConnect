@@ -1,32 +1,43 @@
-import { DatosUsuario, ObtenerPublicacionesUsuario } from "../../services/Perfil"
+import { DatosUsuario, ObtenerPublicacionesUsuario, ObtenerSeguidores, ObtenerSeguidos } from "../../services/Perfil"
 
 const imagenPerfil = document.querySelectorAll('#FotoPerfil')
 const nombre = document.getElementById('nombre')
 const puesto = document.getElementById('puesto')
 const publicaciones = document.getElementById('publicaciones')
+const NSeguidores = document.getElementById('NSeguidores')
+const NSeguidos = document.getElementById('NSeguidos')
 
 addEventListener('load', async () => {
     const data = await DatosUsuario();
-    if (!data) {
-        window.location.href = "/"
-        return;
+    const dataSeguidores = await ObtenerSeguidores(data.user.row[0]['id'])
+    const dataSeguidos = await ObtenerSeguidos(data.user.row[0]['id'])
+    try {
+        if (!data) {
+            window.location.href = "/"
+            return;
+        }
+        NSeguidores.innerHTML = dataSeguidos+" seguidores"
+        NSeguidos.innerHTML = dataSeguidores+" seguidos"
+        if (data.user.row[0]['foto_perfil'] !== '') {
+            imagenPerfil[0].src = data.user.row[0]['foto_perfil']
+            if(imagenPerfil[1])
+                imagenPerfil[1].src = data.user.row[0]['foto_perfil']
+        } else {
+            imagenPerfil[0].src = "/assets/ImagenesPerfil/predeterminado.png"
+            if(imagenPerfil[1])
+                imagenPerfil[1].src = "/assets/ImagenesPerfil/predeterminado.png"
+        }
+        nombre.innerHTML = data.user.row[0]['nombre_usuario']
+        puesto.innerHTML = data.user.row[0].puesto
+        await MostrarPublicaciones(data.user.row[0])
+    } catch (error) {
+        console.log(error.message)
     }
-    if (data.user.row[0]['foto_perfil'] !== '') {
-        imagenPerfil[0].src = data.user.row[0]['foto_perfil']
-        imagenPerfil[1].src = data.user.row[0]['foto_perfil']
-    } else {
-        imagenPerfil[0].src = "/assets/ImagenesPerfil/predeterminado.png"
-        imagenPerfil[1].src = "/assets/ImagenesPerfil/predeterminado.png"
-    }
-    nombre.innerHTML = data.user.row[0]['nombre_usuario']
-    puesto.innerHTML = data.user.row[0].puesto
-    await MostrarPublicaciones(data.user.row[0])
 })
 
 async function MostrarPublicaciones(usuario) {
     const data = await ObtenerPublicacionesUsuario(usuario);
     data.forEach(element => {
-        console.log(element)
         publicaciones.innerHTML += `
             <a>
                 <div

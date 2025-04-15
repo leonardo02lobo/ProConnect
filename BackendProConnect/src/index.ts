@@ -3,6 +3,7 @@ import userRouters from "./routes/userRoutes";
 import EmpresaRouter from "./routes/EmpresaRouter"
 import PublicacionRouter from "./routes/PublicacionRouter"
 import ComentarioRouter from "./routes/ComentariosRouter"
+import AmigosRouter from "./routes/AmigosRouter"
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import dotenv from 'dotenv'
@@ -23,6 +24,7 @@ app.use('/api/usuario', userRouters);
 app.use('/api/Empresas', EmpresaRouter);
 app.use('/api/Publicacion', PublicacionRouter);
 app.use('/api/Comentarios',ComentarioRouter);
+app.use('/api/Amigos',AmigosRouter)
 
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.error(err.stack);

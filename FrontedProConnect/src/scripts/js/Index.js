@@ -32,5 +32,7 @@ Opciones.addEventListener('click', () => {
         window.location.href = "/CerrarSesion"
     } else if (Opciones.value === "mirarPerfilUsuario") {
         window.location.href = "/MirarPerfilUsuario"
+    }else if(Opciones.value === "opciones"){
+        window.location.href = "/Opciones"
     }
 })

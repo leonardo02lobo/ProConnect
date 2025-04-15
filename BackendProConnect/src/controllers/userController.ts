@@ -19,7 +19,6 @@ export const UserController = {
             res.status(500).json({ er: (e as Error).message })
         }
     },
-
     async getFindUser(req: Request, res: Response) {
         try {
             const FindUser = await UserModel.getUser(req.body)
@@ -28,7 +27,6 @@ export const UserController = {
             res.status(400).json({ e: "Error al ejecutar la accion" })
         }
     },
-
     async SetUser(req: Request, res: Response) {
         try {
             console.log(req.body)
@@ -39,7 +37,6 @@ export const UserController = {
             res.status(400).json({ e: "Error al crear el usuario" })
         }
     },
-
     async getFindOneUSer(req: Request, res: Response) {
         try {
             const { token, user } = await UserModel.LoginUser(req.body);
@@ -65,7 +62,6 @@ export const UserController = {
             res.status(401).json({ error: e.message || "Error al autenticar al usuario" });
         }
     },
-
     async setPassword(req: Request, res: Response) {
         try {
             const isPassword: Boolean = await UserModel.RecuperarContrasena(req.body);

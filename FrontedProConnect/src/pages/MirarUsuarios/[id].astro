@@ -1,7 +1,6 @@
 ---
 import Publicacion from '../../components/Tarjetas/Publicacion.astro';
 import Layout from '../../layouts/Layout.astro';
-import type { PublicacionModel } from '../../models/Publicacion';
 import type { Usuario } from '../../models/Usuario';
 import { FiltrarUsuario } from '../../services/FiltrarUsuario';
 import { ObtenerPublicacionesUsuario } from '../../services/Perfil';
@@ -24,7 +23,6 @@ const {id} = Astro.params
 
 const Usuario = await FiltrarUsuario(id)
 const Publicaciones = await ObtenerPublicacionesUsuario(Usuario)
-console.log(Publicaciones)
 ---
 <Layout title="Perfil-">
     <main class="col-span-2 px-6 mt-20">
@@ -43,8 +41,8 @@ console.log(Publicaciones)
                 <h1 class="font-bold" id="nombre">{Usuario['nombre_usuario']}</h1>
                 <span id="puesto">{Usuario['puesto']}</span>
                 <div class="flex flex-row gap-4">
-                    <a href=""><p id="NSeguidores"></p> seguidores</a>
-                    <a href=""><p id="NSeguidos"></p> seguidos</a>
+                    <a href=""><p></p> seguidores</a>
+                    <a href=""><p></p> seguidos</a>
                 </div>
             </div>
         </section>
@@ -52,21 +50,21 @@ console.log(Publicaciones)
             <div>
                 <button
                     class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-4xl cursor-pointer"
+                    id="ConectarUsuario"
                 >
                     Conectar +
                 </button>
-                <button
+                <!-- <button
                     class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-4xl cursor-pointer"
                 >
                     Mensaje al Privado
-                </button>
+                </button> -->
             </div>
         </section>
         <section>
             {
                 Publicaciones.map((element: any) => (
                     <Publicacion 
-                        id={element.id}
                         titulo={element.titulo}
                         descripcion={element.contenido}
                         imagenPerfil={
@@ -82,4 +80,4 @@ console.log(Publicaciones)
         </section>
     </main>
 </Layout>
-<script src="./../../scripts/js/MirarPerfil.js"></script>
+<script src="./../../scripts/js/ConectarUsuario.js"></script>

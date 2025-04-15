@@ -11,6 +11,32 @@ export async function DatosUsuario(){
     }
 }
 
+export async function ObtenerSeguidores(id){
+    try {
+        const response = await fetch(`http://localhost:3000/api/Amigos/BuscarNumeroSeguidores/${id}`, {
+            method: "GET",
+            credentials: "include",
+        });
+        const data = await response.json();
+        return data[0]["COUNT(*)"]
+    } catch (e) {
+        console.log("Error al verificar autenticación:");
+    }
+}
+
+export async function ObtenerSeguidos(id){
+    try {
+        const response = await fetch(`http://localhost:3000/api/Amigos/BuscarNumeroSeguidos/${id}`, {
+            method: "GET",
+            credentials: "include",
+        });
+        const data = await response.json();
+        return data[0]["COUNT(*)"]
+    } catch (e) {
+        console.log("Error al verificar autenticación:");
+    }
+}
+
 export async function ObtenerPublicacionesUsuario(usuario){
     try{
         const response = await fetch("http://localhost:3000/api/Publicacion/TodasLasPublicaciones",{
