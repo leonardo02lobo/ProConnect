@@ -32,5 +32,10 @@ export const AmigosModel ={
         const [row] = await pool.query('SELECT COUNT(*) FROM proconnect.amigos WHERE usuario1_id = ? && estado = "seguidor";',
             [idUsuario])
         return row
+    },
+    async BuscarSolicitudesPendientes(id: string){
+        const [row] = await pool.query('SELECT * FROM proconnect.amigos WHERE usuario1_id = ? && estado = "Pendiente";',
+            [id])
+        return row
     }
 };

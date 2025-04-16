@@ -3,7 +3,6 @@ import { Amigos, AmigosModel } from "../models/Amigos";
 
 export const AmigosController = {
     async AddFriend(req: Request, res: Response) {
-        console.log(req.body)
         try {
             const result = await AmigosModel.AgregarAmigo(req.body);
             res.status(200).json({ message: "Usuario Agregado en los amigos" })
@@ -47,6 +46,14 @@ export const AmigosController = {
             res.status(200).json(result)
         } catch (error) {
             res.status(500).json((error as Error).message)
+        }
+    },
+    async BuscarSolicitudesByID(req: Request, res: Response){
+        try {
+            const result = await AmigosModel.BuscarSolicitudesPendientes((req as any).user['row'][0].id)
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json(error)
         }
     }
 };
