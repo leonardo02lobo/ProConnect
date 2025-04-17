@@ -28,7 +28,7 @@ export async function GuardarDatosUsuario() {
         usuario.nombreUsuario = formulario.nombreUsuario?.value as string;
         usuario.email = formulario.email?.value as string;
         usuario.contrasena = formulario.contraseña?.value as string;
-        if(!usuario.email.includes('@') || !usuario.email.includes('.com')){
+        if (!usuario.email.includes('@') || !usuario.email.includes('.com')) {
             alert("El correo que proporcionaste es invalido")
             return false;
         }

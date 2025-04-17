@@ -2,6 +2,7 @@ import { getCookie } from "../../services/GetCookie"
 
 const BotonDinamico = document.getElementById('BotonDinamico')
 const Opciones = document.getElementById("options")
+const amigos = document.getElementById('amigos')
 const index = document.getElementById('index')
 
 index.addEventListener('click', () => {
@@ -19,6 +20,7 @@ addEventListener('load', async () => {
     }
     BotonDinamico.style.display = "none"
     Opciones.style.display = "block"
+    amigos.style.display = "block"
 });
 
 BotonDinamico.addEventListener('click', () => {

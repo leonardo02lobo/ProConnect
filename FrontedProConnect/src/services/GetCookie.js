@@ -10,7 +10,7 @@ export async function getCookie() {
         } 
         const data = await response.json();
         if (data) {
-            return data['user']['row'][0]
+            return data['user']
         } else {
             return null;
         }

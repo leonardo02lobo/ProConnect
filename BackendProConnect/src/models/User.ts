@@ -40,7 +40,7 @@ export const UserModel = {
         return result;
     },
     async LoginUser(user: Omit<User, 'id'>) {
-        const [rowPassword] = await pool.query('SELECT contrasena FROM usuario where nombre = ?',
+        const [rowPassword]: any = await pool.query('SELECT contrasena FROM usuario where nombre = ?',
             [user.nombre]
         );
         for (const row of rowPassword as any[]) {
@@ -50,7 +50,6 @@ export const UserModel = {
         const [row] = await pool.query('SELECT * FROM usuario WHERE nombre = ? && ?;',
             [user.nombre, isMatch]
         );
-        //console.log(row)
         if(!row || Object.keys(row).length === 0){
             return{
                 token: null,
@@ -107,4 +106,18 @@ export const UserModel = {
         const [row] = await pool.query('SELECT * FROM usuario WHERE nombre_usuario = ?',[name]);
         return row;
     },
+}
+
+export function OrganizarDatosUsuario(result: any): User {
+    return {
+        id: result['id'],
+        nombre: result['nombre'],
+        nombreUsuario: result['nombre_usuario'],
+        email: result['email'],
+        contrasena: result['contrasena'],
+        fotoPerfil: result['foto_perfil'],
+        fotoFondo: result['foto_fondo'],
+        puesto: result['puesto'],
+        tipoUsuario: result['tipo_usuario'],
+    };
 }

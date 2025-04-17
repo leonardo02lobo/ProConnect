@@ -1,7 +1,6 @@
 const comentar = document.getElementById('comentar') as HTMLButtonElement | null;
 const contenido = document.getElementById('contenido') as HTMLInputElement | null;
 import { setComentario } from "../../services/AgregarComentario";
-import { getCookie } from "../../services/GetCookie";
 import { MostrarMensaje } from "../js/Manejoalerta";
 
 comentar?.addEventListener('click', async () => {

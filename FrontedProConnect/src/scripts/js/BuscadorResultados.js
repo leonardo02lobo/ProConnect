@@ -13,7 +13,7 @@ BuscarUsuarioBoton.addEventListener('click', async (e) => {
     const usuarioCookie = await getCookie()
     response.forEach(element => {
         if(usuarioCookie.id !== element.id){
-            listado.innerHTML += TarjetaUsuario(element['foto_perfil'],element['nombre_usuario'],element['id'])
+            listado.innerHTML += TarjetaUsuario(element.fotoPerfil,element.nombreUsuario,element.id)
         }
     });
     if(listado.textContent === ""){

@@ -6,8 +6,8 @@ export function Solicitud(nombre,fotoperfil,id){
                 <h1 class="text-black hover:underline"><a href="/MirarUsuarios/${id}">${nombre}</a></h1>
             </div>
             <div class="flex flex-row gap-3">
-                <a class="bg-blue-700 text-white rounded-2xl p-2 cursor-pointer">✔️ Aceptar</a>
-                <a class="bg-blue-700 text-white rounded-2xl p-2 cursor-pointer">⛔ Rechazar</a>
+                <a class="bg-blue-700 text-white rounded-2xl p-2 cursor-pointer" id="aceptar">✔️ Aceptar</a>
+                <a class="bg-blue-700 text-white rounded-2xl p-2 cursor-pointer" id="rechazar">⛔ Rechazar</a>
             </div>
         </div>
     `

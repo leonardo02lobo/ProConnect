@@ -48,7 +48,7 @@ export async function RevisarSolictud(id) {
 
 export async function ELiminarUsuario(id) {
     try {
-        const response = await fetch(`http://localhost:3000/api/Amigos//EliminarSolicitud/${id}`, {
+        const response = await fetch(`http://localhost:3000/api/Amigos/EliminarSolicitud/${id}`, {
             method: "GET",
             credentials: "include",
             headers: {

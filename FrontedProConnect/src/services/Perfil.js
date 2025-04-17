@@ -5,7 +5,7 @@ export async function DatosUsuario(){
             credentials: "include",
         });
         const data = await response.json();
-        return data
+        return data.user
     } catch (e) {
         console.log("Error al verificar autenticación:");
     }

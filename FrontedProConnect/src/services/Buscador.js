@@ -6,5 +6,6 @@ export async function BuscarPersona(name){
         },
     })
     const data = await response.json()
+    console.log(data)
     return data
 }

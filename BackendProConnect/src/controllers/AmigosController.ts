@@ -35,6 +35,7 @@ export const AmigosController = {
     async BuscarNumeroSeguidoresID(req: Request, res: Response){
         try {
             const result = await AmigosModel.BuscarNumeroSeguidoresID(req.params.id)
+            console.log(result)
             res.status(200).json(result)
         } catch (error) {
             res.status(500).json((error as Error).message)
@@ -54,6 +55,22 @@ export const AmigosController = {
             res.status(200).json(result)
         } catch (error) {
             res.status(500).json(error)
+        }
+    },
+    async AceptarSolicitud(req: Request,res: Response){
+        try{
+            const result = await AmigosModel.AceptarSolicitudModel(req.body)
+            res.status(200).json(result)
+        }catch(e){
+            res.status(500).json((e as Error).message)
+        }
+    },
+    async RechazarSolicitud(req: Request, res: Response){
+        try{
+            const result = await AmigosModel.RechazarSolicitudModel(req.body)
+            res.status(200).json(result)
+        }catch(e){
+            res.status(500).json((e as Error).message)
         }
     }
 };

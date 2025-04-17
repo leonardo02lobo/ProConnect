@@ -9,27 +9,28 @@ const NSeguidos = document.getElementById('NSeguidos')
 
 addEventListener('load', async () => {
     const data = await DatosUsuario();
-    const dataSeguidores = await ObtenerSeguidores(data.user.row[0]['id'])
-    const dataSeguidos = await ObtenerSeguidos(data.user.row[0]['id'])
+    window.document.title = `Perfil-${data.nombreUsuario}`
+    const dataSeguidores = await ObtenerSeguidores(data.id)
+    const dataSeguidos = await ObtenerSeguidos(data.id)
     try {
         if (!data) {
             window.location.href = "/"
             return;
         }
-        NSeguidores.innerHTML = dataSeguidos+" seguidores"
-        NSeguidos.innerHTML = dataSeguidores+" seguidos"
-        if (data.user.row[0]['foto_perfil'] !== '') {
-            imagenPerfil[0].src = data.user.row[0]['foto_perfil']
-            if(imagenPerfil[1])
-                imagenPerfil[1].src = data.user.row[0]['foto_perfil']
+        NSeguidores.innerHTML = dataSeguidos + " seguidores"
+        NSeguidos.innerHTML = dataSeguidores + " seguidos"
+        if (data.fotoPerfil !== '') {
+            imagenPerfil[0].src = data.fotoPerfil
+            if (imagenPerfil[1])
+                imagenPerfil[1].src = data.fotoPerfil
         } else {
             imagenPerfil[0].src = "/assets/ImagenesPerfil/predeterminado.png"
-            if(imagenPerfil[1])
+            if (imagenPerfil[1])
                 imagenPerfil[1].src = "/assets/ImagenesPerfil/predeterminado.png"
         }
-        nombre.innerHTML = data.user.row[0]['nombre_usuario']
-        puesto.innerHTML = data.user.row[0].puesto
-        await MostrarPublicaciones(data.user.row[0])
+        nombre.innerHTML = data.nombreUsuario
+        puesto.innerHTML = data.puesto
+        await MostrarPublicaciones(data)
     } catch (error) {
         console.log(error.message)
     }

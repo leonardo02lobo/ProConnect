@@ -24,18 +24,28 @@ export const AmigosModel ={
         return result
     },
     async BuscarNumeroSeguidoresID(idUsuario: string){
-        const [row] = await pool.query('SELECT COUNT(*) FROM proconnect.amigos WHERE usuario1_id = ? && (estado = "Pendiente" OR estado = "seguidor");',
+        const [row] = await pool.query('SELECT COUNT(*) FROM proconnect.amigos WHERE usuario2_id = ? && (estado = "Pendiente" OR estado = "Aceptado");',
             [idUsuario])
         return row
     },
     async BuscarNumeroSeguidosID(idUsuario: string){
-        const [row] = await pool.query('SELECT COUNT(*) FROM proconnect.amigos WHERE usuario1_id = ? && estado = "seguidor";',
+        const [row] = await pool.query('SELECT COUNT(*) FROM proconnect.amigos WHERE usuario2_id = ? && estado = "Aceptado";',
             [idUsuario])
         return row
     },
     async BuscarSolicitudesPendientes(id: string){
-        const [row] = await pool.query('SELECT * FROM proconnect.amigos WHERE usuario1_id = ? && estado = "Pendiente";',
+        const [row] = await pool.query('SELECT * FROM proconnect.amigos WHERE usuario2_id = ? && estado = "Pendiente";',
             [id])
         return row
+    },
+    async AceptarSolicitudModel(amigos: Amigos){
+        const [row] = await pool.query('update proconnect.amigos set estado = "Aceptado" where usuario1_id = ? && usuario2_id = ?;',
+            [amigos.usuario1ID,amigos.usuario2ID])
+            return row
+    },
+    async RechazarSolicitudModel(amigos: Amigos){
+        const [row] = await pool.query('delete from proconnect.amigos where usuario1_id = ? && usuario2_id = ?;',
+            [amigos.usuario1ID,amigos.usuario2ID])
+            return row
     }
 };
