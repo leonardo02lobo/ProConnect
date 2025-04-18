@@ -1,14 +1,18 @@
 import { Request, Response } from "express";
-import { Publicacion, PublicacionModel } from "../models/Publicacion";
+import { OrganizarDatosPublicacion, Publicacion, PublicacionModel } from "../models/Publicacion";
 import { UserModel } from "../models/User";
 import { LikesModel } from "../models/Like";
-import jwt from "jsonwebtoken";
 
 export const publicacionController = {
     async ObtenerPublicaciones(req: Request, res: Response) {
+        const Publicaciones: Publicacion[] = []
         try {
-            const publicaciones = await PublicacionModel.GetAll()
-            res.status(200).json(publicaciones);
+            const publicaciones: any = await PublicacionModel.GetAll()
+            for (const element of publicaciones) {
+                const elementos: Publicacion = await OrganizarDatosPublicacion(element);
+                Publicaciones.push(elementos);
+            }
+            res.status(200).json(Publicaciones);
         } catch (e) {
             res.status(500).json({ error: "Error Al Leer los datos de la BD" })
         }
@@ -17,7 +21,7 @@ export const publicacionController = {
         try {
             const id = req.params.id;
             const publicacion = await PublicacionModel.GetById(id);
-            if (publicacion) {
+            if (publicacion !== null) {
                 res.status(200).json(publicacion);
             } else {
                 res.status(404).json({ error: "Publicacion no encontrada" });
@@ -47,6 +51,9 @@ export const publicacionController = {
         try {
             const publicacion: Publicacion = await ObtenerPublicacion(req)
             const dataUser = (req as any).user['row'][0]
+            if(dataUser === null || publicacion === null){
+                res.status(401).json({error: "Error por datos nulos"});
+            }
             await PublicacionModel.DarLikePublicacionModel(publicacion,dataUser)
         } catch (e) {
             res.status(500).json({ error: (e as Error).message })
@@ -56,6 +63,9 @@ export const publicacionController = {
     async BuscarLikePublicacion(req: Request, res: Response) {
         try {
             const publicacion: Publicacion = await ObtenerPublicacion(req)
+            if(publicacion === null){
+                res.status(401).json({error: "Error por datos nulos"});
+            }
             const result = await LikesModel.BuscarLike(publicacion)
             res.status(200).json(result)
         } catch (e) {
@@ -66,6 +76,9 @@ export const publicacionController = {
         try{
             const publicacion: Publicacion = await ObtenerPublicacion(req)
             const dataUser = (req as any).user['row'][0]
+            if(publicacion === null || dataUser === null){
+                res.status(401).json({error: "Error por datos nulos"});
+            }
             const result = await LikesModel.EliminarLike(publicacion,dataUser)
             await PublicacionModel.EliminarLikePublicacion(publicacion)
             res.status(200).json(result)

@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Publicacion from "../components/Tarjetas/Publicacion.astro";
-import { ObtenerPublicacionesIndex } from "../scripts/ts/ObtenerPublicaciones";
+import { ObtenerPublicacionesIndex } from "../services/PublicacionesService.ts";
 import type { PublicacionModel } from "../models/Publicacion";
 
 const publicaciones: PublicacionModel[] = await ObtenerPublicacionesIndex();

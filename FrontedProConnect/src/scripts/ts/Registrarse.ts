@@ -1,5 +1,6 @@
 import type { Usuario } from "../../models/Usuario";
 import type { Empresas } from "../../models/Empresas";
+import { ValidarCorreoElectronico, ValidarNombreUsuario } from "../../services/UsuarioService";
 const usuario: Usuario = {
     nombre: "",
     nombreUsuario: "",
@@ -38,11 +39,11 @@ export async function GuardarDatosUsuario() {
             if (formulario?.contraseña?.value === formulario?.confirmarContraseña?.value) {
                 if (inputsElement) {
                     if (inputsElement[5].checked) {
-                        if (await ValidarNombreUsuario()) {
+                        if (await ValidarNombreUsuario(usuario)) {
                             alert('El nombre de usuario Agregado ya esta en uso.Por favor Ingresa otro')
                             return false;
                         }
-                        if (await ValidarCorreoElectronico()) {
+                        if (await ValidarCorreoElectronico(usuario)) {
                             alert('El correo Agregado ya esta en uso.Por favor Ingresa otro')
                             return false;
                         }
@@ -110,39 +111,4 @@ function mostrarWarning(tipo: string = "none"): void {
 function IniciarSesion(): boolean {
     mostrarWarning();
     return true;
-}
-
-async function ValidarCorreoElectronico(): Promise<boolean> {
-    try {
-        const response = await fetch('http://localhost:3000/api/usuario/ValidarEmail', {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(usuario)
-        });
-        const result: boolean = await response.json();
-        return result
-    } catch (e) {
-        console.log((e as Error).message);
-        return false;
-    }
-}
-
-async function ValidarNombreUsuario(): Promise<boolean> {
-    try {
-        const response = await fetch('http://localhost:3000/api/usuario/ValidarNombreUsuario', {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(usuario)
-        });
-        const result: boolean = await response.json();
-        return result
-    } catch (e) {
-        console.log((e as Error).message);
-        return false;
-    }
-
 }

@@ -1,6 +1,5 @@
 import { TarjetaUsuario } from "../../modules/BuscarUsuario"
-import { BuscarPersona } from "../../services/Buscador"
-import { getCookie } from "../../services/GetCookie"
+import { BuscarPersona,getCookie } from "../../services/UsuarioService"
 
 const Buscar = document.getElementById('Buscar')
 const BuscarUsuarioBoton = document.getElementById('BuscarUsuario')

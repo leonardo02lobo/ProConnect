@@ -1,5 +1,4 @@
-import { BuscarPorNombreUsuario } from "../../services/FiltrarUsuario"
-import { getCookie } from "../../services/GetCookie"
+import { BuscarPorNombreUsuario,getCookie } from "../../services/UsuarioService"
 
 const Perfil = document.querySelectorAll('#Perfil')
 
@@ -9,7 +8,7 @@ addEventListener('load', async () => {
         const DatosUser = await BuscarPorNombreUsuario(element.textContent)
         try {
             if (usuario['id'] === DatosUser['id']) {
-                element.href = 'MirarPerfilUsuario'
+                element.href = '/MirarPerfilUsuario'
             } else {
                 element.href = `/MirarUsuarios/${DatosUser['id']}`
             }

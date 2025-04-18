@@ -1,6 +1,7 @@
 const formulario = document.getElementById('formulario') as HTMLFormElement;
 const recuperar = document.getElementById('recuperar') as HTMLElement | null;
 import type { Usuario } from "../../models/Usuario"
+import { EncontrarUsuario, NuevaContrasenia } from "../../services/UsuarioService";
 const usuario: Usuario = {
     nombre: "",
     nombreUsuario: "",
@@ -15,7 +16,6 @@ const usuario: Usuario = {
 
 recuperar?.addEventListener('click', (e) => {
     e.preventDefault()
-    console.log('Enviando...');
     CambiarContrasenia()
 })
 
@@ -23,13 +23,7 @@ async function CambiarContrasenia() {
     const isTrue: Boolean = await ObtenerDatos();
     if (isTrue) {
         try {
-            const response = await fetch('http://localhost:3000/api/usuario/SetPassword', {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(usuario)
-            });
+            const response = await NuevaContrasenia(usuario)
             if (response.ok) {
                 window.location.href = "/IniciarSesion";
             }
@@ -62,14 +56,7 @@ async function ObtenerDatos(): Promise<Boolean> {
 async function ValidarDatos(): Promise<Boolean> {
     try {
         usuario.nombreUsuario = formulario?.nombreUsuario.value;
-        const response = await fetch('http://localhost:3000/api/usuario/FindUser', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(usuario)
-        });
-        const result = await response.json()
+        const result = await EncontrarUsuario(usuario)
         if (result.length !== 0) {
             return true;
         } else {

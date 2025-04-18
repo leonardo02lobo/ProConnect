@@ -1,4 +1,7 @@
-import { DatosUsuario, ObtenerPublicacionesUsuario, ObtenerSeguidores, ObtenerSeguidos } from "../../services/Perfil"
+import { publicacionesPerfil } from "../../modules/PublicacionesModules"
+import { getCookie } from "../../services/UsuarioService"
+import { ObtenerPublicacionesUsuario } from "../../services/PublicacionesService"
+import { ObtenerSeguidores,ObtenerSeguidos } from "../../services/AmigosService"
 
 const imagenPerfil = document.querySelectorAll('#FotoPerfil')
 const nombre = document.getElementById('nombre')
@@ -8,7 +11,7 @@ const NSeguidores = document.getElementById('NSeguidores')
 const NSeguidos = document.getElementById('NSeguidos')
 
 addEventListener('load', async () => {
-    const data = await DatosUsuario();
+    const data = await getCookie();
     window.document.title = `Perfil-${data.nombreUsuario}`
     const dataSeguidores = await ObtenerSeguidores(data.id)
     const dataSeguidos = await ObtenerSeguidos(data.id)
@@ -39,30 +42,6 @@ addEventListener('load', async () => {
 async function MostrarPublicaciones(usuario) {
     const data = await ObtenerPublicacionesUsuario(usuario);
     data.forEach(element => {
-        publicaciones.innerHTML += `
-            <a>
-                <div
-                    class="flex flex-col p-4 gap-3 b-2 bg dark:bg-gray-800 bg-white shadow-lg border border-gray-200 rounded-lg mb-5 cursor-pointer"
-                >
-                    <div class="flex flex-col gap-3">
-                                ${(element['foto'] !== "") ? `<img src="${element['foto']}" alt="fotoPost" class="w-[100%] rounded-3xl"/>` : ''}
-                        <div class="flex flex-row gap-4">
-                            <a href="/MirarPerfil">
-                                <img
-                                    src=${element['foto_perfil'] || "/assets/ImagenesPerfil/predeterminado.png"}
-                                    alt="fotoPerfil"
-                                    class="rounded-3xl w-20 h-20"
-                                />
-                            </a>
-                            <div class="flex flex-col gap-1">
-                                <h1 class="font-bold">${element['titulo']}</h1>
-                                    <span class="hover:underline"><a>${element['nombre_usuario']}</a></span>
-                                <p>${element['contenido']}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </a>
-            `
+        publicaciones.innerHTML += publicacionesPerfil(element['foto'], element['foto_perfil'], element['titulo'], element['nombre_usuario'], element['contenido'])
     });
 }

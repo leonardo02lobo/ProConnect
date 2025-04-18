@@ -1,13 +1,19 @@
-import { AddUser, ELiminarUsuario, RevisarSolictud } from "../../services/AgregarUsuario";
+import { AddUser, ELiminarUsuario, RevisarSolictud } from "../../services/AmigosService";
 
 const ConectarUsuario = document.querySelectorAll('#ConectarUsuario')
+const Mensaje = document.querySelectorAll('#Mensaje')
 
 addEventListener('load', async () => {
     const resultado = await RevisarSolictud(parseInt(location.pathname.split('/')[2]))
     if(resultado === null){
         return;
     }
-    ConectarUsuario[0].innerHTML = resultado
+    if(resultado !== undefined){
+        ConectarUsuario[0].innerHTML = resultado
+        return;
+    }
+    ConectarUsuario[0].innerHTML = "Amigos"
+    Mensaje[0].style.display = 'block'
 })
 
 ConectarUsuario.forEach(element => {

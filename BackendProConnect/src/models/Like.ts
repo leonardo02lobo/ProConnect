@@ -1,6 +1,5 @@
 import { Publicacion } from "./Publicacion";
 import pool from "./database";
-import { User } from "./User";
 
 export interface Likes {
     id: number;

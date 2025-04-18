@@ -22,8 +22,6 @@ export const EmpresaModel = {
         if (!idUsuario) {
             throw new Error("No se pudo obtener el ID del usuario creado.");
         }
-
-        // Crear la empresa con el ID del usuario
         const [empresaResult] = await pool.query(
             'insert into proconnect.empresas(nombre_empresa,descripcion,pais,logo,usuario_id) values(?,?,?,?,?);',
             [empresa.nombreEmpresa, empresa.descripcion, empresa.pais, empresa.logo, idUsuario]

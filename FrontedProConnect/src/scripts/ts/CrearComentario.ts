@@ -1,6 +1,6 @@
 const comentar = document.getElementById('comentar') as HTMLButtonElement | null;
 const contenido = document.getElementById('contenido') as HTMLInputElement | null;
-import { setComentario } from "../../services/AgregarComentario";
+import { setComentario } from "../../services/ComentariosService";
 import { MostrarMensaje } from "../js/Manejoalerta";
 
 comentar?.addEventListener('click', async () => {
@@ -26,7 +26,7 @@ function ValidarCampos(): boolean | undefined {
 }
 
 async function EnviarDatos(id: number) {
-    const response = await setComentario(id);
+    const response = await setComentario(id,contenido?.value);
     if(response == null){
         MostrarMensaje();
     }

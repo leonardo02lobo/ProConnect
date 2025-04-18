@@ -1,5 +1,5 @@
 import { setEmpresa, SetUsuario } from "../../services/CrearUsuario.js"
-import { GuardarDatosUsuario, GuardarDatosExtraUsuario, GuardarDatosEmpresa } from "./../ts/Registrarse.ts"
+import { GuardarDatosUsuario, GuardarDatosExtraUsuario, GuardarDatosEmpresa, ObtenerUsuario} from "./../ts/Registrarse.ts"
 const datos = document.getElementById("datos")
 const datosExtra = document.getElementById("datosExtra")
 const iniciarSesion = document.getElementById("iniciarSesion")
@@ -89,7 +89,7 @@ iniciarSesionBoton?.addEventListener('click', async (e) => {
 })
 
 async function RegistrarUsuario() {
-    const result = await SetUsuario()
+    const result = await SetUsuario(ObtenerUsuario())
     if (result.ok) {
         alert(`Usuario creado: ${result.message}`);
         window.location.href = "/IniciarSesion";

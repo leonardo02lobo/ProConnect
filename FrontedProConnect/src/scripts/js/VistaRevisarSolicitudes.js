@@ -1,6 +1,6 @@
 import { Solicitud } from "../../modules/MirarSolicitud"
-import { AceptarSolicitud, RechazarSolicitud, Solicitudes } from "../../services/BuscarSolicitudes"
-import { BuscarPorNombreUsuario } from "../../services/FiltrarUsuario"
+import { AceptarSolicitud, RechazarSolicitud, Solicitudes } from "../../services/AmigosService"
+import { BuscarPorNombreUsuario } from "../../services/UsuarioService"
 
 const agregarAmigos = document.getElementById('agregarAmigos')
 const MirarSolicitudes = document.getElementById('MirarSolicitudes')

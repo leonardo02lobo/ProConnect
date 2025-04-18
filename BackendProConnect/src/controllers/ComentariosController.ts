@@ -13,6 +13,9 @@ export const ComentariosController = {
     async ObtenerComentariosPorPublicacion(req: Request, res: Response){
         try{
             const id: number = parseInt(req.params.id);
+            if(id === 0){
+                res.status(401).json({error: "Error al Verificar el Id de la publicacion"})
+            }
             const result = await ComentariosModel.ObtenerComentariosPorPublicacion(id);
             res.status(200).json(result);
         }catch(e){

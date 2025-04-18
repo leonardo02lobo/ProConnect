@@ -6,22 +6,24 @@ interface Props {
 const { imagen, Nombre } = Astro.props;
 ---
 
-<div class="flex flex-row p-4 gap-3 mb-2 justify-between dark:text-gray-400 text-black">
+<div
+    class="flex flex-row p-4 gap-3 mb-2 justify-between dark:text-gray-400 text-black"
+>
     <div class="flex flex-row gap-3">
         <img src={imagen} alt="fotoPerfil" class="w-13 h-13 rounded-2xl" />
         <div class="flex flex-col">
             <span class="text-blue-600"
-                ><a href="/MirarPerfil" class="dark:text-gray-300 text-black">{Nombre}</a></span
+                ><a href="/MirarPerfil" class="dark:text-gray-300 text-black"
+                    >{Nombre}</a
+                ></span
             >
         </div>
     </div>
     <div class="flex flex-col justify-center items-center">
         <button
             class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-4xl cursor-pointer"
-            id="seguir"
         >
             Seguir +
         </button>
     </div>
 </div>
-<script src="./../../scripts/js/SeguirUsuario.js"></script>

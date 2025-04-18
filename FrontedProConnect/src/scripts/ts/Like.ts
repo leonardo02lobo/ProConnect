@@ -1,10 +1,10 @@
 const likeButton = document.getElementById('like') as HTMLButtonElement | null;
 const botonLike = document.getElementById('botonLike') as HTMLElement | null;
-import { getCookie } from "../../services/GetCookie";
-import { DarLikeId, QuitarLikeId } from "../../services/Likes";
+import { getCookie } from "../../services/UsuarioService";
+import { DarLikeId, QuitarLikeId } from "../../services/PublicacionesService";
 import { darLike } from "../js/DarLike";
 import { MostrarMensaje } from "../js/Manejoalerta";
-import { ObtenerNumerosLikes } from "./MirarPublicacion";
+import { ObtenerNumerosLikes } from "../../services/PublicacionesService";
 
 let nolikeButton = document.getElementById('nolike') as HTMLButtonElement | null;
 
@@ -20,7 +20,6 @@ addEventListener('load', async () => {
                 `
                 nolikeButton = document.getElementById('nolike') as HTMLButtonElement | null;
                 nolikeButton?.addEventListener('click', async () => {
-                    console.log('b')
                     const url = new URL(window.location.href);
                     await QuitarLikePublicacion(parseInt(url.pathname.split('/')[2]));
                 })

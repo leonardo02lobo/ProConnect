@@ -2,12 +2,9 @@
 import Layout from "../../layouts/Layout.astro";
 import Comentario from "../../components/Tarjetas/Comentario.astro";
 import type { PublicacionModel } from "../../models/Publicacion";
-import {
-    ObtenerNumerosLikes,
-    ObtenerPublicacion,
-    ObtenerComentarios,
-} from "../../scripts/ts/MirarPublicacion";
+import { ObtenerNumerosLikes, ObtenerPublicacion } from "../../services/PublicacionesService";
 import type { Comentarios } from "../../models/Comentarios";
+import { ObtenerComentarios } from "../../services/ComentariosService"
 
 export async function getStaticPaths() {
     const response = await fetch("http://localhost:3000/api/Publicacion", {
@@ -35,9 +32,9 @@ const comentarios: Comentarios[] = await ObtenerComentarios(id);
 <Layout title="Publicacion">
     <main class="col-span-2 p-6 mt-20">
         <header class="flex flex-row justify-between items-center gap-4s">
-            <div class="flex flex-row gap-4">
+            <div class="flex flex-col gap-4">
                 <a href="/" class="hover:text-blue-600">Volver</a>
-                <a href="/MirarPerfil" class="flex flex-row gap-4 items-center">
+                <a href="" id="Perfil" class="flex flex-row gap-4 items-center">
                     <img
                         src={publicaciones.usuario.fotoPerfil ||
                             "/assets/ImagenesPerfil/predeterminado.png"}
@@ -122,3 +119,4 @@ const comentarios: Comentarios[] = await ObtenerComentarios(id);
 <script src="./../../scripts/ts/Like.ts"></script>
 <script src="./../../scripts/ts/CrearComentario.ts"></script>
 <script src="./../../scripts/js/ConectarUsuario.js"></script>
+<script src="./../../scripts/js/IrPerfil.js"></script>

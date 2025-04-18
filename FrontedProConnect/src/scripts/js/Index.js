@@ -1,4 +1,4 @@
-import { getCookie } from "../../services/GetCookie"
+import { getCookie } from "./../../services/UsuarioService"
 
 const BotonDinamico = document.getElementById('BotonDinamico')
 const Opciones = document.getElementById("options")

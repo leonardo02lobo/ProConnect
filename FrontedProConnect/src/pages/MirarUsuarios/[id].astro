@@ -1,9 +1,13 @@
 ---
-import Publicacion from '../../components/Tarjetas/Publicacion.astro';
-import Layout from '../../layouts/Layout.astro';
-import type { Usuario } from '../../models/Usuario';
-import { FiltrarUsuario } from '../../services/FiltrarUsuario';
-import { ObtenerPublicacionesUsuario } from '../../services/Perfil';
+import Publicacion from "../../components/Tarjetas/Publicacion.astro";
+import Layout from "../../layouts/Layout.astro";
+import type { Usuario } from "../../models/Usuario";
+import { FiltrarUsuario } from "../../services/UsuarioService";
+import { ObtenerPublicacionesUsuario } from "../../services/PublicacionesService";
+import {
+    ObtenerSeguidores,
+    ObtenerSeguidos,
+} from "../../services/AmigosService";
 
 export async function getStaticPaths() {
     const response = await fetch("http://localhost:3000/api/usuario", {
@@ -15,21 +19,25 @@ export async function getStaticPaths() {
 
     const data = await response.json();
     return data.map((usuario: Usuario) => ({
-        params: { id: usuario['id']},
+        params: { id: usuario["id"] },
     }));
 }
 
-const {id} = Astro.params
+const { id } = Astro.params;
 
-const Usuario = await FiltrarUsuario(id)
-const Publicaciones = await ObtenerPublicacionesUsuario(Usuario)
+const Usuario = await FiltrarUsuario(id);
+const dataSeguidores: 0 = await ObtenerSeguidores(id);
+const dataSeguidos: 0 = await ObtenerSeguidos(id);
+const Publicaciones = await ObtenerPublicacionesUsuario(Usuario);
 ---
-<Layout title="Perfil-">
+
+<Layout title=`Perfil-${Usuario['nombre_usuario']}`>
     <main class="col-span-2 px-6 mt-20">
         <section class="p-4 flex flex-row gap-4 items-center">
             <div>
                 <img
-                    src={Usuario['foto_perfil'] || "/assets/ImagenesPerfil/predeterminado.png"}
+                    src={Usuario["foto_perfil"] ||
+                        "/assets/ImagenesPerfil/predeterminado.png"}
                     alt=""
                     width="100"
                     height="100"
@@ -38,42 +46,48 @@ const Publicaciones = await ObtenerPublicacionesUsuario(Usuario)
                 />
             </div>
             <div class="flex flex-col gap-3">
-                <h1 class="font-bold" id="nombre">{Usuario['nombre_usuario']}</h1>
-                <span id="puesto">{Usuario['puesto']}</span>
+                <h1 class="font-bold" id="nombre">
+                    {Usuario["nombre_usuario"]}
+                </h1>
+                <span id="puesto">{Usuario["puesto"]}</span>
                 <div class="flex flex-row gap-4">
-                    <a href=""><p></p> seguidores</a>
-                    <a href=""><p></p> seguidos</a>
+                    <a href="" class="flex"
+                        ><p>{dataSeguidores} seguidores</p></a
+                    >
+                    <a href="" class="flex"><p>{dataSeguidos} seguidos</p></a>
                 </div>
             </div>
         </section>
         <section class="m-3 p-3 rounded-3xl flex flex-col gap-4">
-            <div>
+            <div class="flex flex-row gap-4">
                 <button
                     class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-4xl cursor-pointer"
                     id="ConectarUsuario"
                 >
                     Conectar +
                 </button>
-                <!-- <button
+                <button
                     class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-4xl cursor-pointer"
+                    id="Mensaje"
+                    style="display: none;"
                 >
                     Mensaje al Privado
-                </button> -->
+                </button>
             </div>
         </section>
         <section>
             {
                 Publicaciones.map((element: any) => (
-                    <Publicacion 
+                    <Publicacion
                         titulo={element.titulo}
                         descripcion={element.contenido}
                         imagenPerfil={
-                            element['foto_perfil'] ||
-							"/assets/ImagenesPerfil/predeterminado.png"
+                            element["foto_perfil"] ||
+                            "/assets/ImagenesPerfil/predeterminado.png"
                         }
-                        perfil={element['nombre_usuario']}
+                        perfil={element["nombre_usuario"]}
                         imagenPost={element.foto}
-                        idUsuario={element['usuario_id']}
+                        idUsuario={element["usuario_id"]}
                     />
                 ))
             }

@@ -6,8 +6,8 @@ const felicidades = document.getElementById('Felicidades') as HTMLElement | null
 
 import type { PublicacionModel } from "../../models/Publicacion";
 import type { Usuario } from "../../models/Usuario";
-import { setPublicacion } from "../../services/AgregarPublicacion";
-import { getCookie } from "../../services/GetCookie";
+import { setPublicacion } from "../../services/PublicacionesService";
+import { getCookie } from "../../services/UsuarioService";
 const usu: Usuario = {
     nombre: "",
     nombreUsuario: "",

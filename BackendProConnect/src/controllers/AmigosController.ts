@@ -10,10 +10,10 @@ export const AmigosController = {
             res.status(500).json({ e: (error as Error).message })
         }
     },
-    async DeleteFriend(req: Request, res: Response){
+    async DeleteFriend(req: Request, res: Response) {
         try {
             const result: any = await AmigosModel.EliminarAmigo((req as any).user['row'][0].id, req.params.id)
-            res.status(200).json({message: "Usuario Eliminado"})
+            res.status(200).json({ message: "Usuario Eliminado" })
         } catch (error) {
             res.status(500).json(error)
         }
@@ -32,7 +32,7 @@ export const AmigosController = {
             res.status(500).json(error)
         }
     },
-    async BuscarNumeroSeguidoresID(req: Request, res: Response){
+    async BuscarNumeroSeguidoresID(req: Request, res: Response) {
         try {
             const result = await AmigosModel.BuscarNumeroSeguidoresID(req.params.id)
             console.log(result)
@@ -41,7 +41,7 @@ export const AmigosController = {
             res.status(500).json((error as Error).message)
         }
     },
-    async BuscarNumeroSeguidosID(req: Request, res: Response){
+    async BuscarNumeroSeguidosID(req: Request, res: Response) {
         try {
             const result = await AmigosModel.BuscarNumeroSeguidosID(req.params.id)
             res.status(200).json(result)
@@ -49,7 +49,7 @@ export const AmigosController = {
             res.status(500).json((error as Error).message)
         }
     },
-    async BuscarSolicitudesByID(req: Request, res: Response){
+    async BuscarSolicitudesByID(req: Request, res: Response) {
         try {
             const result = await AmigosModel.BuscarSolicitudesPendientes((req as any).user['row'][0].id)
             res.status(200).json(result)
@@ -57,19 +57,19 @@ export const AmigosController = {
             res.status(500).json(error)
         }
     },
-    async AceptarSolicitud(req: Request,res: Response){
-        try{
+    async AceptarSolicitud(req: Request, res: Response) {
+        try {
             const result = await AmigosModel.AceptarSolicitudModel(req.body)
             res.status(200).json(result)
-        }catch(e){
+        } catch (e) {
             res.status(500).json((e as Error).message)
         }
     },
-    async RechazarSolicitud(req: Request, res: Response){
-        try{
+    async RechazarSolicitud(req: Request, res: Response) {
+        try {
             const result = await AmigosModel.RechazarSolicitudModel(req.body)
             res.status(200).json(result)
-        }catch(e){
+        } catch (e) {
             res.status(500).json((e as Error).message)
         }
     }
