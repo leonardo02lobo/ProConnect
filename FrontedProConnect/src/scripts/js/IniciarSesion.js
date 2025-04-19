@@ -6,10 +6,11 @@ const login = document.getElementById('login')
 login.addEventListener('click', async (e) => {
     e.preventDefault()
     const response = await IniciarSesion(LoginUser());
-    if (response) {
+    if (response.ok) {
         window.location.href = "/";
     } else {
-        throw new Error(result.error || 'Error desconocido');
+        alert("Error al iniciar sesión. Verifica tus credenciales.");
+        window.location.reload();
     }
 
 })
