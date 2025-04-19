@@ -1,0 +1,39 @@
+---
+import TarjetaSeguidores from '../../../components/Tarjetas/TarjetaSeguidores.astro';
+import Layout from '../../../layouts/Layout.astro';
+import type { Amigos } from '../../../models/Amigos';
+import type { Usuario } from '../../../models/Usuario';
+import { ObtenerDatosSeguidores } from '../../../services/AmigosService';
+import { ObtenerDatosUsuario } from '../../../services/UsuarioService';
+
+export async function getStaticPaths() {
+    const response = await fetch("http://localhost:3000/api/usuario", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    const data = await response.json();
+    return data.map((usuario: Usuario) => ({
+        params: { idSeguidores: usuario["id"] },
+    }));
+}
+
+const {idSeguidores} = Astro.params
+const Usuario: Usuario = await ObtenerDatosUsuario(idSeguidores)
+const amigos: Amigos[] = await ObtenerDatosSeguidores(idSeguidores)
+---
+<Layout title=`Seguidores-${Usuario.nombreUsuario}`>
+    <main class="col-span-2 px-6 mt-20">
+        {
+            amigos.map((element: Amigos) => (
+                <TarjetaSeguidores
+                    nombre={element.usuario2.nombre}
+                    url={element.usuario2.id.toString()}
+                    imagenPerfil={element.usuario2.fotoPerfil}
+                />
+            ))
+        }
+    </main>
+</Layout>

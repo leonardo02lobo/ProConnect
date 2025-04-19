@@ -40,9 +40,14 @@ export const publicacionController = {
         }
     },
     async TodasLasPublicaciones(req: Request, res: Response) {
+        const Publicaciones: Publicacion[] = []
         try {
-            const result = await PublicacionModel.BuscarTodasLasPublicacionesUsuario(req.body);
-            res.status(200).json(result);
+            const result:any = await PublicacionModel.BuscarTodasLasPublicacionesUsuario(req.body);
+            for(const element of result){
+                const elementos: Publicacion = await OrganizarDatosPublicacion(element);
+                Publicaciones.push(elementos)
+            }
+            res.status(200).json(Publicaciones);
         } catch (e) {
             res.status(500).json({ err: (e as Error).message })
         }

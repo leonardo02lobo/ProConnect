@@ -13,8 +13,9 @@ export const UserController = {
     async ObtenerUsuarioID(req: Request, res: Response) {
         try {
             const id: number = parseInt(req.params.id)
-            const result = await UserModel.FiltrarUsuario(id);
-            res.status(200).json(result)
+            const result: any = await UserModel.FiltrarUsuario(id);
+            const usuario: User = OrganizarDatosUsuario(result[0]);
+            res.status(200).json(usuario)
         } catch (e) {
             res.status(500).json({ er: (e as Error).message })
         }
@@ -100,7 +101,6 @@ export const UserController = {
     },
     async ValidarDatosCrearUsuarioNombreUsuario(req: Request, res: Response) {
         try {
-            console.log(req.body)
             const result = await UserModel.ValidarDatosCreacionUsuarioNombreUsuario(req.body);
             res.status(200).json(result)
         } catch (e) {

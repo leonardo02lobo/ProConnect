@@ -1,0 +1,16 @@
+---
+interface Props{
+    nombre: string;
+    url: string;
+    imagenPerfil:string;
+}
+
+const { nombre, url, imagenPerfil} = Astro.props
+---
+<div class="flex flex-row gap-4 bg-gray-800 rounded-2xl p-4 w-full items-center mt-4">
+    <img src={imagenPerfil === "" ? "/assets/ImagenesPerfil/predeterminado.png" : imagenPerfil} alt="fotoPerfil" class="w-13 h-13 rounded-2xl">
+    <div class="flex flex-col gap-2">
+        <h1 class="text-white text-2xl">{nombre}</h1>
+    <a href=`/MirarUsuarios/${url}` class="hover:underline hover:text-white">Mirar Perfil</a>
+    </div>
+</div>

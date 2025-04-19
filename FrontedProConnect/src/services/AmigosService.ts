@@ -1,3 +1,4 @@
+import type { Amigos } from "../models/Amigos";
 import type { Usuario } from "../models/Usuario"
 import { getCookie } from "./UsuarioService"
 import { FiltrarUsuario } from "./UsuarioService";
@@ -100,10 +101,10 @@ export async function Solicitudes() {
     }
 }
 
-export async function AceptarSolicitud(usuario: Usuario){
+export async function AceptarSolicitud(usuario: Usuario) {
     const usuarioCookie = await getCookie()
     try {
-        const response = await fetch('http://localhost:3000/api/Amigos/AceptarSolicitud',{
+        const response = await fetch('http://localhost:3000/api/Amigos/AceptarSolicitud', {
             method: "POST",
             credentials: "include",
             headers: {
@@ -121,10 +122,10 @@ export async function AceptarSolicitud(usuario: Usuario){
     }
 }
 
-export async function RechazarSolicitud(usuario: Usuario){
+export async function RechazarSolicitud(usuario: Usuario) {
     const usuarioCookie = await getCookie()
     try {
-        const response = await fetch('http://localhost:3000/api/Amigos/RechazarSolicitud',{
+        const response = await fetch('http://localhost:3000/api/Amigos/RechazarSolicitud', {
             method: "POST",
             credentials: "include",
             headers: {
@@ -142,7 +143,7 @@ export async function RechazarSolicitud(usuario: Usuario){
     }
 }
 
-export async function ObtenerSeguidores(id: number){
+export async function ObtenerSeguidores(id: number) {
     try {
         const response = await fetch(`http://localhost:3000/api/Amigos/BuscarNumeroSeguidores/${id}`, {
             method: "GET",
@@ -155,19 +156,20 @@ export async function ObtenerSeguidores(id: number){
     }
 }
 
-export async function ObtenerSeguidos(id: number){
+export async function ObtenerDatosSeguidores(id: number) : Promise<Amigos[]>{
     try {
-        const response = await fetch(`http://localhost:3000/api/Amigos/BuscarNumeroSeguidos/${id}`, {
-            method: "GET",
-            credentials: "include",
-        });
-        const data = await response.json();
-        return data[0]["COUNT(*)"]
-    } catch (e) {
-        console.log("Error al verificar autenticación:");
+        const response = await fetch(`http://localhost:3000/api/Amigos/BuscarSeguidores/${id}`);
+        if (!response.ok) {
+            console.log("Se rechazo la solicitud")
+            return []
+        }
+        const data: Amigos[] = await response.json();
+        return data;
+    } catch (error) {
+        console.log((error as Error).message)
+        return []
     }
 }
-
 
 async function BuscarUsuarioSolicitud(id: number) {
     const usuario = await FiltrarUsuario(id);

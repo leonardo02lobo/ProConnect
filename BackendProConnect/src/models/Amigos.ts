@@ -1,10 +1,13 @@
 import pool from "./database";
+import { OrganizarDatosUsuario, User, UserModel } from "./User";
 
 export interface Amigos{
     id: number;
     usuario1ID: number;
     usuario2ID: number;
     estado: string;
+    usuario1?: User;
+    usuario2?: User;
 }
 
 export const AmigosModel ={
@@ -47,5 +50,26 @@ export const AmigosModel ={
         const [row] = await pool.query('delete from proconnect.amigos where usuario1_id = ? && usuario2_id = ?;',
             [amigos.usuario1ID,amigos.usuario2ID])
             return row
+    },
+    async SeguidoresByID(id: number){
+        const [row] = await pool.query('SELECT * FROM proconnect.amigos WHERE usuario1_id = ? && estado = "Aceptado";',
+        [id])
+        return row
     }
 };
+
+export async function OrganizarDatosAmigos(datos: any): Promise<Amigos>{
+    const Usuario1Res: any = await UserModel.FiltrarUsuario(datos['usuario1_id'])
+    const Usuario2Res: any = await UserModel.FiltrarUsuario(datos['usuario2_id'])
+    const Usuario1 = await OrganizarDatosUsuario(Usuario1Res[0])
+    const Usuario2 = await OrganizarDatosUsuario(Usuario2Res[0])
+    console.log(Usuario1Res)
+    return {
+        estado: datos['estado'],
+        id: datos['id'],
+        usuario1ID: datos['usuario1_id'],
+        usuario2ID: datos['usuario2_id'],
+        usuario1: Usuario1,
+        usuario2: Usuario2
+    }
+}

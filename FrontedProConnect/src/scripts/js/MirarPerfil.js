@@ -1,27 +1,25 @@
 import { publicacionesPerfil } from "../../modules/PublicacionesModules"
 import { getCookie } from "../../services/UsuarioService"
 import { ObtenerPublicacionesUsuario } from "../../services/PublicacionesService"
-import { ObtenerSeguidores,ObtenerSeguidos } from "../../services/AmigosService"
+import { ObtenerSeguidores } from "../../services/AmigosService"
 
 const imagenPerfil = document.querySelectorAll('#FotoPerfil')
 const nombre = document.getElementById('nombre')
 const puesto = document.getElementById('puesto')
 const publicaciones = document.getElementById('publicaciones')
 const NSeguidores = document.getElementById('NSeguidores')
-const NSeguidos = document.getElementById('NSeguidos')
 
 addEventListener('load', async () => {
     const data = await getCookie();
     window.document.title = `Perfil-${data.nombreUsuario}`
     const dataSeguidores = await ObtenerSeguidores(data.id)
-    const dataSeguidos = await ObtenerSeguidos(data.id)
     try {
         if (!data) {
             window.location.href = "/"
             return;
         }
-        NSeguidores.innerHTML = dataSeguidos + " seguidores"
-        NSeguidos.innerHTML = dataSeguidores + " seguidos"
+        NSeguidores.innerHTML = dataSeguidores + " seguidores"
+        NSeguidores.href = `/MirarAmigos/Seguidores/${data.id}`
         if (data.fotoPerfil !== '') {
             imagenPerfil[0].src = data.fotoPerfil
             if (imagenPerfil[1])

@@ -107,7 +107,7 @@ export async function QuitarLikeId(id: number) {
     }
 }
 
-export async function ObtenerPublicacionesUsuario(usuario: Usuario){
+export async function ObtenerPublicacionesUsuario(usuario: Usuario): Promise<PublicacionModel[]>{
     try{
         const response = await fetch("http://localhost:3000/api/Publicacion/TodasLasPublicaciones",{
             method: "POST",
@@ -116,10 +116,11 @@ export async function ObtenerPublicacionesUsuario(usuario: Usuario){
             },
             body: JSON.stringify(usuario)
         });
-        const data = await response.json();
+        const data: PublicacionModel[] = await response.json();
         return data;
     }catch(e){
         console.log((e as Error).message)
         console.log("Error al intentar obtener la publicacion")
+        return [];
     }
 }

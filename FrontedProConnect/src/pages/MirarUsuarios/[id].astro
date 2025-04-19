@@ -2,12 +2,10 @@
 import Publicacion from "../../components/Tarjetas/Publicacion.astro";
 import Layout from "../../layouts/Layout.astro";
 import type { Usuario } from "../../models/Usuario";
-import { FiltrarUsuario } from "../../services/UsuarioService";
+import { ObtenerDatosUsuario } from "../../services/UsuarioService";
 import { ObtenerPublicacionesUsuario } from "../../services/PublicacionesService";
-import {
-    ObtenerSeguidores,
-    ObtenerSeguidos,
-} from "../../services/AmigosService";
+import { ObtenerSeguidores } from "../../services/AmigosService";
+import type { PublicacionModel } from "../../models/Publicacion";
 
 export async function getStaticPaths() {
     const response = await fetch("http://localhost:3000/api/usuario", {
@@ -25,18 +23,17 @@ export async function getStaticPaths() {
 
 const { id } = Astro.params;
 
-const Usuario = await FiltrarUsuario(id);
+const Usuario: Usuario = await ObtenerDatosUsuario(id);
 const dataSeguidores: 0 = await ObtenerSeguidores(id);
-const dataSeguidos: 0 = await ObtenerSeguidos(id);
-const Publicaciones = await ObtenerPublicacionesUsuario(Usuario);
+const Publicaciones: PublicacionModel[] = await ObtenerPublicacionesUsuario(Usuario);
 ---
 
-<Layout title=`Perfil-${Usuario['nombre_usuario']}`>
+<Layout title=`Perfil-${Usuario.nombreUsuario}`>
     <main class="col-span-2 px-6 mt-20">
         <section class="p-4 flex flex-row gap-4 items-center">
             <div>
                 <img
-                    src={Usuario["foto_perfil"] ||
+                    src={Usuario.fotoPerfil ||
                         "/assets/ImagenesPerfil/predeterminado.png"}
                     alt=""
                     width="100"
@@ -47,14 +44,13 @@ const Publicaciones = await ObtenerPublicacionesUsuario(Usuario);
             </div>
             <div class="flex flex-col gap-3">
                 <h1 class="font-bold" id="nombre">
-                    {Usuario["nombre_usuario"]}
+                    {Usuario.nombreUsuario}
                 </h1>
-                <span id="puesto">{Usuario["puesto"]}</span>
+                <span id="puesto">{Usuario.puesto}</span>
                 <div class="flex flex-row gap-4">
-                    <a href="" class="flex"
+                    <a href=`/MirarAmigos/Seguidores/${id}` class="flex"
                         ><p>{dataSeguidores} seguidores</p></a
                     >
-                    <a href="" class="flex"><p>{dataSeguidos} seguidos</p></a>
                 </div>
             </div>
         </section>
@@ -77,17 +73,17 @@ const Publicaciones = await ObtenerPublicacionesUsuario(Usuario);
         </section>
         <section>
             {
-                Publicaciones.map((element: any) => (
+                Publicaciones.map((element: PublicacionModel) => (
                     <Publicacion
                         titulo={element.titulo}
                         descripcion={element.contenido}
                         imagenPerfil={
-                            element["foto_perfil"] ||
+                            element.usuario.fotoPerfil ||
                             "/assets/ImagenesPerfil/predeterminado.png"
                         }
-                        perfil={element["nombre_usuario"]}
+                        perfil={element.usuario.nombreUsuario}
                         imagenPost={element.foto}
-                        idUsuario={element["usuario_id"]}
+                        idUsuario={element.usuario.id}
                     />
                 ))
             }

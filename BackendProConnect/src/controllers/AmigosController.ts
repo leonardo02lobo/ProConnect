@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Amigos, AmigosModel } from "../models/Amigos";
+import { Amigos, AmigosModel, OrganizarDatosAmigos } from "../models/Amigos";
 
 export const AmigosController = {
     async AddFriend(req: Request, res: Response) {
@@ -25,7 +25,7 @@ export const AmigosController = {
                 id: result[0]['id'],
                 usuario1ID: result[0]['usuario1_id'],
                 usuario2ID: result[0]['usuario2_id'],
-                estado: result[0]['estado']
+                estado: result[0]['estado'],
             }
             res.status(200).json(amigo)
         } catch (error) {
@@ -72,5 +72,31 @@ export const AmigosController = {
         } catch (e) {
             res.status(500).json((e as Error).message)
         }
+    },
+    async BuscarSeguidoresbyID(req: Request, res: Response){
+        const Seguidores: Amigos[] = []
+        try{
+            if(req.params.id === null){
+                res.status(401).json({message: "Error con el ID"})
+                return;
+            }
+            const id: number = parseInt(req.params.id)
+            if(id <= 0){
+                res.status(401).json({message: "el ID no existe"})
+                return;
+            }
+            const result: any = await AmigosModel.SeguidoresByID(id)
+
+            for(const elementos of result){
+                const element = await OrganizarDatosAmigos(elementos)
+                Seguidores.push(element)
+            }
+            res.status(200).json(Seguidores)
+        }catch(e){
+            res.status(500).json({error: (e as Error).message})
+        }
+    },
+    async BuscarSeguidosbyID(req: Request, res: Response){
+        
     }
 };

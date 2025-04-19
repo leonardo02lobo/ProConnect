@@ -1,4 +1,5 @@
-import { setEmpresa, SetUsuario } from "../../services/CrearUsuario.js"
+import { setEmpresa } from "../../services/EmpresasService"
+import { SetUsuario } from "../../services/UsuarioService.ts"
 import { GuardarDatosUsuario, GuardarDatosExtraUsuario, GuardarDatosEmpresa, ObtenerUsuario} from "./../ts/Registrarse.ts"
 const datos = document.getElementById("datos")
 const datosExtra = document.getElementById("datosExtra")
