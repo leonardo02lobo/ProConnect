@@ -27,8 +27,8 @@ export const AmigosModel ={
         return result
     },
     async BuscarNumeroSeguidoresID(idUsuario: string){
-        const [row] = await pool.query('SELECT COUNT(*) FROM proconnect.amigos WHERE usuario2_id = ? && (estado = "Pendiente" OR estado = "Aceptado");',
-            [idUsuario])
+        const [row] = await pool.query('SELECT COUNT(*) FROM proconnect.amigos WHERE (usuario1_id = ? || usuario2_id = ?) && estado = "Aceptado";',
+            [idUsuario,idUsuario])
         return row
     },
     async BuscarNumeroSeguidosID(idUsuario: string){
@@ -55,6 +55,11 @@ export const AmigosModel ={
         const [row] = await pool.query('SELECT * FROM proconnect.amigos WHERE usuario1_id = ? && estado = "Aceptado";',
         [id])
         return row
+    },
+    async SeguidoresByID2(id: number){
+        const [row] = await pool.query('SELECT * FROM proconnect.amigos WHERE usuario2_id = ? && estado = "Aceptado";',
+        [id])
+        return row
     }
 };
 
@@ -63,7 +68,6 @@ export async function OrganizarDatosAmigos(datos: any): Promise<Amigos>{
     const Usuario2Res: any = await UserModel.FiltrarUsuario(datos['usuario2_id'])
     const Usuario1 = await OrganizarDatosUsuario(Usuario1Res[0])
     const Usuario2 = await OrganizarDatosUsuario(Usuario2Res[0])
-    console.log(Usuario1Res)
     return {
         estado: datos['estado'],
         id: datos['id'],

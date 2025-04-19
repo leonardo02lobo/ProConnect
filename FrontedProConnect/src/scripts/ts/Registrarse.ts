@@ -33,6 +33,10 @@ export async function GuardarDatosUsuario() {
             alert("El correo que proporcionaste es invalido")
             return false;
         }
+        if(usuario.contrasena.includes(" ")){
+            alert("La contraseña no puede tener espacios")
+            return false;
+        }
         if (formulario.nombre?.value !== "" && formulario.nombreUsuario?.value !== ""
             && formulario.email?.value !== "" && formulario.contraseña?.value !== ""
             && formulario.confirmarContraseña?.value !== "") {

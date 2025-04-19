@@ -25,7 +25,8 @@ MirarSolicitudes.addEventListener('click',async () => {
 function MostrarSolicitudes(usuarios){
     let datos = ''
     usuarios.forEach(element => {
-        datos += Solicitud(element['amigo']['nombre_usuario'],element['amigo']['foto_perfil'],element['amigo']['id'])
+        console.log(element)
+        datos += Solicitud(element.usuario1.nombreUsuario,element.usuario1.fotoPerfil,element.usuario1.id)
     });
     agregarAmigos.innerHTML = datos
     aceptar = document.querySelectorAll('#aceptar')

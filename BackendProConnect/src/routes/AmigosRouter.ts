@@ -12,6 +12,7 @@ router.get('/EliminarSolicitud/:id',middleware,AmigosController.DeleteFriend);
 router.get('/BuscarNumeroSeguidores/:id',AmigosController.BuscarNumeroSeguidoresID);
 router.get('/BuscarNumeroSeguidos/:id',AmigosController.BuscarNumeroSeguidosID);
 router.get('/BuscarSeguidores/:id',AmigosController.BuscarSeguidoresbyID);
+router.get('/BuscarSeguidoresByID/:id',AmigosController.BuscarSeguidoresbyID2);
 
 router.get('/BuscarSolicitudes',middleware,AmigosController.BuscarSolicitudesByID);
 

@@ -4,7 +4,7 @@ import Layout from "../../layouts/Layout.astro";
 import type { Usuario } from "../../models/Usuario";
 import { ObtenerDatosUsuario } from "../../services/UsuarioService";
 import { ObtenerPublicacionesUsuario } from "../../services/PublicacionesService";
-import { ObtenerSeguidores } from "../../services/AmigosService";
+import { ObtenerSeguidos } from "../../services/AmigosService";
 import type { PublicacionModel } from "../../models/Publicacion";
 
 export async function getStaticPaths() {
@@ -24,7 +24,8 @@ export async function getStaticPaths() {
 const { id } = Astro.params;
 
 const Usuario: Usuario = await ObtenerDatosUsuario(id);
-const dataSeguidores: 0 = await ObtenerSeguidores(id);
+const dataSeguidores: 0 = await ObtenerSeguidos(id);
+console.log(dataSeguidores)
 const Publicaciones: PublicacionModel[] = await ObtenerPublicacionesUsuario(Usuario);
 ---
 

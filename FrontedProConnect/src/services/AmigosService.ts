@@ -73,7 +73,6 @@ export async function ELiminarUsuario(id: number) {
 }
 
 export async function Solicitudes() {
-    let usuarios = [];
     try {
         const response = await fetch('http://localhost:3000/api/Amigos/BuscarSolicitudes', {
             method: "GET",
@@ -82,19 +81,8 @@ export async function Solicitudes() {
                 "Content-Type": "application/json"
             }
         });
-        const data = await response.json();
-
-        for (const element of data) {
-            const datosUsuario = await BuscarUsuarioSolicitud(element['usuario1_id']);
-            const elementos = {
-                id: element['id'],
-                estado: element['estado'],
-                idUsuario: element['usuario1_id'],
-                amigo: datosUsuario,
-            };
-            usuarios.push(elementos);
-        }
-        return usuarios;
+        const data: Amigos = await response.json();
+        return data;
     } catch (e) {
         console.error(e);
         return [];
@@ -156,9 +144,37 @@ export async function ObtenerSeguidores(id: number) {
     }
 }
 
+export async function ObtenerSeguidos(id: number) {
+    try {
+        const response = await fetch(`http://localhost:3000/api/Amigos/BuscarNumeroSeguidores/${id}`, {
+            method: "GET",
+            credentials: "include",
+        });
+        const data = await response.json();
+        return data[0]["COUNT(*)"]
+    } catch (e) {
+        console.log("Error al verificar autenticación:");
+    }
+}
+
 export async function ObtenerDatosSeguidores(id: number) : Promise<Amigos[]>{
     try {
         const response = await fetch(`http://localhost:3000/api/Amigos/BuscarSeguidores/${id}`);
+        if (!response.ok) {
+            console.log("Se rechazo la solicitud")
+            return []
+        }
+        const data: Amigos[] = await response.json();
+        return data;
+    } catch (error) {
+        console.log((error as Error).message)
+        return []
+    }
+}
+
+export async function ObtenerDatosSeguidoresByID(id: number) : Promise<Amigos[]>{
+    try {
+        const response = await fetch(`http://localhost:3000/api/Amigos/BuscarSeguidoresByID/${id}`);
         if (!response.ok) {
             console.log("Se rechazo la solicitud")
             return []

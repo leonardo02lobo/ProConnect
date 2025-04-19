@@ -92,7 +92,7 @@ iniciarSesionBoton?.addEventListener('click', async (e) => {
 async function RegistrarUsuario() {
     const result = await SetUsuario(ObtenerUsuario())
     if (result.ok) {
-        alert(`Usuario creado: ${result.message}`);
+        alert(`Usuario creado`);
         window.location.href = "/IniciarSesion";
     } else {
         throw new Error(result.error || 'Error desconocido');
@@ -102,7 +102,7 @@ async function RegistrarUsuario() {
 async function RegistrarEmpresa() {
     const result = await setEmpresa();
     if (result.ok) {
-        alert(`Empresa creada: ${result.message}`);
+        alert(`Empresa creada`);
         window.location.href = "/IniciarSesion";
     } else {
         throw new Error(result.error || 'Error desconocido');

@@ -3,7 +3,7 @@ import TarjetaSeguidores from '../../../components/Tarjetas/TarjetaSeguidores.as
 import Layout from '../../../layouts/Layout.astro';
 import type { Amigos } from '../../../models/Amigos';
 import type { Usuario } from '../../../models/Usuario';
-import { ObtenerDatosSeguidores } from '../../../services/AmigosService';
+import { ObtenerDatosSeguidores,ObtenerDatosSeguidoresByID } from '../../../services/AmigosService';
 import { ObtenerDatosUsuario } from '../../../services/UsuarioService';
 
 export async function getStaticPaths() {
@@ -22,7 +22,10 @@ export async function getStaticPaths() {
 
 const {idSeguidores} = Astro.params
 const Usuario: Usuario = await ObtenerDatosUsuario(idSeguidores)
-const amigos: Amigos[] = await ObtenerDatosSeguidores(idSeguidores)
+let amigos: Amigos[] = await ObtenerDatosSeguidores(idSeguidores)
+if(amigos.length === 0){
+    amigos = await ObtenerDatosSeguidoresByID(idSeguidores)
+}
 ---
 <Layout title=`Seguidores-${Usuario.nombreUsuario}`>
     <main class="col-span-2 px-6 mt-20">

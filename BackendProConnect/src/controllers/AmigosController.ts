@@ -35,7 +35,6 @@ export const AmigosController = {
     async BuscarNumeroSeguidoresID(req: Request, res: Response) {
         try {
             const result = await AmigosModel.BuscarNumeroSeguidoresID(req.params.id)
-            console.log(result)
             res.status(200).json(result)
         } catch (error) {
             res.status(500).json((error as Error).message)
@@ -50,9 +49,14 @@ export const AmigosController = {
         }
     },
     async BuscarSolicitudesByID(req: Request, res: Response) {
+        const solicitudes: Amigos[] = []
         try {
-            const result = await AmigosModel.BuscarSolicitudesPendientes((req as any).user['row'][0].id)
-            res.status(200).json(result)
+            const result: any = await AmigosModel.BuscarSolicitudesPendientes((req as any).user['row'][0].id)
+            for(const element of result){
+                const elemento: Amigos = await OrganizarDatosAmigos(element)
+                solicitudes.push(elemento)
+            }
+            res.status(200).json(solicitudes)
         } catch (error) {
             res.status(500).json(error)
         }
@@ -96,7 +100,30 @@ export const AmigosController = {
             res.status(500).json({error: (e as Error).message})
         }
     },
-    async BuscarSeguidosbyID(req: Request, res: Response){
-        
-    }
+    async BuscarSeguidoresbyID2(req: Request, res: Response){
+        const Seguidores: Amigos[] = []
+        try{
+            if(req.params.id === null){
+                res.status(401).json({message: "Error con el ID"})
+                return;
+            }
+            const id: number = parseInt(req.params.id)
+            if(id <= 0){
+                res.status(401).json({message: "el ID no existe"})
+                return;
+            }
+            const result: any = await AmigosModel.SeguidoresByID2(id)
+
+            for(const elementos of result){
+                const id1 = elementos['usuario1_id']
+                elementos['usuario1_id'] = elementos['usuario2_id']
+                elementos['usuario2_id'] = id1
+                const element = await OrganizarDatosAmigos(elementos)
+                Seguidores.push(element)
+            }
+            res.status(200).json(Seguidores)
+        }catch(e){
+            res.status(500).json({error: (e as Error).message})
+        }
+    },
 };
