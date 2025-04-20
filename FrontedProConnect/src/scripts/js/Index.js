@@ -3,6 +3,7 @@ import { getCookie } from "./../../services/UsuarioService"
 const BotonDinamico = document.getElementById('BotonDinamico')
 const Opciones = document.getElementById("options")
 const amigos = document.getElementById('amigos')
+const empleo = document.getElementById('empleo')
 const index = document.getElementById('index')
 
 index.addEventListener('click', () => {
@@ -17,6 +18,10 @@ addEventListener('load', async () => {
         Opciones.style.display = "none"
         BotonDinamico.style.display = "block"
         return;
+    }
+
+    if(response.tipoUsuario === "usuario"){
+        empleo.style.display = 'flex'
     }
     BotonDinamico.style.display = "none"
     Opciones.style.display = "block"

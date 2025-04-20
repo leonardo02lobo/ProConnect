@@ -1,7 +1,8 @@
-import { UserModel, type User } from "./User";
+import { OrganizarDatosUsuario, UserModel, type User } from "./User";
 import pool from "./database";
 
 export interface Empresas {
+    id?: number;
     nombreEmpresa: string;
     descripcion: string;
     pais: string;
@@ -28,5 +29,26 @@ export const EmpresaModel = {
         );
 
         return empresaResult;
+    },
+    async ObtenerEmpresaPorId(id: number){
+        const [rows] = await pool.query('SELECT * FROM proconnect.empresas WHERE usuario_id = ?;', [id]);
+        return rows;
+    },
+    async ObtenerEmpresaByID(id: number){
+        const [rows] = await pool.query('SELECT * FROM proconnect.empresas WHERE id = ?;', [id]);
+        return rows;
+    },
+}
+
+export async function OrganizarDatosEmpresa(empresa: any): Promise<Empresas>{
+    const usuario: any = await UserModel.FiltrarUsuario(empresa['usuario_id'])
+    const resultUser: User = OrganizarDatosUsuario(usuario[0])
+    return {
+        id: empresa.id,
+        nombreEmpresa: empresa['nombre_empresa'],
+        descripcion: empresa.descripcion,
+        pais: empresa.pais,
+        logo: empresa.logo,
+        usuarioEmpresa: resultUser
     }
 }

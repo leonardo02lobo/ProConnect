@@ -1,6 +1,5 @@
 import type { Comentarios } from "../models/Comentarios";
 import { getCookie } from "./UsuarioService";
-import { ObtenerDatosUsuario } from "./UsuarioService";
 
 export async function ObtenerComentarios(id: number) {
     let ComentariosPost: Comentarios[] = [];
@@ -11,23 +10,11 @@ export async function ObtenerComentarios(id: number) {
                 "Content-Type": "application/json",
             },
         });
-        const data: Comentarios[] = await response.json();
-
-        const comentariosConDatos = await Promise.all(data.map(async (element) => {
-            const usuario = await ObtenerDatosUsuario((element as any)["usuario_id"]);
-            return {
-                ...element,
-                fecha: new Date(element.fecha),
-                usuario: {
-                    ...usuario[0],
-                    nombreUsuario: usuario[0]['nombre_usuario']
-                }
-            };
-        }));
-
-        ComentariosPost = comentariosConDatos;
-
-        return ComentariosPost;
+        const data = await response.json();
+        if(data === null || data.length === 0){
+            return ComentariosPost
+        }
+        return data;
     } catch (e) {
         console.error("Error al obtener comentarios:", e);
         return ComentariosPost;

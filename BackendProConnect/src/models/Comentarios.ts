@@ -1,6 +1,6 @@
 import pool from "./database";
-import { Publicacion } from "./Publicacion";
-import { User } from "./User";
+import { OrganizarDatosPublicacion, Publicacion, PublicacionModel } from "./Publicacion";
+import { OrganizarDatosUsuario, User, UserModel } from "./User";
 
 export interface Comentarios {
     id: number;
@@ -19,5 +19,19 @@ export const ComentariosModel = {
     async ObtenerComentariosPorPublicacion(publicacion_id: number){
         const [rows] = await pool.query('SELECT * FROM proconnect.comentarios WHERE publicacion_id = ?;', [publicacion_id]);
         return rows;
+    }
+}
+
+export async function OrganizarDatosComentarios(data: any): Promise<Comentarios>{
+    const resultUser: any = await UserModel.FiltrarUsuario(data['usuario_id'])
+    const resultPublicacion: any = await PublicacionModel.GetById(data['publicacion_id'])
+    const DatosPublicacion = await OrganizarDatosPublicacion(resultPublicacion[0])
+    const DatosUsuario = await OrganizarDatosUsuario(resultUser[0])
+    return {
+        id: data['id'],
+        usuario: DatosUsuario,
+        publicacion: DatosPublicacion,
+        contenido: data['contenido'],
+        fecha: new Date(data['fecha'])
     }
 }

@@ -1,0 +1,30 @@
+---
+import Header from "../components/Header.astro";
+import MirarEmpleo from "../components/MirarEmpleo.astro";
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/assets/ProConnect.webp" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body class="dark:bg-gray-900 dark:text-gray-400 bg-white text-black">
+		<div class="dark:bg-gray-900 dark:text-gray-400 bg-white text-black w-90 h-40 flex flex-col justify-center items-center rounded-2xl absolute left-1/3 top-1/3 border-2 border-gray-600 backdrop-blur" id="alerta" style="display: none;">
+			<img src="/assets/ProConnect.webp" alt="" class="w-14 rounded-2xl" />
+			<h1>Tienes de Iniciar Sesion para continuar</h1>
+			<a href="/IniciarSesion" class="underline">Iniciar Sesion</a>
+		</div>
+		<main class="grid grid-cols-3 ">
+			<Header />
+			<slot />
+			<MirarEmpleo/>
+		</main>
+		<script src="./../scripts/js/Manejoalerta.js"></script>
+	</body>
+</html>

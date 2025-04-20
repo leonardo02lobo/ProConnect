@@ -4,9 +4,14 @@ interface Props {
     nombre: string;
     comentario: string;
     imagenPerfil: string;
-    fecha: string;
+    fecha: Date;
 }
 const { id, nombre, comentario, imagenPerfil, fecha} = Astro.props;
+const fechaFormateada = new Date(fecha).toLocaleDateString("es-ES", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+});
 ---
 <div class="flex flex-row gap-4 justify-between items-center p-4 mt-4 rounded-3xl border-2 border-gray-400 cursor-pointer">
     <div class="flex flex-row gap-4">
@@ -16,7 +21,7 @@ const { id, nombre, comentario, imagenPerfil, fecha} = Astro.props;
             class="w-13 rounded-4xl"
         />
         <div>
-            <span>{fecha}</span>
+            <span>{fechaFormateada}</span>
             <h1>{nombre}</h1>
             <p>{comentario}</p>
         </div>

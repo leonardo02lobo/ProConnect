@@ -1,0 +1,24 @@
+---
+import TarjetaEmpleo from "../components/Tarjetas/TarjetaEmpleo.astro";
+import EmpleoLayout from "../layouts/EmpleoLayout.astro";
+import type { Empleo } from "../models/Empleo";
+import { ObtenerEmpleos } from "../services/EmpleosService";
+const Empleos: Empleo[] = await ObtenerEmpleos();
+console.log(Empleos)
+---
+
+<EmpleoLayout title="Buscar Empleo">
+    <main class="col-span-1 px-6 mt-20 flex flex-col gap-7">
+        {
+            Empleos.map((element: Empleo) => (
+                <TarjetaEmpleo
+                    nombrePuesto={element.Titulo}
+                    nombreEmpresa={element.empresa.nombreEmpresa}
+                    ubicacion={element.empresa.pais}
+                    imagenEmpresa={element.empresa.logo}
+                    id={element.empresa.usuarioEmpresa.id ?? 0}
+                />
+            ))
+        }
+    </main>
+</EmpleoLayout>

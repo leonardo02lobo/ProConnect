@@ -102,7 +102,7 @@ const comentarios: Comentarios[] = await ObtenerComentarios(id);
                                 nombre={comentario.usuario.nombreUsuario}
                                 imagenPerfil={comentario.usuario.fotoPerfil}
                                 comentario={comentario.contenido}
-                                fecha={comentario.fecha.toLocaleDateString()}
+                                fecha={comentario.fecha}
                             />
                         ))
                     ) : (

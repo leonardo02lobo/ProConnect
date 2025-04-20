@@ -1,4 +1,4 @@
-import { Comentarios, ComentariosModel } from "../models/Comentarios";
+import { Comentarios, ComentariosModel, OrganizarDatosComentarios } from "../models/Comentarios";
 import { Request, Response } from "express";
 
 export const ComentariosController = {
@@ -11,13 +11,18 @@ export const ComentariosController = {
         }
     },
     async ObtenerComentariosPorPublicacion(req: Request, res: Response){
+        const comentarios: Comentarios[] = []
         try{
             const id: number = parseInt(req.params.id);
             if(id === 0){
                 res.status(401).json({error: "Error al Verificar el Id de la publicacion"})
             }
-            const result = await ComentariosModel.ObtenerComentariosPorPublicacion(id);
-            res.status(200).json(result);
+            const result: any = await ComentariosModel.ObtenerComentariosPorPublicacion(id);
+            for(const element of result){
+                const comentario = await OrganizarDatosComentarios(element);
+                comentarios.push(comentario)
+            }
+            res.status(200).json(comentarios);
         }catch(e){
             res.status(500).json({error: e})
         }

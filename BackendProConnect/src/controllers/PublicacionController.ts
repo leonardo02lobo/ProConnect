@@ -20,9 +20,10 @@ export const publicacionController = {
     async ObtenerUnaPublicacion(req: Request, res: Response) {
         try {
             const id = req.params.id;
-            const publicacion = await PublicacionModel.GetById(id);
-            if (publicacion !== null) {
-                res.status(200).json(publicacion);
+            const publicacion: any = await PublicacionModel.GetById(id);
+            const PublicacionOrganizada: Publicacion = await OrganizarDatosPublicacion(publicacion[0]);
+            if (PublicacionOrganizada !== null) {
+                res.status(200).json(PublicacionOrganizada);
             } else {
                 res.status(404).json({ error: "Publicacion no encontrada" });
             }

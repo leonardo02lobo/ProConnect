@@ -63,20 +63,7 @@ export async function ObtenerPublicacion(id: number | undefined) {
         throw new Error(`Error: ${response.status}`);
     }
     const data = await response.json();
-    const publicaciones = {
-        ...data,
-        contenido: data[0]["contenido"],
-        foto: data[0]["foto"],
-        titulo: data[0]["titulo"],
-        id: data[0]["id"],
-        fecha: data[0]["fecha"],
-    };
-    const usuarioData = await ObtenerDatosUsuario(data[0]["usuario_id"])
-    publicaciones.usuario = {
-        ...usuarioData[0],
-        nombreUsuario: usuarioData[0]["nombre_usuario"],
-    };
-    return publicaciones;
+    return data;
 }
 export async function DarLikeId(id: number) {
     try {

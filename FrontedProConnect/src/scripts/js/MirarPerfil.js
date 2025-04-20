@@ -8,9 +8,16 @@ const nombre = document.getElementById('nombre')
 const puesto = document.getElementById('puesto')
 const publicaciones = document.getElementById('publicaciones')
 const NSeguidores = document.getElementById('NSeguidores')
+const publicarEmpleo = document.getElementById('publicarEmpleo')
 
 addEventListener('load', async () => {
     const data = await getCookie();
+
+    if(data.tipoUsuario === "empresa"){
+        publicarEmpleo.style.display = 'block'
+        publicarEmpleo.children[0].href = "/PublicarEmpleo"
+    }
+
     window.document.title = `Perfil-${data.nombreUsuario}`
     const dataSeguidores = await ObtenerSeguidores(data.id)
     try {
@@ -40,6 +47,6 @@ addEventListener('load', async () => {
 async function MostrarPublicaciones(usuario) {
     const data = await ObtenerPublicacionesUsuario(usuario);
     data.forEach(element => {
-        publicaciones.innerHTML += publicacionesPerfil(element['foto'], element['foto_perfil'], element['titulo'], element['nombre_usuario'], element['contenido'])
+        publicaciones.innerHTML += publicacionesPerfil(element.foto, element.usuario.fotoPerfil, element.titulo, element.usuario.nombreUsuario, element.contenido)
     });
 }
