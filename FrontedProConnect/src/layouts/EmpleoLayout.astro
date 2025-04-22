@@ -1,7 +1,6 @@
 ---
 import Header from "../components/Header.astro";
 import MirarEmpleo from "../components/MirarEmpleo.astro";
-
 const { title } = Astro.props;
 ---
 
@@ -22,8 +21,14 @@ const { title } = Astro.props;
 		</div>
 		<main class="grid grid-cols-3 ">
 			<Header />
-			<slot />
-			<MirarEmpleo/>
+			<main class="col-span-1 px-6 mt-20 flex flex-col gap-7">
+				<div class="flex flex-row items-center gap-4">
+					<input type="text" placeholder="Buscar" class="w-full h-10 rounded-2xl border-2 border-gray-600 px-4" id="BuscarEmpleo"/>
+					<button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md" id="BtnBuscar">Buscar</button>
+				</div>
+				<slot />
+			</main>
+			<MirarEmpleo />
 		</main>
 		<script src="./../scripts/js/Manejoalerta.js"></script>
 	</body>

@@ -18,6 +18,20 @@ export const empleosModel = {
     async getAll(){
         const [row] = await pool.query("SELECT * FROM proconnect.empleos")
         return row
+    },
+    async getByID(id: string){
+        const [row] = await pool.query("SELECT * FROM proconnect.empleos WHERE id = ?", [id])
+        return row
+    },
+    async getByPuesto(puesto: string){
+        const [row] = await pool.query("SELECT * FROM proconnect.empleos WHERE puesto = ?", [puesto])
+        return row
+    },
+    async BuscarEmpleoPorNombre(nombre: string){
+        const nombreConWildcards = `%${nombre}%`
+        const [row] = await pool.query("select * from proconnect.empleos where Titulo like ? || descripcion like ? || puesto like ?;"
+        , [nombreConWildcards, nombreConWildcards, nombreConWildcards])
+        return row
     }
 }
 

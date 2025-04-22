@@ -25,7 +25,6 @@ const { id } = Astro.params;
 
 const Usuario: Usuario = await ObtenerDatosUsuario(id);
 const dataSeguidores: 0 = await ObtenerSeguidos(id);
-console.log(dataSeguidores)
 const Publicaciones: PublicacionModel[] = await ObtenerPublicacionesUsuario(Usuario);
 ---
 

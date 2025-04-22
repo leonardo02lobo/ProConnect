@@ -33,5 +33,48 @@ export const EmpleoController = {
             console.log((error as Error).message)
             res.status(500).json({err: "Error interno del servidor"})
         }
+    },
+    async ObtenerByID(req: Request, res: Response){
+        try{
+            const result: any = await empleosModel.getByID(req.params.id)
+            if(result.length === 0){
+                res.status(404).json({err: "No se ha encontrado el empleo"})
+            }
+            const resultado: Empleo = await OrganizarDatosEmpleo(result[0])
+            res.status(200).json(resultado)
+        }catch(e){
+            console.log((e as Error).message)
+            res.status(500).json({err: "Error interno del servidor"})
+        }
+    },
+    async ObtenerEmpleoByPuesto(req: Request, res: Response){
+        try{
+            const result: any = await empleosModel.getByPuesto(req.params.puesto)
+            if(result.length === 0){
+                return;
+            }
+            const resultado: Empleo = await OrganizarDatosEmpleo(result[0])
+            res.status(200).json(resultado)
+        }catch(e){
+            console.log((e as Error).message)
+            res.status(500).json({err: "Error interno del servidor"})
+        }
+    },
+    async BuscarEmpleoPorNombre(req: Request, res: Response){
+        const Empleos: Empleo[] = []
+        try{
+            const result: any = await empleosModel.BuscarEmpleoPorNombre(req.params.nombre)
+            if(result.length === 0){
+                res.status(404).json({err: "No se ha encontrado el empleo"})
+            }
+            for(const element of result){
+                const resultado: Empleo = await OrganizarDatosEmpleo(element)
+                Empleos.push(resultado)
+            }
+            res.status(200).json(Empleos)
+        }catch(e){
+            console.log((e as Error).message)
+            res.status(500).json({err: "Error interno del servidor"})
+        }
     }
 } 

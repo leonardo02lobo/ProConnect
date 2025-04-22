@@ -3,12 +3,12 @@ import TarjetaEmpleo from "../components/Tarjetas/TarjetaEmpleo.astro";
 import EmpleoLayout from "../layouts/EmpleoLayout.astro";
 import type { Empleo } from "../models/Empleo";
 import { ObtenerEmpleos } from "../services/EmpleosService";
+
 const Empleos: Empleo[] = await ObtenerEmpleos();
-console.log(Empleos)
 ---
 
 <EmpleoLayout title="Buscar Empleo">
-    <main class="col-span-1 px-6 mt-20 flex flex-col gap-7">
+    <div class="flex flex-col gap-4" id="empleos-container">
         {
             Empleos.map((element: Empleo) => (
                 <TarjetaEmpleo
@@ -16,9 +16,11 @@ console.log(Empleos)
                     nombreEmpresa={element.empresa.nombreEmpresa}
                     ubicacion={element.empresa.pais}
                     imagenEmpresa={element.empresa.logo}
-                    id={element.empresa.usuarioEmpresa.id ?? 0}
+                    id={element.id ?? 0}
                 />
             ))
         }
-    </main>
+    </div>
 </EmpleoLayout>
+<script src="./../scripts/js/RenderizarBuscarEmpleo.js"></script>
+<script src="./../scripts/js/RenderizarMirarEmpleo.js"></script>
