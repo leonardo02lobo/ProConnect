@@ -10,9 +10,9 @@ BuscarUsuarioBoton.addEventListener('click', async (e) => {
     e.preventDefault()
     const response = await BuscarPersona(Buscar.value)
     const usuarioCookie = await getCookie()
-    response.forEach(element => {
+    response.forEach(async (element) => {
         if(usuarioCookie.id !== element.id){
-            listado.innerHTML += TarjetaUsuario(element.fotoPerfil,element.nombreUsuario,element.id)
+            listado.innerHTML += await TarjetaUsuario(element.fotoPerfil,element.nombreUsuario,element.id)
         }
     });
     if(listado.textContent === ""){

@@ -8,6 +8,7 @@ import EmpleoRouter from "./routes/EmpleoRouter"
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import { upload } from "./settings/configurateImages";
 
 dotenv.config()
 
@@ -27,6 +28,28 @@ app.use('/api/Publicacion', PublicacionRouter);
 app.use('/api/Comentarios',ComentarioRouter);
 app.use('/api/Amigos',AmigosRouter);
 app.use('/api/Empleo',EmpleoRouter);
+
+// Ruta para subir imágenes
+app.post('/api/upload', upload.single('image'), (req, res, next) => {
+    console.log('Después de Multer - File:', req.file);
+    try {
+        if (!req.file) {
+            res.status(400).json({ error: 'No se proporcionó ninguna imagen' });
+            return;
+        }
+        
+        // Devuelve la URL donde se puede acceder a la imagen
+        res.json({ 
+            imageUrl: `/uploads/${req.file.filename}`,
+            originalName: req.file.originalname
+        });
+    } catch (error) {
+        console.log((error as Error).message)
+        next(error);
+    }
+});
+
+app.use('/uploads',express.static('uploads'));
 
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.error(err.stack);

@@ -4,33 +4,52 @@ import Layout from "../layouts/Layout.astro";
 
 <Layout title="">
     <main class="col-span-2 px-6 mt-20">
-        <div role="alert" style="display: none;" 
-        id="alerta">
+        <div role="alert" style="display: none;" id="alerta">
             <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
-              No puedes Crear La publicacion
+                No puedes Crear La publicacion
             </div>
-            <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
-              <p>Tienes que Completar todos los campos para continuar para continuar</p>
+            <div
+                class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700"
+            >
+                <p>
+                    Tienes que Completar todos los campos para continuar para
+                    continuar
+                </p>
             </div>
-          </div>
-          <div class="bg-teal-100 border-t-4 border-teal-500 rounded-b text-teal-900 px-4 py-3 shadow-md" role="alert" style="display: none;" id="Felicidades">
+        </div>
+        <div
+            class="bg-teal-100 border-t-4 border-teal-500 rounded-b text-teal-900 px-4 py-3 shadow-md"
+            role="alert"
+            style="display: none;"
+            id="Felicidades"
+        >
             <div class="flex">
-              <div class="py-1"><svg class="fill-current h-6 w-6 text-teal-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/></svg></div>
-              <div>
-                <p class="font-bold">Se Creo la Publicacion</p>
-              </div>
+                <div class="py-1">
+                    <svg
+                        class="fill-current h-6 w-6 text-teal-500 mr-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        ><path
+                            d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"
+                        ></path></svg>
+                </div>
+                <div>
+                    <p class="font-bold">Se Creo la Publicacion</p>
+                </div>
             </div>
-          </div>
+        </div>
         <section class="p-4 flex flex-row gap-4 items-center">
             <div>
-                <img
-                    src=""
-                    alt=""
-                    width="100"
-                    height="100"
-                    class="rounded-full"
-                    id="FotoPerfil"
-                />
+                <a href="/CargarImagen">
+                    <img
+                        src=""
+                        alt=""
+                        width="100"
+                        height="100"
+                        class="rounded-full"
+                        id="FotoPerfil"
+                    />
+                </a>
             </div>
             <div class="flex flex-col gap-3">
                 <h1 class="font-bold" id="nombre"></h1>
@@ -42,25 +61,81 @@ import Layout from "../layouts/Layout.astro";
         </section>
         <section class="m-3 p-3 rounded-3xl flex flex-col gap-4">
             <div id="publicarEmpleo" style="display: none;">
-                <a href="" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-4xl cursor-pointer">Publicar empleo</a>
+                <a
+                    href=""
+                    class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-4xl cursor-pointer"
+                    >Publicar empleo</a
+                >
             </div>
-            <div class="flex flex-row gap-4">
+            <div class="flex flex-row gap-4 items-center">
                 <img
                     src=""
                     alt=""
-                    class="rounded-full w-20"
+                    class="rounded-full w-20 h-20"
                     id="FotoPerfil"
                 />
                 <div class="flex flex-col gap-1 w-full">
-                    <input type="text" name="Titulo" id="Titulo" placeholder="Coloca El Titulo">
-                <textarea
-                    name="Contenido"
-                    id="Contenido"
-                    placeholder="Publica algo"
-                    class="w-full resize-none bg-white text-black dark:bg-gray-900 dark:text-gray-400"></textarea>
+                    <input
+                        type="text"
+                        name="Titulo"
+                        id="Titulo"
+                        placeholder="Coloca El Titulo"
+                    />
+                    <textarea
+                        name="Contenido"
+                        id="Contenido"
+                        placeholder="Publica algo"
+                        class="w-full resize-none bg-white text-black dark:bg-gray-900 dark:text-gray-400"
+                    ></textarea>
+                    <div class="flex items-center space-x-2">
+                        <label
+                            for="file-upload"
+                            class="flex flex-col items-center cursor-pointer"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="icon icon-tabler icons-tabler-outline icon-tabler-library-photo w-6 h-6 text-gray-500"
+                            >
+                                <path
+                                    stroke="none"
+                                    d="M0 0h24v24H0z"
+                                    fill="none"></path>
+                                <path
+                                    d="M7 3m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"
+                                ></path>
+                                <path
+                                    d="M4.012 7.26a2.005 2.005 0 0 0 -1.012 1.737v10c0 1.1 .9 2 2 2h10c.75 0 1.158 -.385 1.5 -1"
+                                ></path>
+                                <path d="M17 7h.01"></path>
+                                <path
+                                    d="M7 13l3.644 -3.644a1.21 1.21 0 0 1 1.712 0l3.644 3.644"
+                                ></path>
+                                <path
+                                    d="M15 12l1.644 -1.644a1.21 1.21 0 0 1 1.712 0l2.644 2.644"
+                                ></path>
+                            </svg>
+                            <input
+                                id="file-upload"
+                                type="file"
+                                class="hidden"
+                            />
+                            <span class="mt-1 text-sm text-gray-600"
+                                >Sube tu archivo</span
+                            >
+                        </label>
+                        <span id="informacion"></span>
+                    </div>
                 </div>
                 <button
-                    class="bg-blue-500 hover:bg-blue-600 text-white px-2 rounded-4xl cursor-pointer"
+                    class="bg-blue-500 hover:bg-blue-600 text-white rounded-4xl cursor-pointer p-4 px-5"
                     id="CrearPublacion"
                 >
                     <svg
@@ -80,9 +155,16 @@ import Layout from "../layouts/Layout.astro";
                 </button>
             </div>
         </section>
-        <section id="publicaciones">
-        </section>
+        <section id="publicaciones"></section>
     </main>
 </Layout>
+<script is:inline>
+    const fileInput = document.getElementById("file-upload");
+    const informacion = document.getElementById("informacion");
+
+    fileInput.addEventListener("change", (e) => {
+        informacion.innerHTML = "Se agregó el archivo";
+    });
+</script>
 <script src="./../scripts/js/MirarPerfil.js"></script>
 <script src="./../scripts/ts/CrearPublicacion.ts"></script>

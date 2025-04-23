@@ -106,6 +106,12 @@ export const UserModel = {
         const [row] = await pool.query('SELECT * FROM usuario WHERE nombre_usuario = ?',[name]);
         return row;
     },
+    async ActualizarFotoDePerfil(fotoPerfil: string,id: number){
+        const [row] = await pool.query('UPDATE proconnect.usuario SET foto_perfil = ? WHERE id = ?',
+            [fotoPerfil,id]
+        );
+        return row;
+    }
 }
 
 export function OrganizarDatosUsuario(result: any): User {

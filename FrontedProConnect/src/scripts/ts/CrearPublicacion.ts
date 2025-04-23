@@ -3,10 +3,11 @@ const Contenido = document.getElementById('Contenido') as HTMLTextAreaElement | 
 const Titulo = document.getElementById('Titulo') as HTMLInputElement | null;
 const alerta = document.getElementById('alerta') as HTMLElement | null;
 const felicidades = document.getElementById('Felicidades') as HTMLElement | null;
+const input = document.getElementById('file-upload') as HTMLInputElement | null;
 
 import type { PublicacionModel } from "../../models/Publicacion";
 import type { Usuario } from "../../models/Usuario";
-import { setPublicacion } from "../../services/PublicacionesService";
+import { setPublicacion, SubirImagenFotoPublicacion } from "../../services/PublicacionesService";
 import { getCookie } from "../../services/UsuarioService";
 const usu: Usuario = {
     nombre: "",
@@ -44,7 +45,9 @@ CrearPublicacion?.addEventListener('click', async () => {
         return;
     }
     const response = await setPublicacion(publicacion);
-    if (response?.ok) {
+    const result = await SubirImagenFotoPublicacion(input, response.Id);
+
+    if (response !== null) {
         if (felicidades) {
             felicidades.style.display = 'block';
 

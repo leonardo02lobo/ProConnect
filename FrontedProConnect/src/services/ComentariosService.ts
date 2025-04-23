@@ -1,4 +1,5 @@
 import type { Comentarios } from "../models/Comentarios";
+import { getImageUrl } from "./ImagesService";
 import { getCookie } from "./UsuarioService";
 
 export async function ObtenerComentarios(id: number) {
@@ -14,6 +15,12 @@ export async function ObtenerComentarios(id: number) {
         if(data === null || data.length === 0){
             return ComentariosPost
         }
+        for (const element of data) {
+                    if (element.usuario.fotoPerfil !== "") {
+                        const result = await getImageUrl(element.usuario.fotoPerfil);
+                        element.usuario.fotoPerfil = result;
+                    }
+                }
         return data;
     } catch (e) {
         console.error("Error al obtener comentarios:", e);

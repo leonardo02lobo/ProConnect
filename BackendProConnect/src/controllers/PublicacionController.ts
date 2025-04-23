@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { OrganizarDatosPublicacion, Publicacion, PublicacionModel } from "../models/Publicacion";
 import { UserModel } from "../models/User";
 import { LikesModel } from "../models/Like";
+import { imagesController } from "./ImagesController";
 
 export const publicacionController = {
     async ObtenerPublicaciones(req: Request, res: Response) {
@@ -34,9 +35,10 @@ export const publicacionController = {
     },
     async CrearNuevaPublicacion(req: Request, res: Response) {
         try {
-            await PublicacionModel.CreatePublicacion(req.body)
-            res.status(200).json({ message: "Publicacion Creada Chabal" })
+            const row:any = await PublicacionModel.CreatePublicacion(req.body)
+            res.status(200).json({ message: "Publicacion Creada Chabal",Id: row['insertId'] })
         } catch (e) {
+            console.log((e as Error).message)
             res.status(500).json({ error: (e as Error).message })
         }
     },
@@ -90,6 +92,21 @@ export const publicacionController = {
             res.status(200).json(result)
         }catch(e){
             res.status(500).json({error: (e as Error).message})
+        }
+    },
+    async ActualizarFotoPublicacion(req: Request, res: Response) {
+        try {
+            const id = req.body.id; // El ID viene en el body
+            if (!id) {
+                res.status(400).json({ error: 'ID de publicación faltante' });
+            }
+            const result = await imagesController.SubirImagenes(req);
+            const resultado = await PublicacionModel.actualizarFoto(parseInt(id), result.imageUrl);
+            
+            res.json(resultado);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error al actualizar la foto' });
         }
     }
 }

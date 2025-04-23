@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { OrganizarDatosUsuario, User, UserModel } from '../models/User';
+import { imagesController } from './ImagesController';
 
 export const UserController = {
     async getUser(req: Request, res: Response) {
@@ -138,6 +139,20 @@ export const UserController = {
             res.status(200).json(usuarios)
         }catch(e){
             res.status(500).json({error: e})
+        }
+    },
+    async ActualizarFotoUsuario(req: Request, res: Response) {
+        try {
+            const result = await imagesController.SubirImagenes(req);
+            if (!res.headersSent) {
+                const resultado = await UserModel.ActualizarFotoDePerfil(result.imageUrl, (req as any).user.row[0].id);
+                res.status(200).json({ message: "Foto de perfil actualizada", imageUrl: result.imageUrl });
+            }
+        } catch (error) {
+            console.error(error);
+            if (!res.headersSent) {
+                res.status(500).json({ error: 'Error al actualizar foto' });
+            }
         }
     }
 }

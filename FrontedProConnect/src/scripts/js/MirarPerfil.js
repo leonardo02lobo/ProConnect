@@ -2,6 +2,7 @@ import { publicacionesPerfil } from "../../modules/PublicacionesModules"
 import { getCookie } from "../../services/UsuarioService"
 import { ObtenerPublicacionesUsuario } from "../../services/PublicacionesService"
 import { ObtenerSeguidores } from "../../services/AmigosService"
+import { getImageUrl } from "../../services/ImagesService"
 
 const imagenPerfil = document.querySelectorAll('#FotoPerfil')
 const nombre = document.getElementById('nombre')
@@ -25,17 +26,12 @@ addEventListener('load', async () => {
             window.location.href = "/"
             return;
         }
+
+        if(data.fotoPerfil !== ""){
+            ObtenerImagen(data)
+        }
         NSeguidores.innerHTML = dataSeguidores + " seguidores"
         NSeguidores.href = `/MirarAmigos/Seguidores/${data.id}`
-        if (data.fotoPerfil !== '') {
-            imagenPerfil[0].src = data.fotoPerfil
-            if (imagenPerfil[1])
-                imagenPerfil[1].src = data.fotoPerfil
-        } else {
-            imagenPerfil[0].src = "/assets/ImagenesPerfil/predeterminado.png"
-            if (imagenPerfil[1])
-                imagenPerfil[1].src = "/assets/ImagenesPerfil/predeterminado.png"
-        }
         nombre.innerHTML = data.nombreUsuario
         puesto.innerHTML = data.puesto
         await MostrarPublicaciones(data)
@@ -46,7 +42,24 @@ addEventListener('load', async () => {
 
 async function MostrarPublicaciones(usuario) {
     const data = await ObtenerPublicacionesUsuario(usuario);
-    data.forEach(element => {
-        publicaciones.innerHTML += publicacionesPerfil(element.foto, element.usuario.fotoPerfil, element.titulo, element.usuario.nombreUsuario, element.contenido)
+    let htmlPromises = data.map(async (element) => {
+        return await publicacionesPerfil(element.foto, element.usuario.fotoPerfil, element.titulo, element.usuario.nombreUsuario, element.contenido);
     });
+
+    let htmlArray = await Promise.all(htmlPromises);
+    publicaciones.innerHTML = htmlArray.join('');
+}
+
+async function ObtenerImagen(data){
+    const result = await getImageUrl(data.fotoPerfil)
+    data.fotoPerfil = result
+    if (result !== '') {
+        imagenPerfil[0].src = result
+        if (imagenPerfil[1])
+            imagenPerfil[1].src = result
+    } else {
+        imagenPerfil[0].src = "/assets/ImagenesPerfil/predeterminado.png"
+        if (imagenPerfil[1])
+            imagenPerfil[1].src = "/assets/ImagenesPerfil/predeterminado.png"
+    }
 }

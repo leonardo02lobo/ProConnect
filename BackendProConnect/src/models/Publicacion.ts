@@ -20,9 +20,10 @@ export const PublicacionModel = {
         if(publicacion.contenido === '' && publicacion.titulo === ''){
             return;
         }
-        await pool.query('insert into proconnect.publicaciones(usuario_id,contenido,likes,foto,titulo) values (?,?,?,?,?);',
+        const [row] = await pool.query('insert into proconnect.publicaciones(usuario_id,contenido,likes,foto,titulo) values (?,?,?,?,?);',
             [publicacion.usuario.id, publicacion.contenido, publicacion.likes, publicacion.foto, publicacion.titulo]
         )
+        return row
     },
     async BuscarTodasLasPublicacionesUsuario(publicacionUsuario: User) {
         if(publicacionUsuario === null){
@@ -50,6 +51,11 @@ export const PublicacionModel = {
     async EliminarLikePublicacion(publicacion: Publicacion) {
         const [row] = await pool.query('UPDATE proconnect.publicaciones SET likes = likes - 1 WHERE id = ?;',
             [(publicacion as any)[0]['id']])
+        return row;
+    },
+    async actualizarFoto(id: number, foto: string) {
+        const [row] = await pool.query('UPDATE proconnect.publicaciones SET foto = ? WHERE id = ?;',
+            [foto, id])
         return row;
     }
 }

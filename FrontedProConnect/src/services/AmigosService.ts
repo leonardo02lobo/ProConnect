@@ -1,5 +1,6 @@
 import type { Amigos } from "../models/Amigos";
 import type { Usuario } from "../models/Usuario"
+import { getImageUrl } from "./ImagesService";
 import { getCookie } from "./UsuarioService"
 import { FiltrarUsuario } from "./UsuarioService";
 
@@ -157,7 +158,7 @@ export async function ObtenerSeguidos(id: number) {
     }
 }
 
-export async function ObtenerDatosSeguidores(id: number) : Promise<Amigos[]>{
+export async function ObtenerDatosSeguidores(id: number): Promise<Amigos[]> {
     try {
         const response = await fetch(`http://localhost:3000/api/Amigos/BuscarSeguidores/${id}`);
         if (!response.ok) {
@@ -172,7 +173,7 @@ export async function ObtenerDatosSeguidores(id: number) : Promise<Amigos[]>{
     }
 }
 
-export async function ObtenerDatosSeguidoresByID(id: number) : Promise<Amigos[]>{
+export async function ObtenerDatosSeguidoresByID(id: number): Promise<Amigos[]> {
     try {
         const response = await fetch(`http://localhost:3000/api/Amigos/BuscarSeguidoresByID/${id}`);
         if (!response.ok) {
@@ -180,6 +181,12 @@ export async function ObtenerDatosSeguidoresByID(id: number) : Promise<Amigos[]>
             return []
         }
         const data: Amigos[] = await response.json();
+        for (const element of data) {
+            if (element.usuario2.fotoPerfil !== "") {
+                const result = await getImageUrl(element.usuario2.fotoPerfil);
+                element.usuario2.fotoPerfil = result ?? "";
+            }
+        }
         return data;
     } catch (error) {
         console.log((error as Error).message)

@@ -1,4 +1,5 @@
 import type { Usuario } from "../models/Usuario";
+import { getImageUrl } from "./ImagesService";
 
 export async function ObtenerDatosUsuario(usuarioId: number) {
     const response2 = await fetch(
@@ -11,7 +12,13 @@ export async function ObtenerDatosUsuario(usuarioId: number) {
         },
     );
 
-    return await response2.json();
+    const data = await response2.json();
+    if (data.foroPerfil !== "") {
+        const result = await getImageUrl(data.fotoPerfil);
+        data.fotoPerfil = result ?? "";
+    }
+
+    return data;
 }
 
 export async function SetUsuario(usuario: Usuario) {
@@ -27,7 +34,7 @@ export async function SetUsuario(usuario: Usuario) {
     }
 }
 
-export async function NuevaContrasenia(usuario: Usuario){
+export async function NuevaContrasenia(usuario: Usuario) {
     const response = await fetch('http://localhost:3000/api/usuario/SetPassword', {
         method: "POST",
         headers: {
@@ -38,7 +45,7 @@ export async function NuevaContrasenia(usuario: Usuario){
     return response;
 }
 
-export async function EncontrarUsuario(usuario: Usuario){
+export async function EncontrarUsuario(usuario: Usuario) {
     const response = await fetch('http://localhost:3000/api/usuario/FindUser', {
         method: "POST",
         headers: {
@@ -83,10 +90,10 @@ export async function ValidarNombreUsuario(usuario: Usuario): Promise<boolean> {
     }
 }
 
-export async function BuscarPersona(name: string){
-    const response = await fetch(`http://localhost:3000/api/usuario/Buscador/${name}`,{
+export async function BuscarPersona(name: string) {
+    const response = await fetch(`http://localhost:3000/api/usuario/Buscador/${name}`, {
         method: "GET",
-        headers:{
+        headers: {
             "Content-Type": "application/json"
         },
     })
@@ -123,7 +130,7 @@ export async function getCookie() {
         });
         if (!response.ok) {
             return null;
-        } 
+        }
         const data = await response.json();
         if (data) {
             return data['user']
@@ -149,5 +156,28 @@ export async function IniciarSesion(usuario: Usuario) {
         return response
     } catch (error) {
         alert((error as Error).message);
+    }
+}
+
+export async function SubirImagenFoto(file: any) {
+    try {
+        const formData = new FormData();
+        formData.append('image', file.files[0]);
+
+        const response = await fetch('http://localhost:3000/api/usuario/ActualizarFotoUsuario', {
+            method: "POST",
+            credentials: "include",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir imagen:', error);
+        alert((error as Error).message);
+        return null;
     }
 }
