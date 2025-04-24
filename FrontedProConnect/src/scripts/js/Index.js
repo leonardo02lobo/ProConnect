@@ -5,6 +5,7 @@ const Opciones = document.getElementById("options")
 const amigos = document.getElementById('amigos')
 const empleo = document.getElementById('empleo')
 const index = document.getElementById('index')
+const mensajes = document.getElementById('mensajes')
 
 index.addEventListener('click', () => {
     window.location.href = "/"
@@ -26,6 +27,7 @@ addEventListener('load', async () => {
     BotonDinamico.style.display = "none"
     Opciones.style.display = "block"
     amigos.style.display = "block"
+    mensajes.style.display = "block"
 });
 
 BotonDinamico.addEventListener('click', () => {

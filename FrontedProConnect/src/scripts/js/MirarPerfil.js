@@ -26,10 +26,7 @@ addEventListener('load', async () => {
             window.location.href = "/"
             return;
         }
-
-        if(data.fotoPerfil !== ""){
-            ObtenerImagen(data)
-        }
+        ObtenerImagen(data)
         NSeguidores.innerHTML = dataSeguidores + " seguidores"
         NSeguidores.href = `/MirarAmigos/Seguidores/${data.id}`
         nombre.innerHTML = data.nombreUsuario
@@ -51,9 +48,12 @@ async function MostrarPublicaciones(usuario) {
 }
 
 async function ObtenerImagen(data){
-    const result = await getImageUrl(data.fotoPerfil)
-    data.fotoPerfil = result
+    let result = ""
+    if(data.fotoPerfil !== ""){
+        result = await getImageUrl(data.fotoPerfil)
+    }
     if (result !== '') {
+        data.fotoPerfil = result
         imagenPerfil[0].src = result
         if (imagenPerfil[1])
             imagenPerfil[1].src = result

@@ -2,10 +2,13 @@ import { getImageUrl } from "../services/ImagesService"
 
 export async function publicacionesPerfil(foto, fotoPerfil, titulo, nombreUsuario, contenido) {
     let resultfoto = ''
+    let result = ''
     if(foto !== ""){
         resultfoto = await getImageUrl(foto)
     }
-    const result = await getImageUrl(fotoPerfil)
+    if(fotoPerfil !== ""){
+        result = await getImageUrl(fotoPerfil)
+    }
     return `
             <a>
                 <div

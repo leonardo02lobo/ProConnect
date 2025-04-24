@@ -79,6 +79,10 @@ export async function ObtenerPublicacion(id: number | undefined) {
         const result = await fetch(`http://localhost:3000${data.usuario.fotoPerfil}`);
         data.usuario.fotoPerfil = result.url;
     }
+    if (data.foto !== "") {
+        const result = await getImageUrl(data.foto);
+        data.foto = result;
+    }
     return data;
 }
 export async function DarLikeId(id: number) {
@@ -120,6 +124,16 @@ export async function ObtenerPublicacionesUsuario(usuario: Usuario): Promise<Pub
             body: JSON.stringify(usuario)
         });
         const data: PublicacionModel[] = await response.json();
+        for (const element of data) {
+            if (element.usuario.fotoPerfil !== "") {
+                const result = await getImageUrl(element.usuario.fotoPerfil);
+                element.usuario.fotoPerfil = result;
+            }
+            if (element.foto !== "") {
+                const result = await getImageUrl(element.foto);
+                element.foto = result;
+            }
+        }
         return data;
     } catch (e) {
         console.log((e as Error).message)

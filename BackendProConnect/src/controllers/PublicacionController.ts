@@ -96,7 +96,7 @@ export const publicacionController = {
     },
     async ActualizarFotoPublicacion(req: Request, res: Response) {
         try {
-            const id = req.body.id; // El ID viene en el body
+            const id = req.body.id;
             if (!id) {
                 res.status(400).json({ error: 'ID de publicación faltante' });
             }

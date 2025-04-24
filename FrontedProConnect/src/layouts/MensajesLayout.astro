@@ -1,0 +1,26 @@
+---
+import Header from "../components/Header.astro";
+import VisualizarMensaje from "../components/VisualizarMensaje.astro";
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/assets/ProConnect.webp" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body class="dark:bg-gray-900 dark:text-gray-400 bg-white text-black">
+		<main class="grid grid-cols-3 ">
+			<Header />
+			<main class="col-span-1 px-6 mt-20 flex flex-col gap-3">
+				<slot />
+			</main>
+			<VisualizarMensaje/>
+		</main>
+		<script src="./../scripts/js/Manejoalerta.js"></script>
+	</body>
+</html>
