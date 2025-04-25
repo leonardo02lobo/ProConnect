@@ -167,9 +167,9 @@ export async function ObtenerDatosSeguidores(id: number): Promise<Amigos[]> {
         }
         const data: Amigos[] = await response.json();
         for (const element of data) {
-            if (element.usuario2.fotoPerfil !== "") {
-                const result = await getImageUrl(element.usuario2.fotoPerfil);
-                element.usuario2.fotoPerfil = result;
+            if (element.usuario1.fotoPerfil !== "") {
+                const result = await getImageUrl(element.usuario1.fotoPerfil);
+                element.usuario1.fotoPerfil = result;
             }
         }
         return data;

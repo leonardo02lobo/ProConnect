@@ -5,6 +5,7 @@ import PublicacionRouter from "./routes/PublicacionRouter"
 import ComentarioRouter from "./routes/ComentariosRouter"
 import AmigosRouter from "./routes/AmigosRouter"
 import EmpleoRouter from "./routes/EmpleoRouter"
+import postulacionRouter from "./routes/PostulacionesRouter"
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import dotenv from 'dotenv'
@@ -28,6 +29,7 @@ app.use('/api/Publicacion', PublicacionRouter);
 app.use('/api/Comentarios',ComentarioRouter);
 app.use('/api/Amigos',AmigosRouter);
 app.use('/api/Empleo',EmpleoRouter);
+app.use('/api/Postulaciones',postulacionRouter)
 
 // Ruta para subir imágenes
 app.post('/api/upload', upload.single('image'), (req, res, next) => {

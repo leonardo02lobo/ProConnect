@@ -8,6 +8,7 @@ export interface Empleo {
     puesto: string;
     descripcion: string;
     Titulo: string;
+    fecha: Date;
 }
 
 export const empleosModel = {
@@ -44,6 +45,7 @@ export async function OrganizarDatosEmpleo(empleo: any): Promise<Empleo>{
         empresa: empresa,
         puesto: empleo.puesto,
         descripcion: empleo.descripcion,
-        Titulo: empleo.Titulo
+        Titulo: empleo.Titulo,
+        fecha: empleo.fecha
     };
 }

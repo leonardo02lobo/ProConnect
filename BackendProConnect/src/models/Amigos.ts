@@ -27,7 +27,7 @@ export const AmigosModel ={
         return result
     },
     async BuscarNumeroSeguidoresID(idUsuario: string){
-        const [row] = await pool.query('SELECT COUNT(*) FROM proconnect.amigos WHERE (usuario1_id = ? || usuario2_id = ?) && estado = "Aceptado";',
+        const [row] = await pool.query('SELECT COUNT(*) FROM proconnect.amigos WHERE usuario2_id = ? && estado = "Aceptado";',
             [idUsuario,idUsuario])
         return row
     },
@@ -52,7 +52,7 @@ export const AmigosModel ={
             return row
     },
     async SeguidoresByID(id: number){
-        const [row] = await pool.query('SELECT * FROM proconnect.amigos WHERE usuario1_id = ? && estado = "Aceptado";',
+        const [row] = await pool.query('SELECT * FROM proconnect.amigos WHERE usuario2_id = ? && estado = "Aceptado";',
         [id])
         return row
     },

@@ -1,6 +1,6 @@
 import { ObtenerEmpresa } from "../scripts/ts/Registrarse";
 
-export async function setEmpresa(){
+export async function setEmpresa() {
     try {
         const response = await fetch('http://localhost:3000/api/Empresas/CrearEmpresa', {
             method: 'POST',
