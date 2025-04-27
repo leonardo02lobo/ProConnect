@@ -23,6 +23,10 @@ addEventListener('load', async () => {
 
     if(response.tipoUsuario === "usuario"){
         empleo.style.display = 'flex'
+        empleo.children[0].style.display = 'flex'
+    }else if(response.tipoUsuario === "empresa"){
+        empleo.style.display = 'flex'
+        empleo.children[1].style.display = 'flex'
     }
     BotonDinamico.style.display = "none"
     Opciones.style.display = "block"

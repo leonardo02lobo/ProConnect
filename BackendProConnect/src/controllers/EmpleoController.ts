@@ -64,9 +64,6 @@ export const EmpleoController = {
         const Empleos: Empleo[] = []
         try{
             const result: any = await empleosModel.BuscarEmpleoPorNombre(req.params.nombre)
-            if(result.length === 0){
-                res.status(404).json({err: "No se ha encontrado el empleo"})
-            }
             for(const element of result){
                 const resultado: Empleo = await OrganizarDatosEmpleo(element)
                 Empleos.push(resultado)

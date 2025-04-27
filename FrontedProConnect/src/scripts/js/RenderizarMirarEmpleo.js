@@ -1,4 +1,6 @@
 import { ObtenerEmpleoPorId } from "../../services/EmpleosService"
+import { RevisarPostulacion } from "../../services/PostulacionesService";
+import { getCookie } from "../../services/UsuarioService";
 
 const empleo = document.getElementById('mirarempleo')
 
@@ -13,10 +15,13 @@ buscarEmpleo.addEventListener('click', async (event) => {
 
 async function ObtenerDatos(id){
     const response = await ObtenerEmpleoPorId(id)
-    RellenarInformacion(response)
+    const dataUser = await getCookie()
+    const result = await RevisarPostulacion(dataUser.id,id)
+    let band = result.length !== 0 ? true : false
+    RellenarInformacion(response,band)
 } 
 
-function RellenarInformacion(response){
+function RellenarInformacion(response,band){
     const fechaFormateada = new Date(response.fecha).toLocaleDateString("es-ES", {
         year: "numeric",
         month: "2-digit",
@@ -28,8 +33,14 @@ function RellenarInformacion(response){
     empleo.children[1].innerHTML = response.Titulo
     empleo.children[2].innerHTML = `${response.empresa.pais}-<span>fecha: ${fechaFormateada}</span>. Solicitudes: <span>Numero de solicitudes</span>`
     empleo.children[3].innerHTML = response.descripcion
-    empleo.children[4].children[0].innerHTML = "Postularte al trabajo"
-    empleo.children[4].children[0].style.display = "block"
+    if(band){
+        empleo.children[4].children[1].style.display = "block"
+        empleo.children[4].children[0].style.display = "none"
+    }else{
+        empleo.children[4].children[0].innerHTML = "Postularte al trabajo"
+        empleo.children[4].children[0].style.display = "block"
+        empleo.children[4].children[1].style.display = "none"
+    }
     empleo.children[4].children[0].href = `/Postulaciones/${response.id}`
     empleo.children[5].href = `/MirarUsuarios/${response.empresa.usuarioEmpresa.id}`
     empleo.children[5].innerHTML = "Ver perfil de la empresa"

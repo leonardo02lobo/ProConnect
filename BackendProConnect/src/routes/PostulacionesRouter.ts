@@ -5,4 +5,8 @@ const router = Router();
 
 router.post('/CrearPostulacion',PostulacionesController.CreatePostulacion)
 
+router.post('/RevisarSolicitudEmpleo',PostulacionesController.RevisarSolicitud)
+
+router.get('/ObtenerSolicitudes/:id',PostulacionesController.ObtenerPostulacionesByID)
+
 export default router;
