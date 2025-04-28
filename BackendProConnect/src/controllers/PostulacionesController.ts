@@ -44,5 +44,16 @@ export const PostulacionesController = {
         } catch (error) {
             res.status(500).json({message: "Error del servidor"})
         }
+    },
+    async EliminarPostulacion(req: Request, res: Response){
+        try {
+            if(req.body === null){
+                res.status(400).json({message: "Error en el body"})
+            }
+            const result = await postulacionesModel.EliminarPostulaciones(req.body["usuario_id"],req.body['empleo_id'])
+            res.status(200).json({message: "Se elimino la postulacion"})
+        } catch (error) {
+            res.status(500).json({error: (error as Error).message})
+        }
     }
 }

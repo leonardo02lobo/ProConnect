@@ -1,5 +1,5 @@
 import { tarjeta } from "../../modules/TarjetaPostulaciones";
-import { EnviarMensaje, ObtenerPostulacionesByID } from "./../../services/PostulacionesService";
+import { EliminarPostulacion, EnviarMensaje, ObtenerPostulacionesByID } from "./../../services/PostulacionesService";
 import { getCookie } from "./../../services/UsuarioService";
 
 const postulaciones = document.getElementById("postulaciones");
@@ -34,8 +34,9 @@ addEventListener('load', async () => {
                 const message = mensaje[i].value
                 const correoDestino = data[3].children[0].children[1].textContent.split(":")[1].replace(" ","")
     
-                const result = await EnviarMensaje(puesto,message,correoDestino)
-    
+                await EnviarMensaje(puesto,message,correoDestino)
+                const datosUsuario = await getCookie()
+                const result = await EliminarPostulacion(data[3].children[0].children[3].href.split("/")[4],datosUsuario.id)
                 if(result.status === 200){
                     window.location.reload()
                 }else{

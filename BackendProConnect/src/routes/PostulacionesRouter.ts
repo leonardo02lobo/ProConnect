@@ -9,4 +9,6 @@ router.post('/RevisarSolicitudEmpleo',PostulacionesController.RevisarSolicitud)
 
 router.get('/ObtenerSolicitudes/:id',PostulacionesController.ObtenerPostulacionesByID)
 
+router.post('/EliminarPostulacion',PostulacionesController.EliminarPostulacion)
+
 export default router;

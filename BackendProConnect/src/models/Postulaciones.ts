@@ -60,6 +60,12 @@ export const postulacionesModel = {
             WHERE emp.id = ?;
             `,[id])
             return row
+    },
+    async EliminarPostulaciones(idUsuario: number, idEmpleo: number){
+        const [row] = await pool.query('DELETE FROM proconnect.postulaciones WHERE usuario_id = ? AND empleo_id = ?',
+            [idUsuario,idEmpleo]
+        )
+        return row
     }
 }
 

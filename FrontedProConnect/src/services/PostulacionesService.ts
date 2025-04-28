@@ -67,3 +67,17 @@ export async function EnviarMensaje(puesto: string, message: string, correoDesti
         })
         return response;
 }
+
+export async function EliminarPostulacion(idUsuario: number, idEmpleo:number){
+    const response = await fetch('http://localhost:3000/api/Postulaciones/EliminarPostulacion',{
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            usuario_id: idUsuario,
+            empleo_id: idEmpleo
+        })
+    })
+    return response
+}
