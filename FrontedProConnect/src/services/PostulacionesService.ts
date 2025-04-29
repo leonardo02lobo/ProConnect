@@ -53,19 +53,36 @@ export async function ObtenerPostulacionesByID(id: number): Promise<Postulacione
     }
 }
 
-export async function EnviarMensaje(puesto: string, message: string, correoDestino:string){
-        const response = await fetch('http://localhost:3000/api/Correos/EnviarMensaje',{
+export async function EnviarMensajePositivo(puesto: string, correoDestino:string,nombrePostulado: string,nombreEmpresa: string){
+        const response = await fetch('http://localhost:3000/api/Correos/EnviarMensajePositivo',{
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 puesto: puesto,
-                message: message,
+                nombrePostulado: nombrePostulado,
+                nombreEmpresa: nombreEmpresa,
                 correoDestino: correoDestino
             })
         })
         return response;
+}
+
+export async function EnviarMensajeNegativo(puesto: string, correoDestino:string,nombrePostulado: string,nombreEmpresa: string){
+    const response = await fetch('http://localhost:3000/api/Correos/EnviarMensajeNegativo',{
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            puesto: puesto,
+            nombrePostulado: nombrePostulado,
+            nombreEmpresa: nombreEmpresa,
+            correoDestino: correoDestino
+        })
+    })
+    return response;
 }
 
 export async function EliminarPostulacion(idUsuario: number, idEmpleo:number){

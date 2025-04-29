@@ -1,10 +1,8 @@
 import { tarjeta } from "../../modules/TarjetaPostulaciones";
-import { EliminarPostulacion, EnviarMensaje, ObtenerPostulacionesByID } from "./../../services/PostulacionesService";
+import { EliminarPostulacion, EnviarMensajePositivo,EnviarMensajeNegativo, ObtenerPostulacionesByID } from "./../../services/PostulacionesService";
 import { getCookie } from "./../../services/UsuarioService";
 
 const postulaciones = document.getElementById("postulaciones");
-let mensaje = document.getElementById('mensaje')
-let EnviarMensajePostulacion = document.getElementById('EnviarMensajePostulacion')
 
 addEventListener('load', async () => {
     const dataUser = await getCookie();
@@ -19,30 +17,12 @@ addEventListener('load', async () => {
         postulaciones.innerHTML = html;
         const btnMensajeAceptar = document.querySelectorAll('.btn-mensajeAceptar');
         const btnMensajeRechazar = document.querySelectorAll('.btn-mensajeRechazar');
-        ActivarElEnvioDeMensaje(btnMensajeAceptar);
-        ActivarElEnvioDeMensaje(btnMensajeRechazar);
-        mensaje = document.querySelectorAll('#mensaje')
-        EnviarMensajePostulacion = document.querySelectorAll('#EnviarMensajePostulacion')
-        EnviarMensajePostulacion.forEach((element,i) => {
-            element.addEventListener('click', async () => {
-                if(mensaje[i].value === ""){
-                    alert("Tienes que dejarle un mensaje al postulado")
-                    return;
-                }
-                const data = element.parentElement.parentElement.parentElement.parentNode.children
-                const puesto = data[0].children[1].textContent.split(":")[1].replace(" ","")
-                const message = mensaje[i].value
-                const correoDestino = data[3].children[0].children[1].textContent.split(":")[1].replace(" ","")
-    
-                await EnviarMensaje(puesto,message,correoDestino)
-                const datosUsuario = await getCookie()
-                const result = await EliminarPostulacion(data[3].children[0].children[3].href.split("/")[4],datosUsuario.id)
-                if(result.status === 200){
-                    window.location.reload()
-                }else{
-                    alert("Error con el envio del mensaje al postulado")
-                }
-            })
+        btnMensajeAceptar.forEach((element, i) => {
+            element.addEventListener('click', () => EnviarMensajeAlServidor(i,element,true,data))
+        })
+
+        btnMensajeRechazar.forEach((element, i) => {
+            element.addEventListener('click',() => EnviarMensajeAlServidor(i,element,false,data))
         })
     }
 });
@@ -50,7 +30,7 @@ addEventListener('load', async () => {
 postulaciones.addEventListener('click', async (e) => {
     try {
         const btn = e.target.closest("#toggleButton");
-        const infoDiv = btn?.closest('.bg-gray-800').querySelector('#info'); 
+        const infoDiv = btn?.closest('.bg-gray-800').querySelector('#info');
 
         if (btn && infoDiv) {
             infoDiv.classList.toggle("hidden");
@@ -62,14 +42,21 @@ postulaciones.addEventListener('click', async (e) => {
     }
 });
 
-function ActivarElEnvioDeMensaje(btns) {
-    btns.forEach((element, i) => {
-        element.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const mensajePostulado = document.querySelectorAll('#mensajePostulado');
-            mensajePostulado[i].classList.toggle("hidden");
-            mensajePostulado[i].classList.toggle("max-h-0");
-            mensajePostulado[i].classList.toggle("max-h-90");
-        });
-    });
+async function EnviarMensajeAlServidor(i,element,band,datos) {
+    const data = element.parentElement.parentElement.parentElement.parentNode.children
+    const nombrePostulado = data[i].children[0].children[0].textContent.split(":")[1].trim()
+    const puesto = data[i].children[0].children[1].textContent.split(":")[1].trim()
+    const correoDestino = data[i].children[2].children[0].children[1].textContent.split(":")[1].trim()
+    const datosUsuario = await getCookie()
+    if(band){
+        await EnviarMensajePositivo(puesto, correoDestino,nombrePostulado,datosUsuario.nombre.trim())
+    }else{
+        await EnviarMensajeNegativo(puesto, correoDestino,nombrePostulado,datosUsuario.nombre.trim())
+    }
+    const result = await EliminarPostulacion(data[i].children[2].children[0].children[3].href.split("/")[4], datos[i].EmpleoId)
+    if (result.status === 200) {
+        window.location.reload()
+    } else {
+        alert("Error con el envio del mensaje al postulado")
+    }
 }

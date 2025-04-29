@@ -3,6 +3,7 @@ import { correosController } from "../controllers/CorreosController";
 
 const router = Router()
 
-router.post('/EnviarMensaje',correosController.EnviarCorreos)
+router.post('/EnviarMensajePositivo',correosController.EnviarCorreosPostivo)
+router.post('/EnviarMensajeNegativo',correosController.EnviarCorreosNegativo)
 
 export default router;

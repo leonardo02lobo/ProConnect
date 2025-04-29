@@ -33,18 +33,6 @@ export function tarjeta(nombre, nombreEmpleo, puestoDelEmpleo, correo, puestoPos
                     >
                 </div>
             </div>
-            <div id="mensajePostulado" class="hidden transition-all duration-300 ease-in-out overflow-hidden p-4">
-                <div class="flex flex-col gap-4">
-                    <label for="mensaje">
-                        Enviar Mensaje al postulado
-                        <textarea name="mensaje" id="mensaje"  class="w-full h-30 border-black border-2 dark:border-white dark:border-2 rounded-2xl p-2"
-                        placeholder="Este Campo no puede quedar vacio"></textarea>
-                    </label>
-                    <div>
-                        <span class="bg-blue-600 text-white p-3 rounded-2xl cursor-pointer" id="EnviarMensajePostulacion">Enviar respuesta</span>
-                    </div>
-                </div>
-            </div>
             <div
                 id="info"
                 class="hidden transition-all duration-300 ease-in-out overflow-hidden"
