@@ -1,16 +1,16 @@
 import express from "express";
-import userRouters from "./routes/userRoutes";
-import EmpresaRouter from "./routes/EmpresaRouter"
-import PublicacionRouter from "./routes/PublicacionRouter"
-import ComentarioRouter from "./routes/ComentariosRouter"
-import AmigosRouter from "./routes/AmigosRouter"
-import EmpleoRouter from "./routes/EmpleoRouter"
-import postulacionRouter from "./routes/PostulacionesRouter"
-import CorreosRouter from "./routes/CorreosRouter"
+import userRouters from "./src/routes/userRoutes";
+import EmpresaRouter from "./src/routes/EmpresaRouter"
+import PublicacionRouter from "./src/routes/PublicacionRouter"
+import ComentarioRouter from "./src/routes/ComentariosRouter"
+import AmigosRouter from "./src/routes/AmigosRouter"
+import EmpleoRouter from "./src/routes/EmpleoRouter"
+import postulacionRouter from "./src/routes/PostulacionesRouter"
+import CorreosRouter from "./src/routes/CorreosRouter"
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import dotenv from 'dotenv'
-import { upload } from "./settings/configurateImages";
+import { upload } from "./src/settings/configurateImages";
 
 dotenv.config()
 
