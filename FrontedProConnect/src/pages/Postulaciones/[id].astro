@@ -19,7 +19,12 @@ const empleo: Empleo | null = await ObtenerEmpleoPorId(id.toString());
 
 <Layout title="Postularme al empleo">
     <main class="col-span-2 px-6 mt-20 flex flex-col gap-7">
-        <h1 class="text-3xl">Usted esta presentando su postulacion a la empresa <span class="font-bold text-2xl">{empleo?.empresa.nombreEmpresa}</span> hacia el puesto de <span class="font-bold text-2xl">{empleo?.Titulo}</span></h1>
+        <h1 class="text-3xl">
+            Usted esta presentando su postulacion a la empresa <span
+                class="font-bold text-2xl">{empleo?.empresa.nombreEmpresa}</span
+            > hacia el puesto de <span class="font-bold text-2xl"
+                >{empleo?.Titulo}</span>
+        </h1>
         <h1 class="text-2xl font-bold">Datos del Usuario</h1>
         <div id="DataUser" class="flex flex-col gap-3">
             <span class="text-2xl"></span>
@@ -28,31 +33,41 @@ const empleo: Empleo | null = await ObtenerEmpleoPorId(id.toString());
             <span class="text-2xl"></span>
         </div>
         <div class="flex">
-            <a href="" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md" id="enviarPostulacion">Enviar Postulacion</a>
+            <a
+                href=""
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md"
+                id="enviarPostulacion">Enviar Postulacion</a
+            >
         </div>
     </main>
 </Layout>
 <script>
-import type { Usuario } from "../../models/Usuario";
-import { CrearPostulacion } from "../../services/PostulacionesService";
-import { getCookie } from "../../services/UsuarioService";
+    import type { Usuario } from "../../models/Usuario";
+    import { CrearPostulacion } from "../../services/PostulacionesService";
+    import { getCookie } from "../../services/UsuarioService";
 
     const DataUser = document.getElementById("DataUser") as HTMLElement | null;
     const user: Usuario = await getCookie();
 
     if (DataUser && DataUser.children[0]) {
         DataUser.children[0].innerHTML = `Nombre del Postulante: ${user.nombre}`;
-        DataUser.children[1].innerHTML = `Nombre de Usuario del Postulante: ${user.nombreUsuario}`
-        DataUser.children[2].innerHTML = `Correo del Postulante: ${user.email}`
-        DataUser.children[3].innerHTML = `Puesto del Postulante: ${user.puesto}`
+        DataUser.children[1].innerHTML = `Nombre de Usuario del Postulante: ${user.nombreUsuario}`;
+        DataUser.children[2].innerHTML = `Correo del Postulante: ${user.email}`;
+        DataUser.children[3].innerHTML = `Puesto del Postulante: ${user.puesto}`;
     }
 
-    document.getElementById("enviarPostulacion")?.addEventListener('click', async () => {
-        const result = await CrearPostulacion(user.id,parseInt(location.href.split('/')[4]))
-        if(result === null){
-            alert("Error al enviar la postulacion. Intentar mas tarde")
-            return;
-        }
-        window.location.href = "/BuscarEmpleo"
-    })
+    document
+        .getElementById("enviarPostulacion")
+        ?.addEventListener("click", async () => {
+            const result = await CrearPostulacion(
+                user.id,
+                parseInt(location.href.split("/")[4]),
+            );
+            if (result === null) {
+                alert("Error al enviar la postulacion. Intentar mas tarde");
+                return;
+            }
+            window.location.href = "/BuscarEmpleo";
+        });
 </script>
+<script src="./../../scripts/js/ValidarSesion.js"></script>
