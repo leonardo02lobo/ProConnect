@@ -1,11 +1,7 @@
 import { getImageUrl } from "../services/ImagesService"
 
 export async function publicacionesPerfil(foto, fotoPerfil, titulo, nombreUsuario, contenido) {
-    let resultfoto = ''
     let result = ''
-    if(foto !== ""){
-        resultfoto = await getImageUrl(foto)
-    }
     if(fotoPerfil !== ""){
         result = await getImageUrl(fotoPerfil)
     }
@@ -15,7 +11,7 @@ export async function publicacionesPerfil(foto, fotoPerfil, titulo, nombreUsuari
                     class="flex flex-col p-4 gap-3 b-2 bg dark:bg-gray-800 bg-white shadow-lg border border-gray-200 rounded-lg mb-5 cursor-pointer"
                 >
                     <div class="flex flex-col gap-3">
-                                ${(resultfoto !== "") ? `<img src="${resultfoto}" alt="fotoPost" class="w-[100%] rounded-3xl"/>` : ''}
+                                ${(foto !== "") ? `<img src="${foto}" alt="fotoPost" class="w-[100%] rounded-3xl"/>` : ''}
                         <div class="flex flex-row gap-4">
                             <a href="/MirarPerfil">
                                 <img
