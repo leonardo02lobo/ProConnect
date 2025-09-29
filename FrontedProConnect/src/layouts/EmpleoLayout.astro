@@ -21,7 +21,7 @@ const { title } = Astro.props;
 		</div>
 		<main class="grid grid-cols-3 ">
 			<Header />
-			<main class="col-span-1 px-6 mt-20 flex flex-col gap-7">
+			<main class="col-span-1 px-6 mt-20 flex flex-col gap-7 md:w-full w-screen" id="container-busqueda">
 				<div class="flex flex-row items-center gap-4">
 					<input type="text" placeholder="Buscar" class="w-full h-10 rounded-2xl border-2 border-gray-600 px-4" id="BuscarEmpleo"/>
 					<button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-md" id="BtnBuscar">Buscar</button>

@@ -16,7 +16,7 @@ const { title } = Astro.props;
 	<body class="dark:bg-gray-900 dark:text-gray-400 bg-white text-black">
 		<main class="grid grid-cols-3 ">
 			<Header />
-			<main class="col-span-1 px-6 mt-20 flex flex-col gap-3">
+			<main class="col-span-1 px-6 mt-20 flex flex-col gap-3 w-full" id="mainMessage">
 				<slot />
 			</main>
 			<VisualizarMensaje/>
@@ -24,3 +24,4 @@ const { title } = Astro.props;
 		<script src="./../scripts/js/Manejoalerta.js"></script>
 	</body>
 </html>
+<script src="./../scripts/js/RenderizadoMensajes.js"></script>

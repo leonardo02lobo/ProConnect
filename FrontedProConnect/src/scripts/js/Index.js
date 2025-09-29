@@ -21,17 +21,16 @@ addEventListener('load', async () => {
         return;
     }
 
+    empleo.style.display = 'flex'
     if(response.tipoUsuario === "usuario"){
-        empleo.style.display = 'flex'
-        empleo.children[0].style.display = 'flex'
+        VisibilidadBotones(empleo.children[0],"Buscar Empleo",3)
     }else if(response.tipoUsuario === "empresa"){
-        empleo.style.display = 'flex'
-        empleo.children[1].style.display = 'flex'
+        VisibilidadBotones(empleo.children[1],"Mirar Postulacion",3)
     }
     BotonDinamico.style.display = "none"
     Opciones.style.display = "block"
     amigos.style.display = "block"
-    mensajes.style.display = "block"
+    VisibilidadBotones(mensajes,"Mensajes",3)
 });
 
 BotonDinamico.addEventListener('click', () => {
@@ -47,5 +46,22 @@ Opciones.addEventListener('click', () => {
         window.location.href = "/MirarPerfilUsuario"
     }else if(Opciones.value === "opciones"){
         window.location.href = "/Opciones"
+    }else if(Opciones.value === "Mensajes"){
+        window.location.href = "/Mensajes"
+    }else if(Opciones.value === "Buscar Empleo"){
+        window.location.href = "/BuscarEmpleo"
+    }else if(Opciones.value === "Mirar Postulacion"){
+        window.location.href = "/MirarPostulaciones"
     }
 })
+
+function VisibilidadBotones(component,text,n){
+    if(window.screen.width > 1000){
+        component.style.display = "block"
+    }else{
+        const element = document.createElement("option")
+        element.innerHTML = text
+        element.value = text.trim()
+        Opciones.insertBefore(element,Opciones.options[n])
+    }
+}
