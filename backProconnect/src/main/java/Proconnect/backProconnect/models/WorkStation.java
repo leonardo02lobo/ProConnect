@@ -23,6 +23,9 @@ public class WorkStation {
     @NotBlank(message = "WorkStation is mandatory")
     @NotNull(message = "WorkStation cannot be null")
     private String workStation;
+    
+    public WorkStation() {
+    }
 
     public WorkStation(Long id, Long userId, String workStation) {
         this.id = id;

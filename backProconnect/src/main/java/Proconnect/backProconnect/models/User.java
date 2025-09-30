@@ -1,16 +1,14 @@
 package Proconnect.backProconnect.models;
 
-import org.hibernate.validator.constraints.UniqueElements;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "User")
@@ -22,12 +20,12 @@ public class User {
 
     @NotBlank(message = "Name is mandatory")
     @NotNull(message = "Name cannot be null")
-    @UniqueElements
+    @Column(unique = true, nullable = false)
     private String name;
 
     @NotBlank(message = "Username is mandatory")
     @NotNull(message = "Username cannot be null")
-    @UniqueElements
+    @Column(unique = true,nullable = false)
     private String userName;
 
     @NotBlank(message = "Email is mandatory")
@@ -36,13 +34,17 @@ public class User {
 
     @NotBlank(message = "Password is mandatory")
     @NotNull(message = "Password cannot be null")
-    @Min(value = 7, message = "Password must be at least 7 characters long")
-    @Max(value = 20, message = "Password must be at most 14 characters long")
+    @Size(min = 7, max = 100, message = "Password be in range 7 at 100 characters long")
+    @Column(nullable = false, length = 100)
     private String password;
 
     @NotBlank(message = "Role is mandatory")
     @NotNull(message = "Role cannot be null")
     private String role;
+
+    
+    public User() {
+    }
 
     public User(Long id, String name, String userName, String email, String password, String role) {
         this.id = id;
