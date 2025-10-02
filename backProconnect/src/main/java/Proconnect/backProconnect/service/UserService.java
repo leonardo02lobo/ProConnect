@@ -93,4 +93,8 @@ public class UserService {
     public List<User> SearchByNameOrUsername(String name) {
         return userRepository.findAll(UserSpecification.hasNameLike(name));
     }
+
+    public User findUserByUserName(String username) {
+        return userRepository.findByUserName(username);
+    }
 }

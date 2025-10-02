@@ -8,5 +8,5 @@ import Proconnect.backProconnect.models.User;
 
 @Repository
 public interface UserRepository  extends JpaRepository<User, Long>, JpaSpecificationExecutor<User>{
-    
+    User findByUserName(String userName);
 }
