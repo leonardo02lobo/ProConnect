@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import Proconnect.backProconnect.models.User;
+import Proconnect.backProconnect.model.UserDto;
 import Proconnect.backProconnect.repository.UserRepository;
 import Proconnect.backProconnect.specification.UserSpecification;
 
@@ -21,7 +21,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public String AddUser(User user) {
+    public String AddUser(UserDto user) {
         try {
             if (user == null) {
                 return "User cannot be null";
@@ -34,11 +34,11 @@ public class UserService {
         }
     }
 
-    public List<User> GetAllUsers() {
+    public List<UserDto> GetAllUsers() {
         return userRepository.findAll();
     }
 
-    public String UpdateUserById(Long Id, User newUser) {
+    public String UpdateUserById(Long Id, UserDto newUser) {
         try {
             if (Long.valueOf(Id) == null) {
                 return "Id cannot be null";
@@ -46,7 +46,7 @@ public class UserService {
             if (!userRepository.existsById(Id)) {
                 return "User with Id " + Id + " does not exist";
             }
-            User existingUser = userRepository.findById(Id).orElse(null);
+            UserDto existingUser = userRepository.findById(Id).orElse(null);
             if (existingUser == null) {
                 return "User with Id " + Id + " does not exist";
             }
@@ -62,27 +62,27 @@ public class UserService {
         }
     }
 
-    public String DeleteUserById(Long Id) {
+    public boolean DeleteUserById(Long Id) {
         try {
             if (Long.valueOf(Id) == null) {
-                return "Id cannot be null";
+                return false;
             }
             if (!userRepository.existsById(Id)) {
-                return "User with Id " + Id + " does not exist";
+                return false;
             }
             userRepository.deleteById(Id);
-            return "User with Id " + Id + " deleted successfully";
+            return true;
         } catch (Exception e) {
-            return "Error: " + e.getMessage();
+            return false;
         }
     }
 
-    public User GetUserById(Long Id) {
+    public UserDto GetUserById(Long Id) {
         try {
             if (Long.valueOf(Id) == null) {
                 return null;
             }
-            Optional<User> user = userRepository.findById(Id);
+            Optional<UserDto> user = userRepository.findById(Id);
 
             return user.orElse(null);
         } catch (Exception e) {
@@ -90,11 +90,11 @@ public class UserService {
         }
     }
 
-    public List<User> SearchByNameOrUsername(String name) {
+    public List<UserDto> SearchByNameOrUsername(String name) {
         return userRepository.findAll(UserSpecification.hasNameLike(name));
     }
 
-    public User findUserByUserName(String username) {
+    public UserDto findUserByUserName(String username) {
         return userRepository.findByUserName(username);
     }
 }

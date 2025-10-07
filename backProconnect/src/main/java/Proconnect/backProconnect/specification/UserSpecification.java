@@ -2,11 +2,11 @@ package Proconnect.backProconnect.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import Proconnect.backProconnect.models.User;
+import Proconnect.backProconnect.model.UserDto;
 
 public class UserSpecification {
 
-    public static Specification<User> hasNameLike(String name) {
+    public static Specification<UserDto> hasNameLike(String name) {
         return (root, query, criteriBuilder) -> {
             if (name == null || name.trim().isEmpty()) {
                 return criteriBuilder.conjunction();

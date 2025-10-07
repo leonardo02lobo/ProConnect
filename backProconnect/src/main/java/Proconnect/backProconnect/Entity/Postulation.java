@@ -1,4 +1,4 @@
-package Proconnect.backProconnect.models;
+package Proconnect.backProconnect.Entity;
 
 import java.util.Date;
 
@@ -7,34 +7,28 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "Comments")
-public class Comments {
-
+@Table(name = "Postulations")
+public class Postulation {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
-
-    @NotNull(message = "Post ID cannot be null")
-    private Long postId;
-
+    
     @NotNull(message = "User ID cannot be null")
     private Long userId;
-
-    @NotBlank(message = "Content is mandatory")
-    @NotNull(message = "Content cannot be null")
-    private String content;
+    
+    @NotNull(message = "Job ID cannot be null")
+    private Long jobId;
 
     private Date date;
 
-    public Comments(Long id, Long postId, Long userId, String content, Date date) {
+    public Postulation(Long id, Long userId, Long jobId, Date date) {
         Id = id;
-        this.postId = postId;
         this.userId = userId;
-        this.content = content;
+        this.jobId = jobId;
         this.date = date;
     }
 
@@ -46,14 +40,6 @@ public class Comments {
         Id = id;
     }
 
-    public Long getPostId() {
-        return postId;
-    }
-
-    public void setPostId(Long postId) {
-        this.postId = postId;
-    }
-
     public Long getUserId() {
         return userId;
     }
@@ -62,12 +48,12 @@ public class Comments {
         this.userId = userId;
     }
 
-    public String getContent() {
-        return content;
+    public Long getJobId() {
+        return jobId;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setJobId(Long jobId) {
+        this.jobId = jobId;
     }
 
     public Date getDate() {
@@ -77,4 +63,6 @@ public class Comments {
     public void setDate(Date date) {
         this.date = date;
     }
+
+    
 }

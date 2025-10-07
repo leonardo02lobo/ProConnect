@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import Proconnect.backProconnect.models.User;
+import Proconnect.backProconnect.model.UserDto;
 import Proconnect.backProconnect.service.UserService;
 import jakarta.validation.Valid;
 
@@ -26,31 +26,62 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> AddUser(@RequestBody @Valid User user){
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.AddUser(user));
+    public ResponseEntity<?> AddUser(@RequestBody @Valid UserDto user){
+        Object createdUser = userService.AddUser(user);
+        if (createdUser != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User could not be created.");
+        }
     }
+
     @GetMapping
     public ResponseEntity<?> GetAllUser(){
-        return ResponseEntity.ok().body(userService.GetAllUsers());
+        Object users = userService.GetAllUsers();
+        if (users != null) {
+            return ResponseEntity.ok().body(users);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No users found.");
+        }
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> UpdateUserById(@PathVariable Long id,@RequestBody @Valid User newUser){
-        return ResponseEntity.status(HttpStatus.OK).body(userService.UpdateUserById(id, newUser));
+    public ResponseEntity<?> UpdateUserById(@PathVariable Long id, @RequestBody @Valid UserDto newUser){
+        Object updatedUser = userService.UpdateUserById(id, newUser);
+        if (updatedUser != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        }
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> DeleteUserById(@PathVariable Long id){
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(userService.DeleteUserById(id));
+        boolean deleted = userService.DeleteUserById(id);
+        if (deleted) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        }
     }
 
     @GetMapping("/search/{id}")
     public ResponseEntity<?> GetUserById(@PathVariable Long id){
-        return ResponseEntity.ok().body(userService.GetUserById(id));
+        Object user = userService.GetUserById(id);
+        if (user != null) {
+            return ResponseEntity.ok().body(user);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        }
     }
 
     @GetMapping("/search/name/{name}")
     public ResponseEntity<?> SearchByNameOrUsername(@PathVariable String name){
-        return ResponseEntity.ok().body(userService.SearchByNameOrUsername(name));
+        Object users = userService.SearchByNameOrUsername(name);
+        if (users != null) {
+            return ResponseEntity.ok().body(users);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No users found.");
+        }
     }
 }

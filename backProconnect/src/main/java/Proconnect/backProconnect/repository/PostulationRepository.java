@@ -3,9 +3,9 @@ package Proconnect.backProconnect.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import Proconnect.backProconnect.models.Postulation;
+import Proconnect.backProconnect.model.PostulationDto;
 
 @Repository
-public interface PostulationRepository extends JpaRepository<Postulation, Long>{
+public interface PostulationRepository extends JpaRepository<PostulationDto, Long>{
 
 }

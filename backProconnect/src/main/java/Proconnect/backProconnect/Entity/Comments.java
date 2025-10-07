@@ -1,4 +1,4 @@
-package Proconnect.backProconnect.models;
+package Proconnect.backProconnect.Entity;
 
 import java.util.Date;
 
@@ -11,12 +11,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "Posts")
-public class Posts {
+@Table(name = "Comments")
+public class Comments {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
+
+    @NotNull(message = "Post ID cannot be null")
+    private Long postId;
 
     @NotNull(message = "User ID cannot be null")
     private Long userId;
@@ -25,20 +28,13 @@ public class Posts {
     @NotNull(message = "Content cannot be null")
     private String content;
 
-    @NotBlank(message = "Title is mandatory")
-    @NotNull(message = "Title cannot be null")
-    private String Title;
-
-    private String imageUrl;
-
     private Date date;
 
-    public Posts(Long id, Long userId, String content, String title, String imageUrl, Date date) {
+    public Comments(Long id, Long postId, Long userId, String content, Date date) {
         Id = id;
+        this.postId = postId;
         this.userId = userId;
         this.content = content;
-        Title = title;
-        this.imageUrl = imageUrl;
         this.date = date;
     }
 
@@ -48,6 +44,14 @@ public class Posts {
 
     public void setId(Long id) {
         Id = id;
+    }
+
+    public Long getPostId() {
+        return postId;
+    }
+
+    public void setPostId(Long postId) {
+        this.postId = postId;
     }
 
     public Long getUserId() {
@@ -66,22 +70,6 @@ public class Posts {
         this.content = content;
     }
 
-    public String getTitle() {
-        return Title;
-    }
-
-    public void setTitle(String title) {
-        Title = title;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
     public Date getDate() {
         return date;
     }
@@ -89,5 +77,4 @@ public class Posts {
     public void setDate(Date date) {
         this.date = date;
     }
-
 }

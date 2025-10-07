@@ -1,4 +1,4 @@
-package Proconnect.backProconnect.models;
+package Proconnect.backProconnect.Entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

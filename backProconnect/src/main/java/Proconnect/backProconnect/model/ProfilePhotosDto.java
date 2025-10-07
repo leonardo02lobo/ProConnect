@@ -1,28 +1,13 @@
-package Proconnect.backProconnect.models;
+package Proconnect.backProconnect.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
-
-@Entity
-@Table(name = "ProfilePhotos")
-public class ProfilePhotos {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ProfilePhotosDto {
+    
     private Long Id;
-
-    @NotNull(message = "User ID cannot be null")
     private Long userId;
-
     private String photoUrl;
-
     private String wallPhotoUrl;
-
-    public ProfilePhotos(Long id, Long userId, String photoUrl, String wallPhotoUrl) {
+    
+    public ProfilePhotosDto(Long id, Long userId, String photoUrl, String wallPhotoUrl) {
         Id = id;
         this.userId = userId;
         this.photoUrl = photoUrl;
@@ -61,4 +46,5 @@ public class ProfilePhotos {
         this.wallPhotoUrl = wallPhotoUrl;
     }
 
+    
 }

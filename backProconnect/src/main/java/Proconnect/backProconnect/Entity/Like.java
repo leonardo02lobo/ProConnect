@@ -1,4 +1,4 @@
-package Proconnect.backProconnect.models;
+package Proconnect.backProconnect.Entity;
 
 import java.util.Date;
 
@@ -10,25 +10,29 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "Postulations")
-public class Postulation {
-    
+@Table(name = "Likes")
+public class Like {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
-    
+
     @NotNull(message = "User ID cannot be null")
     private Long userId;
-    
-    @NotNull(message = "Job ID cannot be null")
-    private Long jobId;
+
+    @NotNull(message = "Post ID cannot be null")
+    private Long postId;
+
+    @NotNull(message = "isLike cannot be null")
+    private Boolean isLike;
 
     private Date date;
 
-    public Postulation(Long id, Long userId, Long jobId, Date date) {
+    public Like(Long id, Long userId, Long postId, Boolean isLike, Date date) {
         Id = id;
         this.userId = userId;
-        this.jobId = jobId;
+        this.postId = postId;
+        this.isLike = isLike;
         this.date = date;
     }
 
@@ -48,12 +52,20 @@ public class Postulation {
         this.userId = userId;
     }
 
-    public Long getJobId() {
-        return jobId;
+    public Long getPostId() {
+        return postId;
     }
 
-    public void setJobId(Long jobId) {
-        this.jobId = jobId;
+    public void setPostId(Long postId) {
+        this.postId = postId;
+    }
+
+    public Boolean getIsLike() {
+        return isLike;
+    }
+
+    public void setIsLike(Boolean isLike) {
+        this.isLike = isLike;
     }
 
     public Date getDate() {
@@ -64,5 +76,4 @@ public class Postulation {
         this.date = date;
     }
 
-    
 }

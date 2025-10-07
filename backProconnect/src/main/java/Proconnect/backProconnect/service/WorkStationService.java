@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import Proconnect.backProconnect.models.WorkStation;
+import Proconnect.backProconnect.model.WorkStationDto;
 import Proconnect.backProconnect.repository.WorkStationRepository;
 import Proconnect.backProconnect.specification.WorkStationSpecification;
 
@@ -17,7 +17,7 @@ public class WorkStationService {
         this.workStationRepository = workStationRepository;
     }
 
-    public String AddWorkStation(WorkStation workStation) {
+    public String AddWorkStation(WorkStationDto workStation) {
         try {
             if (workStation == null) {
                 return "WorkStation cannot be null";
@@ -29,11 +29,11 @@ public class WorkStationService {
         }
     }
 
-    public List<WorkStation> GetAllWorkStation() {
+    public List<WorkStationDto> GetAllWorkStation() {
         return workStationRepository.findAll();
     }
 
-    public String UpdateWorkStationById(Long Id, WorkStation newWorkStation) {
+    public String UpdateWorkStationById(Long Id, WorkStationDto newWorkStation) {
         try {
             if (Long.valueOf(Id) == null) {
                 return "Id cannot be null";
@@ -42,7 +42,7 @@ public class WorkStationService {
                 return "new WorkStation cannot be null";
             }
 
-            WorkStation existWorkStation = workStationRepository.findById(Id).orElse(null);
+            WorkStationDto existWorkStation = workStationRepository.findById(Id).orElse(null);
 
             if (existWorkStation == null) {
                 return "The WorkStation with " + Id + " does not exist";
@@ -55,27 +55,27 @@ public class WorkStationService {
         }
     }
 
-    public String DeleteWorkStation(Long Id) {
+    public boolean DeleteWorkStation(Long Id) {
         try {
             if (Long.valueOf(Id) == null) {
-                return "Id cannot be null";
+                return false;
             }
             if (!workStationRepository.existsById(Id)) {
-                return "WorkStation with Id " + Id + " not exist";
+                return false;
             }
             workStationRepository.deleteById(Id);
-            return "WorkStation Delete successfully";
+            return true;
         } catch (Exception e) {
-            return "Error: " + e.getMessage();
+            return false;
         }
     }
 
-    public WorkStation GetWorkStationById(Long Id){
+    public WorkStationDto GetWorkStationById(Long Id){
         try {
             if(Long.valueOf(Id) == null){
                 return null;
             }
-            Optional<WorkStation> workStation = workStationRepository.findById(Id);
+            Optional<WorkStationDto> workStation = workStationRepository.findById(Id);
 
             return workStation.orElse(null);
         } catch (Exception e) {
@@ -83,7 +83,7 @@ public class WorkStationService {
         }
     }
 
-    public List<WorkStation> SearchByWorkStation(String workStation){
+    public List<WorkStationDto> SearchByWorkStation(String workStation){
         return workStationRepository.findAll(WorkStationSpecification.hasWorkStationLike(workStation));
     }
 }

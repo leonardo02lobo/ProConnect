@@ -1,4 +1,4 @@
-package Proconnect.backProconnect.models;
+package Proconnect.backProconnect.Entity;
 
 import java.util.Date;
 
