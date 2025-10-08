@@ -33,6 +33,10 @@ public class Posts {
 
     private Date date;
 
+    public Posts(){
+        
+    }
+
     public Posts(Long id, Long userId, String content, String title, String imageUrl, Date date) {
         Id = id;
         this.userId = userId;

@@ -1,0 +1,53 @@
+package Proconnect.backProconnect.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import Proconnect.backProconnect.model.CommentsDto;
+import Proconnect.backProconnect.repository.CommentsRepository;
+
+@Service
+public class CommentsService {
+    
+    private final CommentsRepository commentsRepository;
+
+    public CommentsService(CommentsRepository commentsRepository){
+        this.commentsRepository = commentsRepository;
+    }
+
+    public String AddComments(CommentsDto comments){
+        try {
+            if(comments == null){
+                return "Comment cannot be null";
+            }
+            commentsRepository.save(comments);
+            return "Comment Add successufly";
+        } catch (Exception e) {
+            return "Error: "+e.getMessage();
+        }
+    }
+
+    public String DeleteCommentById(Long Id){
+        try {
+            if(Id == null || Id <= 0){
+                return "Id cannot be null or less zero";
+            }
+            commentsRepository.deleteById(Id);
+            return "Id delete successufly";
+        } catch (Exception e) {
+            return "Error: "+e.getMessage();
+        }
+    }
+
+    public List<CommentsDto> findByPostId(Long postId){
+        try {
+            if(postId == null || postId <= 0){
+                return null;
+            }
+            return commentsRepository.findByPostId(postId);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+}
