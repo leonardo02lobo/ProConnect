@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import Proconnect.backProconnect.Entity.ProfilePhotos;
 import Proconnect.backProconnect.model.ProfilePhotosDto;
 import Proconnect.backProconnect.service.ProfilePhotosService;
 import jakarta.validation.Valid;
@@ -33,7 +34,7 @@ public class ProfilePhotosController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> GetPhotoById(@PathVariable Long Id){
-        ProfilePhotosDto photo = profilePhotosService.GetPhotoById(Id);
+        ProfilePhotos photo = profilePhotosService.GetPhotoById(Id);
         if (photo == null) {
             return ResponseEntity.status(404).body("Photo not found");
         }

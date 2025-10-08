@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import Proconnect.backProconnect.Entity.Company;
 import Proconnect.backProconnect.model.CompanyDto;
 import Proconnect.backProconnect.repository.CompanyRepository;
 
@@ -22,14 +23,15 @@ public class CompanyService {
             if(company == null){
                 return "Company cannot be null";
             }
-            companyRepository.save(company);
+            Company companyEntity = new Company(company.getId(), company.getName(), company.getDescription(), company.getLocation(), company.getUserId());
+            companyRepository.save(companyEntity);
             return "Company add successufly";
         } catch (Exception e) {
             return "Error: "+e.getMessage();
         }
     }
 
-    public List<CompanyDto> GetAllCompany(){
+    public List<Company> GetAllCompany(){
         return companyRepository.findAll();
     }
 
@@ -38,11 +40,11 @@ public class CompanyService {
             if(Id == null || Id <= 0){
                 return "Id cannot be null or zero";
             }
-            Optional<CompanyDto> companyOpt = companyRepository.findById(Id);
+            Optional<Company> companyOpt = companyRepository.findById(Id);
             if(!companyOpt.isPresent()){
                 return "Company does not exists";
             }
-            CompanyDto company = companyOpt.get();
+            Company company = companyOpt.get();
             company.setDescription(newCompany.getDescription());
             company.setLocation(newCompany.getLocation());
             company.setName(newCompany.getName());
@@ -65,12 +67,12 @@ public class CompanyService {
         }
     }
 
-    public CompanyDto FindCompanyById(Long Id){
+    public Company FindCompanyById(Long Id){
         try {
             if(Id == null || Id <= 0){
                 return null;
             }
-            Optional<CompanyDto> companyOpt = companyRepository.findById(Id);
+            Optional<Company> companyOpt = companyRepository.findById(Id);
             return companyOpt.orElse(null);
         } catch (Exception e) {
             return null;

@@ -2,11 +2,11 @@ package Proconnect.backProconnect.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import Proconnect.backProconnect.model.JobDto;
+import Proconnect.backProconnect.Entity.Job;
 
 public class JobSpecification {
     
-    public static Specification<JobDto> hasKeyWord(String keyWord){
+    public static Specification<Job> hasKeyWord(String keyWord){
         return (root,query,criteriaBuilder) -> {
             if(keyWord == null || keyWord.trim().isEmpty()){
                 return criteriaBuilder.conjunction();

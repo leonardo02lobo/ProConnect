@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import Proconnect.backProconnect.Entity.Comments;
 import Proconnect.backProconnect.model.CommentsDto;
 import Proconnect.backProconnect.repository.CommentsRepository;
 
@@ -21,7 +22,8 @@ public class CommentsService {
             if(comments == null){
                 return "Comment cannot be null";
             }
-            commentsRepository.save(comments);
+            Comments commentsEntity = new Comments(comments.getId(), comments.getPostId(), comments.getUserId(), comments.getContent(), comments.getDate());
+            commentsRepository.save(commentsEntity);
             return "Comment Add successufly";
         } catch (Exception e) {
             return "Error: "+e.getMessage();

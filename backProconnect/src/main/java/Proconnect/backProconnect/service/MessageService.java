@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import Proconnect.backProconnect.Entity.Message;
 import Proconnect.backProconnect.model.MessageDto;
 import Proconnect.backProconnect.repository.MessageRepository;
 
@@ -21,22 +22,23 @@ public class MessageService {
             if (message == null) {
                 return "Message cannot be null";
             }
-            messageRepository.save(message);
+            Message messageEntity = new Message(message.getId(), message.getSenderId(), message.getReceiverId(), message.getContent(), message.getTimestamp());
+            messageRepository.save(messageEntity);
             return "Message Add successufly";
         } catch (Exception e) {
             return "Error: " + e.getMessage();
         }
     }
 
-    public List<MessageDto> ListMessagesByUserId(Long userId) {
+    public List<MessageDto> ListMessagesByUserId(Long senderId) {
         try {
-            if (userId == null || userId <= 0) {
+            if (senderId == null || senderId <= 0) {
                 throw new IllegalArgumentException("User ID must be a positive number.");
             }
 
-            return messageRepository.findByUserId(userId);
+            return messageRepository.findBysenderId(senderId);
         } catch (Exception e) {
-            throw new RuntimeException("Error retrieving messages for user ID: " + userId, e);
+            throw new RuntimeException("Error retrieving messages for user ID: " + senderId, e);
         }
     }
 

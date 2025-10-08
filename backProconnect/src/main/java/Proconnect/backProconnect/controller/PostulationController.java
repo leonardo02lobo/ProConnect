@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import Proconnect.backProconnect.Entity.Postulation;
 import Proconnect.backProconnect.model.PostulationDto;
 import Proconnect.backProconnect.service.PostulationService;
 import jakarta.validation.Valid;
@@ -36,7 +37,7 @@ public class PostulationController {
 
     @GetMapping("/id/{id}")
     public ResponseEntity<?> GetPostulationById(@PathVariable Long id){
-        PostulationDto postulation = postulationService.GetPostulationById(id);
+        Postulation postulation = postulationService.GetPostulationById(id);
 
         if(postulation == null){
             return ResponseEntity.badRequest().body("Does not exist Postulations with this Id");

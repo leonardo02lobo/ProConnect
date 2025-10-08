@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import Proconnect.backProconnect.Entity.Friend;
 import Proconnect.backProconnect.model.FriendDto;
 import Proconnect.backProconnect.repository.FriendRepository;
 
@@ -28,12 +29,12 @@ public class FriendService {
             if (userIdFollow.equals(userIdBeFollowed)) {
                 return "You cannot send a friend request to yourself.";
             }
-            Optional<FriendDto> existing = friendRepository.findByUserIdFollowAndUserIdBeFollowed(userIdFollow,
+            Optional<Friend> existing = friendRepository.findByUserIdFollowAndUserIdBeFollowed(userIdFollow,
                     userIdBeFollowed);
             if (existing.isPresent()) {
                 return "Friend request already exists";
             }
-            FriendDto friend = new FriendDto(userIdFollow, userIdBeFollowed, "PENDING");
+            Friend friend = new Friend(Long.valueOf(0),userIdFollow, userIdBeFollowed, "PENDING");
             friendRepository.save(friend);
             return "Friend request sent successufly";
         } catch (Exception e) {
@@ -46,11 +47,11 @@ public class FriendService {
             if (userIdBeFollowed == null || userIdBeFollowed <= 0) {
                 return "UserIdBeFollowed cannot be null or less zero";
             }
-            Optional<FriendDto> friendoOpt = friendRepository.findById(userIdBeFollowed);
+            Optional<Friend> friendoOpt = friendRepository.findById(userIdBeFollowed);
             if (friendoOpt.isPresent()) {
                 return "Friend request not found";
             }
-            FriendDto friend = friendoOpt.get();
+            Friend friend = friendoOpt.get();
             friend.setStatus("ACCEPTED");
             friendRepository.save(friend);
             return "Friend request accepted";
@@ -61,11 +62,11 @@ public class FriendService {
 
     public String rejectFriendRequest(Long userIdBeFollowed) {
         try {
-            Optional<FriendDto> friendOpt = friendRepository.findById(userIdBeFollowed);
+            Optional<Friend> friendOpt = friendRepository.findById(userIdBeFollowed);
             if (friendOpt.isPresent()) {
                 return "Friend request not found";
             }
-            FriendDto friend = friendOpt.get();
+            Friend friend = friendOpt.get();
             friend.setStatus("REJECTED");
             friendRepository.save(friend);
             return "Friend request rejected";
@@ -85,7 +86,7 @@ public class FriendService {
             if (userIdFollow.equals(userIdBeFollowed)) {
                 return "You cannot send a friend request to yourself.";
             }
-            List<FriendDto> relations = friendRepository.findByUserIdFollowOrUserIdBeFollowedAndStatus(userIdFollow,userIdBeFollowed,"ACCEPTED");
+            List<Friend> relations = friendRepository.findByUserIdFollowOrUserIdBeFollowedAndStatus(userIdFollow,userIdBeFollowed,"ACCEPTED");
             if(relations.isEmpty()){
                 return "FriendShip not found";
             }
@@ -107,11 +108,11 @@ public class FriendService {
             if (userIdFollow.equals(userIdBeFollowed)) {
                 return "You cannot send a friend request to yourself.";
             }
-            Optional<FriendDto> friendOpt = friendRepository.findByUserIdFollowAndUserIdBeFollowed(userIdFollow, userIdBeFollowed);
+            Optional<Friend> friendOpt = friendRepository.findByUserIdFollowAndUserIdBeFollowed(userIdFollow, userIdBeFollowed);
             if(friendOpt.isPresent()){
                 return "Friend request not found";
             }
-            FriendDto friend = friendOpt.get();
+            Friend friend = friendOpt.get();
             if(!friend.getStatus().equals("PENDING")){
                 return "Cannot cancel a request that is not pending";
             }
@@ -127,11 +128,11 @@ public class FriendService {
         return friendRepository.findByUserIdBeFollowedAndStatus(userId, "PENDING");
     }
 
-    public List<FriendDto> getFriends(Long userId) {
+    public List<Friend> getFriends(Long userId) {
         return friendRepository.findByUserIdFollowOrUserIdBeFollowedAndStatus(userId, userId, "ACCEPTED");
     }
 
-    public Optional<FriendDto> findFriendship(Long userId, Long otherUserId) {
+    public Optional<Friend> findFriendship(Long userId, Long otherUserId) {
         return friendRepository.findByUserIdFollowAndUserIdBeFollowed(userId, otherUserId);
     }
 }

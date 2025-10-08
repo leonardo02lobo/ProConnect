@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import Proconnect.backProconnect.Entity.Friend;
 import Proconnect.backProconnect.model.FriendDto;
 import Proconnect.backProconnect.service.FriendService;
 
@@ -84,8 +85,8 @@ public class FriendController {
     }
 
     @GetMapping("/all/{userId}")
-    public ResponseEntity<List<FriendDto>> getFriends(@PathVariable Long userId) {
-        List<FriendDto> friends = friendService.getFriends(userId);
+    public ResponseEntity<List<Friend>> getFriends(@PathVariable Long userId) {
+        List<Friend> friends = friendService.getFriends(userId);
         if (friends.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -93,11 +94,11 @@ public class FriendController {
     }
 
     @GetMapping("/find")
-    public ResponseEntity<Optional<FriendDto>> findFriendship(
+    public ResponseEntity<Optional<Friend>> findFriendship(
             @RequestParam Long userId,
             @RequestParam Long otherUserId) {
 
-        Optional<FriendDto> friendship = friendService.findFriendship(userId, otherUserId);
+        Optional<Friend> friendship = friendService.findFriendship(userId, otherUserId);
         if (friendship.isEmpty()) {
             return ResponseEntity.noContent().build();
         }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import Proconnect.backProconnect.Entity.Job;
 import Proconnect.backProconnect.model.JobDto;
 import Proconnect.backProconnect.repository.JobRepository;
 import Proconnect.backProconnect.specification.JobSpecification;
@@ -23,7 +24,8 @@ public class JobService {
             if(job == null){
                 return "Job cannot be null";
             }
-            jobRepository.save(job);
+            Job jobEntity = new Job(job.getId(), job.getCompanyId() , job.getTitle(), job.getDescription(), job.getWorkStation(), job.getDate());
+            jobRepository.save(jobEntity);
             return "Job Add Successufly";
         } catch (Exception e) {
             return "Error: "+e.getMessage();
@@ -42,12 +44,12 @@ public class JobService {
         }
     }
 
-    public List<JobDto> getAllJob(){
+    public List<Job> getAllJob(){
         return jobRepository.findAll();
     }
 
-    public List<JobDto> findByKeyWord(String keyWord){
-        Specification<JobDto> jobs = JobSpecification.hasKeyWord(keyWord);
+    public List<Job> findByKeyWord(String keyWord){
+        Specification<Job> jobs = JobSpecification.hasKeyWord(keyWord);
         return jobRepository.findAll(jobs);
     }
 }

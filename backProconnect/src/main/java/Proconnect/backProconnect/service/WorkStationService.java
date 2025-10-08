@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import Proconnect.backProconnect.Entity.WorkStation;
 import Proconnect.backProconnect.model.WorkStationDto;
 import Proconnect.backProconnect.repository.WorkStationRepository;
 import Proconnect.backProconnect.specification.WorkStationSpecification;
@@ -22,14 +23,15 @@ public class WorkStationService {
             if (workStation == null) {
                 return "WorkStation cannot be null";
             }
-            workStationRepository.save(workStation);
+            WorkStation workStationEntity = new WorkStation(workStation.getId(), workStation.getUserId(), workStation.getWorkStation());
+            workStationRepository.save(workStationEntity);
             return "WorkStation add successfully";
         } catch (Exception e) {
             return "Error: " + e.getMessage();
         }
     }
 
-    public List<WorkStationDto> GetAllWorkStation() {
+    public List<WorkStation> GetAllWorkStation() {
         return workStationRepository.findAll();
     }
 
@@ -42,13 +44,15 @@ public class WorkStationService {
                 return "new WorkStation cannot be null";
             }
 
-            WorkStationDto existWorkStation = workStationRepository.findById(Id).orElse(null);
+            WorkStation existWorkStation = workStationRepository.findById(Id).orElse(null);
 
             if (existWorkStation == null) {
                 return "The WorkStation with " + Id + " does not exist";
             }
             existWorkStation.setUserId(newWorkStation.getUserId());
             existWorkStation.setWorkStation(newWorkStation.getWorkStation());
+            existWorkStation.setUserId(newWorkStation.getUserId());
+            workStationRepository.save(existWorkStation);
             return "WorkSation Update successfully";
         } catch (Exception e) {
             return "Error: " + e.getMessage();
@@ -70,12 +74,12 @@ public class WorkStationService {
         }
     }
 
-    public WorkStationDto GetWorkStationById(Long Id){
+    public WorkStation GetWorkStationById(Long Id){
         try {
             if(Long.valueOf(Id) == null){
                 return null;
             }
-            Optional<WorkStationDto> workStation = workStationRepository.findById(Id);
+            Optional<WorkStation> workStation = workStationRepository.findById(Id);
 
             return workStation.orElse(null);
         } catch (Exception e) {
@@ -83,7 +87,7 @@ public class WorkStationService {
         }
     }
 
-    public List<WorkStationDto> SearchByWorkStation(String workStation){
+    public List<WorkStation> SearchByWorkStation(String workStation){
         return workStationRepository.findAll(WorkStationSpecification.hasWorkStationLike(workStation));
     }
 }

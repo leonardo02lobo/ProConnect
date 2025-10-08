@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import Proconnect.backProconnect.Entity.Posts;
 import Proconnect.backProconnect.model.PostsDto;
 import Proconnect.backProconnect.repository.PostsRepository;
 
@@ -21,7 +22,8 @@ public class PostsService {
             if(postsDto == null){
                 return "Posts cannot be null";
             }
-            postsRepository.save(postsDto);
+            Posts posts = new Posts(postsDto.getId(), postsDto.getUserId(), postsDto.getContent(), postsDto.getTitle(), postsDto.getImageUrl(), postsDto.getDate());
+            postsRepository.save(posts);
             return "Posts Add Successufly";
         } catch (Exception e) {
             return "Error: "+e.getMessage();
@@ -36,11 +38,11 @@ public class PostsService {
             if(newPost == null){
                 return "Post cannot be null";
             }
-            Optional<PostsDto> Findpost = postsRepository.findById(Id);
+            Optional<Posts> Findpost = postsRepository.findById(Id);
             if(!Findpost.isPresent()){
                 return "Post does not exits";
             }
-            PostsDto post = Findpost.get();
+            Posts post = Findpost.get();
             post.setContent(newPost.getContent());
             post.setImageUrl(newPost.getImageUrl());
             post.setTitle(newPost.getTitle());
@@ -51,16 +53,16 @@ public class PostsService {
         }
     }
 
-    public List<PostsDto> GetAllPosts(){
+    public List<Posts> GetAllPosts(){
         return postsRepository.findAll();
     }
 
-    public PostsDto GetPostsById(Long Id){
+    public Posts GetPostsById(Long Id){
         try {
             if(Long.valueOf(Id) == null || Id == 0){
                 return null;
             }
-            Optional<PostsDto> post = postsRepository.findById(Id);
+            Optional<Posts> post = postsRepository.findById(Id);
             return post.orElse(null);
         } catch (Exception e) {
             return null;

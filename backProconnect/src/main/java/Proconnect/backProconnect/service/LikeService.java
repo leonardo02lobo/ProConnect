@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import Proconnect.backProconnect.Entity.Like;
 import Proconnect.backProconnect.model.LikeDto;
 import Proconnect.backProconnect.repository.LikeRepository;
 
@@ -27,7 +28,8 @@ public class LikeService {
             if (exists) {
                 return "User already liked this post";
             }
-            likeRepository.save(likeDto);
+            Like like = new Like(likeDto.getId(), likeDto.getUserId(), likeDto.getPostId(), likeDto.getIsLike(), likeDto.getDate());
+            likeRepository.save(like);
 
             return "Like added successfully";
         } catch (Exception e) {
@@ -37,7 +39,7 @@ public class LikeService {
 
     public String removeLike(Long id) {
         try {
-            Optional<LikeDto> like = likeRepository.findById(id);
+            Optional<Like> like = likeRepository.findById(id);
             if (like.isEmpty()) {
                 return "Like not found";
             }

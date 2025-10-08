@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import Proconnect.backProconnect.Entity.User;
 import Proconnect.backProconnect.model.UserDto;
 import Proconnect.backProconnect.repository.UserRepository;
 import Proconnect.backProconnect.specification.UserSpecification;
@@ -27,14 +28,15 @@ public class UserService {
                 return "User cannot be null";
             }
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-            userRepository.save(user);
+            User userEntity = new User(user.getId(), user.getName(), user.getUserName(), user.getEmail(), user.getPassword(), user.getRole());
+            userRepository.save(userEntity);
             return "User added successfully";
         } catch (Exception e) {
             return "Error: " + e.getMessage();
         }
     }
 
-    public List<UserDto> GetAllUsers() {
+    public List<User> GetAllUsers() {
         return userRepository.findAll();
     }
 
@@ -46,10 +48,11 @@ public class UserService {
             if (!userRepository.existsById(Id)) {
                 return "User with Id " + Id + " does not exist";
             }
-            UserDto existingUser = userRepository.findById(Id).orElse(null);
+            User existingUser = userRepository.findById(Id).orElse(null);
             if (existingUser == null) {
                 return "User with Id " + Id + " does not exist";
             }
+            existingUser.setId(newUser.getId());
             existingUser.setName(newUser.getName());
             existingUser.setEmail(newUser.getEmail());
             existingUser.setPassword(newUser.getPassword());
@@ -77,12 +80,12 @@ public class UserService {
         }
     }
 
-    public UserDto GetUserById(Long Id) {
+    public User GetUserById(Long Id) {
         try {
             if (Long.valueOf(Id) == null) {
                 return null;
             }
-            Optional<UserDto> user = userRepository.findById(Id);
+            Optional<User> user = userRepository.findById(Id);
 
             return user.orElse(null);
         } catch (Exception e) {
@@ -90,7 +93,7 @@ public class UserService {
         }
     }
 
-    public List<UserDto> SearchByNameOrUsername(String name) {
+    public List<User> SearchByNameOrUsername(String name) {
         return userRepository.findAll(UserSpecification.hasNameLike(name));
     }
 

@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import Proconnect.backProconnect.Entity.ProfilePhotos;
 import Proconnect.backProconnect.model.ProfilePhotosDto;
 import Proconnect.backProconnect.repository.ProfilePhotosRepository;
 
@@ -21,19 +22,20 @@ public class ProfilePhotosService {
             if(profilePhotosDto == null){
                 return "Photos cannot be null";
             }
-            profilePhotosRepository.save(profilePhotosDto);
+            ProfilePhotos profilePhotos = new ProfilePhotos(profilePhotosDto.getId(), profilePhotosDto.getUserId(), profilePhotosDto.getPhotoUrl(), profilePhotosDto.getWallPhotoUrl());
+            profilePhotosRepository.save(profilePhotos);
             return "Photos Add successufly";
         } catch (Exception e) {
             return "Error: "+e.getMessage();
         }
     }
 
-    public ProfilePhotosDto GetPhotoById(Long Id){
+    public ProfilePhotos GetPhotoById(Long Id){
         try {
             if(Long.valueOf(Id) == null || Id == 0){
                 return null;
             }
-            Optional<ProfilePhotosDto> profile =  profilePhotosRepository.findById(Id);
+            Optional<ProfilePhotos> profile =  profilePhotosRepository.findById(Id);
             return profile.orElse(null);
         } catch (Exception e) {
             return null;
@@ -45,11 +47,11 @@ public class ProfilePhotosService {
             if (id == null || id == 0) {
                 return false;
             }
-            Optional<ProfilePhotosDto> profileOpt = profilePhotosRepository.findById(id);
+            Optional<ProfilePhotos> profileOpt = profilePhotosRepository.findById(id);
             if (!profileOpt.isPresent()) {
                 return false;
             }
-            ProfilePhotosDto profile = profileOpt.get();
+            ProfilePhotos profile = profileOpt.get();
             profile.setPhotoUrl(newPhotoUrl);
             profilePhotosRepository.save(profile); 
             return true;
@@ -63,11 +65,11 @@ public class ProfilePhotosService {
             if (id == null || id == 0) {
                 return false;
             }
-            Optional<ProfilePhotosDto> profileOpt = profilePhotosRepository.findById(id);
+            Optional<ProfilePhotos> profileOpt = profilePhotosRepository.findById(id);
             if (!profileOpt.isPresent()) {
                 return false;
             }
-            ProfilePhotosDto profile = profileOpt.get();
+            ProfilePhotos profile = profileOpt.get();
             profile.setWallPhotoUrl(newWallPhotoUrl);
             profilePhotosRepository.save(profile); 
             return true;

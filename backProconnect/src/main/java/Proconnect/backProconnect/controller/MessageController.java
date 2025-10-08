@@ -29,8 +29,8 @@ public class MessageController {
     }
 
     @GetMapping("list/{userId}")
-    public ResponseEntity<?> ListMessageById(@PathVariable Long userId){
-        return ResponseEntity.ok().body(messageService.ListMessagesByUserId(userId));
+    public ResponseEntity<?> ListMessageById(@PathVariable Long senderId){
+        return ResponseEntity.ok().body(messageService.ListMessagesByUserId(senderId));
     }
 
     @DeleteMapping("/delete/{Id}")
