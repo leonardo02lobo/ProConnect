@@ -16,7 +16,6 @@ public class WorkStation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "User ID is mandatory")
     @NotNull(message = "User ID cannot be null")
     private Long userId;
 
