@@ -98,6 +98,11 @@ public class UserService {
     }
 
     public UserDto findUserByUserName(String username) {
-        return userRepository.findByUserName(username);
+        Optional<User> userOptional = userRepository.findByUserName(username);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            return new UserDto(user.getId(), user.getName(), user.getUserName(), user.getEmail(), user.getPassword(), user.getRole());
+        }
+        return null;
     }
 }

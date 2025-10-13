@@ -1,36 +1,9 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import Publicacion from "../components/Tarjetas/Publicacion.astro";
-import { ObtenerPublicacionesIndex } from "../services/PublicacionesService.ts";
-import type { PublicacionModel } from "../models/Publicacion";
-
-const publicaciones: PublicacionModel[] = await ObtenerPublicacionesIndex();
+import Main from "../layouts/Main.astro";
 ---
 
-<Layout title="ProConnect">
-	<div class="col-span-2 p-6 mt-20 dark:bg-gray-900 bg-white">
-		{
-			publicaciones.length > 0 ? (
-				publicaciones.map((publicacion) => (
-					<Publicacion
-						id={publicacion.id}
-						idUsuario={publicacion.usuario.id}
-						imagenPost={publicacion.foto}
-						imagenPerfil={
-							publicacion.usuario.fotoPerfil ||
-							"/assets/ImagenesPerfil/predeterminado.png"
-						}
-						titulo={publicacion.titulo}
-						perfil={publicacion.usuario.nombreUsuario}
-						descripcion={publicacion.contenido}
-					/>
-				))
-			) : (
-				<span class="dark:text-white text-black text-4xl text-center">
-					Existe algunos errores con los servidores. Ponte en contacto
-					con nosotros para solucionarlo lo antes posible
-				</span>
-			)
-		}
-	</div>
-</Layout>
+<Main title="Proconnect">
+    <section class="flex justify-center items-center">
+        <h1>Index</h1>
+    </section>
+</Main>
