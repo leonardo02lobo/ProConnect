@@ -1,45 +1,56 @@
 package Proconnect.backProconnect.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import Proconnect.backProconnect.Entity.Comments;
 import Proconnect.backProconnect.Entity.Posts;
+import Proconnect.backProconnect.model.CommentsDto;
 import Proconnect.backProconnect.model.PostsDto;
+import Proconnect.backProconnect.model.PostsResponse;
+import Proconnect.backProconnect.model.ProfilePhotosDto;
+import Proconnect.backProconnect.model.UserDto;
+import Proconnect.backProconnect.repository.CommentsRepository;
 import Proconnect.backProconnect.repository.PostsRepository;
 
 @Service
 public class PostsService {
     private final PostsRepository postsRepository;
+    private final CommentsRepository commentsRepository;
 
-    public PostsService(PostsRepository postsRepository){
+    public PostsService(PostsRepository postsRepository, CommentsRepository commentsRepository) {
         this.postsRepository = postsRepository;
+        this.commentsRepository = commentsRepository;
     }
 
-    public String AddPost(PostsDto postsDto){
+    public String AddPost(PostsDto postsDto) {
         try {
-            if(postsDto == null){
+            if (postsDto == null) {
                 return "Posts cannot be null";
             }
-            Posts posts = new Posts(postsDto.getId(), postsDto.getUserId(), postsDto.getContent(), postsDto.getTitle(), postsDto.getImageUrl(), postsDto.getDate());
+            Posts posts = new Posts(postsDto.getId(), postsDto.getUserId(), postsDto.getContent(), postsDto.getTitle(),
+                    postsDto.getImageUrl(), postsDto.getDate());
             postsRepository.save(posts);
             return "Posts Add Successufly";
         } catch (Exception e) {
-            return "Error: "+e.getMessage();
+            return "Error: " + e.getMessage();
         }
     }
 
-    public String EditPostById(Long Id, PostsDto newPost){
+    public String EditPostById(Long Id, PostsDto newPost) {
         try {
-            if(Long.valueOf(Id) == null || Id == 0){
+            if (Long.valueOf(Id) == null || Id == 0) {
                 return "Id cannot be null or zero";
             }
-            if(newPost == null){
+            if (newPost == null) {
                 return "Post cannot be null";
             }
             Optional<Posts> Findpost = postsRepository.findById(Id);
-            if(!Findpost.isPresent()){
+            if (!Findpost.isPresent()) {
                 return "Post does not exits";
             }
             Posts post = Findpost.get();
@@ -49,17 +60,91 @@ public class PostsService {
             postsRepository.save(post);
             return "Edited Post";
         } catch (Exception e) {
-            return "Error: "+e.getMessage();
+            return "Error: " + e.getMessage();
         }
     }
 
-    public List<Posts> GetAllPosts(){
-        return postsRepository.findAll();
+    public List<PostsResponse> GetAllPosts(Long userId) {
+        List<Object[]> posts = postsRepository.GetAllPosts(userId);
+
+        if (posts.isEmpty())
+            return null;
+
+        List<PostsResponse> postsResponses = new ArrayList<>();
+        for (Object[] row : posts) {
+
+            List<Comments> commentEntities = commentsRepository.findByPostId(((Number) row[0]).longValue());
+            List<CommentsDto> commentDtos = commentEntities.stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+
+            PostsResponse post = new PostsResponse(
+                    ((Number) row[0]).longValue(),
+                    ((Number) row[5]).longValue(),
+                    new UserDto(
+                            ((Number) row[5]).longValue(),
+                            (String) row[7],
+                            (String) row[9],
+                            (String) row[6],
+                            "",
+                            (String) row[8],
+                            new ProfilePhotosDto(((Number) row[10]) == null ? 0 : ((Number) row[10]).longValue(),
+                                    ((Number) row[5]).longValue(), (String) row[11], (String) row[12])),
+                    (String) row[2],
+                    (String) row[1],
+                    (String) row[4],
+                    (java.util.Date) row[3],
+                    ((Number) row[13]).longValue(),
+                    ((Number) row[14]).longValue(),
+                    ((Number) row[15]).longValue() > 0,
+                    commentDtos);
+            postsResponses.add(post);
+        }
+        return postsResponses;
     }
 
-    public Posts GetPostsById(Long Id){
+    public List<PostsResponse> GetAllPosts() {
+        List<Object[]> posts = postsRepository.GetAllPosts();
+
+        if (posts.isEmpty())
+            return null;
+
+        List<PostsResponse> postsResponses = new ArrayList<>();
+        for (Object[] row : posts) {
+
+            List<Comments> commentEntities = commentsRepository.findByPostId(((Number) row[0]).longValue());
+            List<CommentsDto> commentDtos = commentEntities.stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+
+            PostsResponse post = new PostsResponse(
+                    ((Number) row[0]).longValue(),
+                    ((Number) row[5]).longValue(),
+                    new UserDto(
+                            ((Number) row[5]).longValue(),
+                            (String) row[7],
+                            (String) row[9],
+                            (String) row[6],
+                            "",
+                            (String) row[8],
+                            new ProfilePhotosDto(((Number) row[10]) == null ? 0 : ((Number) row[10]).longValue(),
+                                    ((Number) row[5]).longValue(), (String) row[11], (String) row[12])),
+                    (String) row[2],
+                    (String) row[1],
+                    (String) row[4],
+                    (java.util.Date) row[3],
+                    ((Number) row[13]).longValue(),
+                    ((Number) row[14]).longValue(),
+                    false,
+                    commentDtos);
+            postsResponses.add(post);
+        }
+        return postsResponses;
+    }
+
+    public Posts GetPostsById(Long Id) {
         try {
-            if(Long.valueOf(Id) == null || Id == 0){
+            if (Long.valueOf(Id) == null || Id == 0) {
                 return null;
             }
             Optional<Posts> post = postsRepository.findById(Id);
@@ -69,9 +154,9 @@ public class PostsService {
         }
     }
 
-    public boolean DeletePostById(Long Id){
+    public boolean DeletePostById(Long Id) {
         try {
-            if(Long.valueOf(Id) == null || Id == 0){
+            if (Long.valueOf(Id) == null || Id == 0) {
                 return false;
             }
             postsRepository.deleteById(Id);
@@ -79,5 +164,36 @@ public class PostsService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private CommentsDto convertToDto(Comments comment) {
+        List<Object[]> userList = commentsRepository.findUserWithComment(comment.getId());
+
+        Object[] user = null;
+
+        if (userList.isEmpty()) {
+            user = null;
+        }
+
+        user = userList.get(0);
+
+        return new CommentsDto(
+                comment.getId(),
+                comment.getPostId(),
+                comment.getUserId(),
+                comment.getContent(),
+                comment.getDate(),
+                new UserDto(
+                        ((Number) user[0]) == null ? 0 : ((Number) user[0]).longValue(),
+                        (String) user[2],
+                        (String) user[4],
+                        (String) user[1],
+                        "",
+                        (String) user[3],
+                        new ProfilePhotosDto(
+                                ((Number) user[5]) == null ? 0 : ((Number) user[5]).longValue(),
+                                ((Number) user[0]).longValue(),
+                                (String) user[6],
+                                (String) user[7])));
     }
 }

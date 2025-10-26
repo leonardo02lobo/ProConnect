@@ -1,9 +1,9 @@
 ---
+import RMain from "../components/Main";
 import Main from "../layouts/Main.astro";
+
 ---
 
 <Main title="Proconnect">
-    <section class="flex justify-center items-center">
-        <h1>Index</h1>
-    </section>
+    <RMain client:load />
 </Main>

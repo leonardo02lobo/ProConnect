@@ -3,30 +3,31 @@ package Proconnect.backProconnect.model;
 import java.util.Date;
 
 public class CommentsDto {
-
-    private Long Id;
+    private Long id;
     private Long postId;
     private Long userId;
     private String content;
     private Date date;
+    private UserDto user;
 
     public CommentsDto() {
     }
 
-    public CommentsDto(Long id, Long postId, Long userId, String content, Date date) {
-        Id = id;
+    public CommentsDto(Long id, Long postId, Long userId, String content, Date date, UserDto user) {
+        this.id = id;
         this.postId = postId;
         this.userId = userId;
         this.content = content;
         this.date = date;
+        this.user = user;
     }
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public Long getPostId() {
@@ -61,4 +62,11 @@ public class CommentsDto {
         this.date = date;
     }
 
+    public UserDto getUser() {
+        return user;
+    }
+
+    public void setUser(UserDto user) {
+        this.user = user;
+    }
 }

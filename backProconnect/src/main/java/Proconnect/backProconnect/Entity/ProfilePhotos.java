@@ -22,6 +22,9 @@ public class ProfilePhotos {
 
     private String wallPhotoUrl;
 
+    public ProfilePhotos() {
+    }
+
     public ProfilePhotos(Long id, Long userId, String photoUrl, String wallPhotoUrl) {
         Id = id;
         this.userId = userId;

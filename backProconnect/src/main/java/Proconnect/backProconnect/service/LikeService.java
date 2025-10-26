@@ -28,7 +28,7 @@ public class LikeService {
             if (exists) {
                 return "User already liked this post";
             }
-            Like like = new Like(likeDto.getId(), likeDto.getUserId(), likeDto.getPostId(), likeDto.getIsLike(), likeDto.getDate());
+            Like like = new Like(likeDto.getId(), likeDto.getUserId(), likeDto.getPostId(), likeDto.getDate());
             likeRepository.save(like);
 
             return "Like added successfully";
@@ -37,18 +37,18 @@ public class LikeService {
         }
     }
 
-    public String removeLike(Long id) {
-        try {
-            Optional<Like> like = likeRepository.findById(id);
-            if (like.isEmpty()) {
-                return "Like not found";
-            }
-            likeRepository.deleteById(id);
-            return "Like removed successfully";
-        } catch (Exception e) {
-            return "Error: " + e.getMessage();
+    public String removeLikeByUserAndPost(Long userId, Long postId) {
+    try {
+        Optional<Like> like = likeRepository.findByUserIdAndPostId(userId, postId);
+        if (like.isEmpty()) {
+            return "Like not found";
         }
+        likeRepository.delete(like.get());
+        return "Like removed successfully";
+    } catch (Exception e) {
+        return "Error: " + e.getMessage();
     }
+}
 
     public List<LikeDto> getLikesByPost(Long postId) {
         return likeRepository.findByPostId(postId);

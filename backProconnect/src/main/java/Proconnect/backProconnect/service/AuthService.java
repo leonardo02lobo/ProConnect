@@ -33,7 +33,7 @@ public class AuthService {
 
         User user = userByEmail.get();
         if(passwordEncoder.matches(password, user.getPassword())){
-            return new LoginResponseDto(true, "login successufly", new UserDto(user.getId(), user.getName(), user.getUserName(), user.getEmail(), null, user.getRole()));
+            return new LoginResponseDto(true, "login successufly", new UserDto(user.getId(), user.getName(), user.getUserName(), user.getEmail(), null, user.getRole(),null));
         }else{
             return new LoginResponseDto(false, "Incorrect Password", null);
         }

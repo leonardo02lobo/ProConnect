@@ -1,13 +1,22 @@
 package Proconnect.backProconnect.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import Proconnect.backProconnect.Entity.ProfilePhotos;
 import Proconnect.backProconnect.Entity.User;
+import Proconnect.backProconnect.model.CommentsDto;
+import Proconnect.backProconnect.model.PostsDto;
+import Proconnect.backProconnect.model.ProfilePhotosDto;
 import Proconnect.backProconnect.model.UserDto;
+import Proconnect.backProconnect.model.UserProfileDTO;
+import Proconnect.backProconnect.repository.ProfilePhotosRepository;
 import Proconnect.backProconnect.repository.UserRepository;
 import Proconnect.backProconnect.specification.UserSpecification;
 
@@ -16,23 +25,26 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ProfilePhotosRepository profilePhotosRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ProfilePhotosRepository profilePhotosRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.profilePhotosRepository = profilePhotosRepository;
     }
 
-    public String AddUser(UserDto user) {
+    public boolean AddUser(UserDto user) {
         try {
             if (user == null) {
-                return "User cannot be null";
+                return false;
             }
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-            User userEntity = new User(user.getId(), user.getName(), user.getUserName(), user.getEmail(), user.getPassword(), user.getRole());
+            User userEntity = new User(user.getId(), user.getName(), user.getUserName(), user.getEmail(),
+                    user.getPassword(), user.getRole());
             userRepository.save(userEntity);
-            return "User added successfully";
+            return true;
         } catch (Exception e) {
-            return "Error: " + e.getMessage();
+            return false;
         }
     }
 
@@ -101,8 +113,97 @@ public class UserService {
         Optional<User> userOptional = userRepository.findByUserName(username);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            return new UserDto(user.getId(), user.getName(), user.getUserName(), user.getEmail(), user.getPassword(), user.getRole());
+            return new UserDto(user.getId(), user.getName(), user.getUserName(), user.getEmail(), user.getPassword(),
+                    user.getRole(),null);
         }
         return null;
+    }
+
+    public boolean authUser(String email, String password) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (!userOptional.isPresent()) {
+            return false;
+        }
+        User user = userOptional.get();
+        return passwordEncoder.matches(password, user.getPassword());
+    }
+
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public UserProfileDTO findUsersWithProfilesAndPosts(Long userId) {
+        List<Object[]> results = userRepository.findUsersWithProfilesAndPosts(userId);
+        if (results.isEmpty())
+            return null;
+
+        Object[] first = results.get(0);
+
+        Map<Long, PostsDto> postsMap = new HashMap<>();
+        Map<Long, List<CommentsDto>> commentsMap = new HashMap<>();
+
+        for (Object[] row : results) {
+            Long postId = ((Number) row[7]).longValue();
+
+            if (postId != null && !postsMap.containsKey(postId)) {
+                PostsDto post = new PostsDto(
+                        postId,
+                        ((Number) row[0]).longValue(), 
+                        (String) row[9], 
+                        (String) row[8], 
+                        (String) row[11], 
+                        (java.util.Date) row[10], 
+                        ((Number) row[16]).longValue(),
+                        ((Number) row[17]).longValue(), 
+                        ((Number) row[18]).longValue() > 0,
+                        new ArrayList<>() 
+                );
+                postsMap.put(postId, post);
+                commentsMap.put(postId, new ArrayList<>());
+            }
+
+            Long userIdComment = ((Number)row[15]).longValue();
+            Optional<User> userComment = userRepository.findById(userIdComment);
+            Optional<ProfilePhotos> profileOptional = profilePhotosRepository.findByUserId(userIdComment);
+            UserDto userCommenDto = null;
+            ProfilePhotosDto profilePhotosDto = null;
+
+            if(profileOptional.isPresent()){
+                ProfilePhotos profilePhotos = profileOptional.get();
+                profilePhotosDto = new ProfilePhotosDto(profilePhotos.getId(), profilePhotos.getUserId(), profilePhotos.getPhotoUrl(), profilePhotos.getWallPhotoUrl());
+            }
+
+            if(userComment.isPresent()){
+                User user = userComment.get();
+                userCommenDto = new UserDto(userIdComment, user.getName(), user.getUserName(), user.getEmail(), user.getPassword(), user.getRole(),profilePhotosDto);
+            }
+            if (row[14] != null) { 
+                CommentsDto comment = new CommentsDto(
+                        ((Number) row[14]).longValue(), 
+                        postId, 
+                        ((Number) row[15]).longValue(), 
+                        (String) row[12], 
+                        (java.util.Date) row[13], 
+                        userCommenDto
+                );
+                commentsMap.get(postId).add(comment);
+            }
+        }
+
+        for (Map.Entry<Long, PostsDto> entry : postsMap.entrySet()) {
+            entry.getValue().setComments(commentsMap.get(entry.getKey()));
+        }
+
+        return new UserProfileDTO(
+                ((Number) first[0]).longValue(),
+                (String) first[1],
+                (String) first[2],
+                (String) first[4],
+                (String) first[3],
+                (String) first[5], 
+                (String) first[6], 
+                new ArrayList<>(postsMap.values()) 
+        );
     }
 }

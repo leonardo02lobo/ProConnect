@@ -7,18 +7,16 @@ public class LikeDto {
     private Long Id;
     private Long userId;
     private Long postId;
-    private Boolean isLike;
     private Date date;
 
     public LikeDto(){
 
     }
 
-    public LikeDto(Long id, Long userId, Long postId, Boolean isLike, Date date) {
+    public LikeDto(Long id, Long userId, Long postId, Date date) {
         Id = id;
         this.userId = userId;
         this.postId = postId;
-        this.isLike = isLike;
         this.date = date;
     }
 
@@ -44,14 +42,6 @@ public class LikeDto {
 
     public void setPostId(Long postId) {
         this.postId = postId;
-    }
-
-    public Boolean getIsLike() {
-        return isLike;
-    }
-
-    public void setIsLike(Boolean isLike) {
-        this.isLike = isLike;
     }
 
     public Date getDate() {

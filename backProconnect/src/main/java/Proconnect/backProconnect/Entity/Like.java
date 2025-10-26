@@ -23,16 +23,15 @@ public class Like {
     @NotNull(message = "Post ID cannot be null")
     private Long postId;
 
-    @NotNull(message = "isLike cannot be null")
-    private Boolean isLike;
-
     private Date date;
 
-    public Like(Long id, Long userId, Long postId, Boolean isLike, Date date) {
+    public Like() {
+    }
+
+    public Like(Long id, Long userId, Long postId, Date date) {
         Id = id;
         this.userId = userId;
         this.postId = postId;
-        this.isLike = isLike;
         this.date = date;
     }
 
@@ -58,14 +57,6 @@ public class Like {
 
     public void setPostId(Long postId) {
         this.postId = postId;
-    }
-
-    public Boolean getIsLike() {
-        return isLike;
-    }
-
-    public void setIsLike(Boolean isLike) {
-        this.isLike = isLike;
     }
 
     public Date getDate() {

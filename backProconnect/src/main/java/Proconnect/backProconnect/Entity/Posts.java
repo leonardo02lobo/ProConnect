@@ -27,7 +27,7 @@ public class Posts {
 
     @NotBlank(message = "Title is mandatory")
     @NotNull(message = "Title cannot be null")
-    private String Title;
+    private String title;
 
     private String imageUrl;
 
@@ -41,7 +41,7 @@ public class Posts {
         Id = id;
         this.userId = userId;
         this.content = content;
-        Title = title;
+        this.title = title;
         this.imageUrl = imageUrl;
         this.date = date;
     }
@@ -71,11 +71,11 @@ public class Posts {
     }
 
     public String getTitle() {
-        return Title;
+        return title;
     }
 
     public void setTitle(String title) {
-        Title = title;
+        this.title = title;
     }
 
     public String getImageUrl() {

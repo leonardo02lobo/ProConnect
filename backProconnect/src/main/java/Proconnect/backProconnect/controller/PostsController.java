@@ -37,8 +37,13 @@ public class PostsController {
         return ResponseEntity.ok().body(postsService.EditPostById(Id, newPost));
     }
 
-    @GetMapping
-    public ResponseEntity<?> GetAllPosts(){
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> GetAllPosts(@PathVariable Long userId){
+        return ResponseEntity.ok().body(postsService.GetAllPosts(userId));
+    }
+
+     @GetMapping
+    public ResponseEntity<?> GetAllPost(){
         return ResponseEntity.ok().body(postsService.GetAllPosts());
     }
 

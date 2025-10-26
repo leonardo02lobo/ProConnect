@@ -21,25 +21,22 @@ import SignUpAndInLayout from "../layouts/SignUpAndInLayout.astro";
     </div>
 
     <script>
-        document.getElementById("form")?.addEventListener("submit", (e) => {
+        import { AuthApi } from "../Service/AuthApi";
+
+        document.getElementById("form")?.addEventListener("submit", async (e) => {
             e.preventDefault()
 
             const email = document.getElementById("email") as HTMLInputElement
             const password = document.getElementById("password") as HTMLInputElement
 
-            fetch(`http://localhost:8080/api/auth/login?email=${email.value}&password=${password.value}`, {
-                method: "POST"
-            }).then((response) => {
-                if (response.ok) {
-                    response.json().then(data => {
-                        cookieStore.set("user",JSON.stringify(data.data))
-                        location.href = "/"
-                    });
+            const response: Response = await AuthApi.Login(email.value,password.value)
+            if (response.ok) {
+                    const data = await response.json()
+                    cookieStore.set("user",JSON.stringify(data.userDto))
+                    location.href = "/"
                 } else {
                     console.error("Error:", response.statusText);
                 }
-            });
-
         });
     </script>
 </SignUpAndInLayout>

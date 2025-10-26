@@ -1,6 +1,7 @@
 package Proconnect.backProconnect.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -41,15 +42,18 @@ public class CommentsService {
             return "Error: "+e.getMessage();
         }
     }
-
     public List<CommentsDto> findByPostId(Long postId){
         try {
             if(postId == null || postId <= 0){
                 return null;
             }
-            return commentsRepository.findByPostId(postId);
+            List<Comments> comments = commentsRepository.findByPostId(postId);
+            return comments.stream()
+                .map(c -> new CommentsDto(c.getId(), c.getPostId(), c.getUserId(), c.getContent(), c.getDate(),null))
+                .collect(Collectors.toList());
         } catch (Exception e) {
             return null;
         }
     }
 }
+

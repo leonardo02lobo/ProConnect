@@ -30,6 +30,9 @@ public class Comments {
 
     private Date date;
 
+    public Comments() {
+    }
+
     public Comments(Long id, Long postId, Long userId, String content, Date date) {
         Id = id;
         this.postId = postId;
