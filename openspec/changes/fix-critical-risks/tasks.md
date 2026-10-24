@@ -39,7 +39,7 @@
 - [x] 5.2 Usar el actor del token en las mutaciones de Posts, Comments, Likes, Friends, Messages, Postulations, ProfilePhotos y WorkStation, sobrescribiendo el `userId` del body
 - [x] 5.3 Crear `UserPublicDto` y reemplazar los usos de `UserDto` en respuestas (`AuthController`, `UserService`, `PostsService`, `CommentsService`, `UserProfileDTO`)
 - [x] 5.4 Marcar `password` como `@JsonProperty(access = WRITE_ONLY)` en `UserDto`
-- [ ] 5.5 Verificar con curl que ninguna respuesta de `/api/user*`, `/api/posts*` ni `/api/comment*` contiene `"password"`
+- [x] 5.5 Verificar con curl que ninguna respuesta de `/api/user*`, `/api/posts*` ni `/api/comment*` contiene `"password"`
 
 ## 6. Frontend
 
@@ -54,6 +54,6 @@
 
 ## 7. Verificación manual del flujo
 
-- [ ] 7.1 Levantar el stack (MySQL, API :8081, media :3001, gateway :8080, front :4321) sin conflictos de puerto
-- [ ] 7.2 Recorrer registro → login → feed → like → comentar → subir post con imagen → perfil → logout
-- [ ] 7.3 Confirmar 401 sin cookie en `POST /api/posts/create`, `GET /api/posts`, el perfil y `GET /upload/uploads/<file>`, y que un `userId` ajeno en el body se ignora
+- [x] 7.1 Levantar el stack (MySQL, API :8081, media :3001, gateway :8080, front :4321) sin conflictos de puerto
+- [x] 7.2 Recorrer registro → login → feed → like → comentar → subir post con imagen → perfil → logout
+- [x] 7.3 Confirmar 401 sin cookie en `POST /api/posts/create`, `GET /api/posts`, el perfil y `GET /upload/uploads/<file>`, y que un `userId` ajeno en el body se ignora
