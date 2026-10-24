@@ -27,8 +27,8 @@ export default defineConfig({
     csp: {
       directives: [
         "default-src 'self'",
-        `img-src 'self' data: ${API_ORIGIN}`.trim(),
-        `connect-src 'self' ${API_ORIGIN}`.trim(),
+        /** @type {`img-src${string}`} */ (`img-src 'self' data: ${API_ORIGIN}`.trim()),
+        /** @type {`connect-src${string}`} */ (`connect-src 'self' ${API_ORIGIN}`.trim()),
         "object-src 'none'",
         "base-uri 'self'",
         "form-action 'self'",

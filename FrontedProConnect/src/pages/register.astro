@@ -7,22 +7,22 @@ import SignUpAndInLayout from "../layouts/SignUpAndInLayout.astro";
         <form class="flex flex-col justify-center items-center gap-4 shadow-2xl shadow-black p-4 rounded-2xl" id="register-form">
             <label for="name" class="flex flex-col gap-3">
                 Name
-                <input type="text" name="name" required placeholder="your full name" class="w-full/2 border border-gray-300 rounded-xl p-3 text-lg outline-none focus:border-blue-500" id="name">
+                <input type="text" name="name" required placeholder="your full name" class="w-full/2 border border-gray-300 rounded-xl p-3 text-lg outline-none focus:border-blue-500" id="name" data-testid="register-name">
             </label>
             <label for="userName" class="flex flex-col gap-3">
                 Username
-                <input type="text" name="userName" required placeholder="username" class="w-full/2 border border-gray-300 rounded-xl p-3 text-lg outline-none focus:border-blue-500" id="userName">
+                <input type="text" name="userName" required placeholder="username" class="w-full/2 border border-gray-300 rounded-xl p-3 text-lg outline-none focus:border-blue-500" id="userName" data-testid="register-username">
             </label>
             <label for="email" class="flex flex-col gap-3">
                 Email
-                <input type="email" name="email" required autocomplete="email" placeholder="insert your email" class="w-full/2 border border-gray-300 rounded-xl p-3 text-lg outline-none focus:border-blue-500" id="email">
+                <input type="email" name="email" required autocomplete="email" placeholder="insert your email" class="w-full/2 border border-gray-300 rounded-xl p-3 text-lg outline-none focus:border-blue-500" id="email" data-testid="register-email">
             </label>
             <label for="password" class="flex flex-col gap-3">
                 Password
-                <input type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="at least 8 characters" class="w-full/2 border border-gray-300 rounded-xl p-3 text-lg outline-none focus:border-blue-500" id="password">
+                <input type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="at least 8 characters" class="w-full/2 border border-gray-300 rounded-xl p-3 text-lg outline-none focus:border-blue-500" id="password" data-testid="register-password">
             </label>
-            <p id="register-error" class="text-red-600 text-sm hidden" role="alert"></p>
-            <button type="submit" id="register-submit" class="bg-blue-600 hover:bg-blue-700 rounded-2xl px-4 py-3 text-lg text-white cursor-pointer w-full">
+            <p id="register-error" data-testid="register-error" class="text-red-600 text-sm hidden" role="alert"></p>
+            <button type="submit" id="register-submit" data-testid="register-submit" class="bg-blue-600 hover:bg-blue-700 rounded-2xl px-4 py-3 text-lg text-white cursor-pointer w-full">
                 Create account
             </button>
             <p>¿ Already have an account ?. <a href="/login" class="text-blue-600">Log in</a></p>

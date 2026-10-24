@@ -75,6 +75,8 @@ function AddPost() {
                             value={title}
                             onChange={handleTitleChange}
                             placeholder="Que has pensado en el titulo?"
+                            aria-label="Título del post"
+                            data-testid="add-post-title"
                             className="w-full bg-gray-50 border border-transparent focus:border-blue-300 focus:ring-2 focus:ring-blue-200 rounded-2xl p-3 resize-none min-h-[28px] max-h-48 text-sm text-gray-800"
                         />
                         <textarea
@@ -83,6 +85,8 @@ function AddPost() {
                             value={content}
                             onChange={handleContentChange}
                             placeholder="¿Qué estás pensando?"
+                            aria-label="Contenido del post"
+                            data-testid="add-post-content"
                             className="w-full bg-gray-50 border border-transparent focus:border-blue-300 focus:ring-2 focus:ring-blue-200 rounded-2xl p-3 resize-none min-h-[88px] max-h-48 text-sm text-gray-800"
                         />
                     </div>
@@ -105,6 +109,7 @@ function AddPost() {
                                 className="hidden"
                                 ref={fileInputRef}
                                 onChange={handleFileChange}
+                                data-testid="add-post-image"
                             />
                             {imageFile && (
                                 <p className="text-sm text-green-600">
@@ -119,6 +124,7 @@ function AddPost() {
                                 className="px-4 py-1 rounded-full bg-blue-600 text-sm text-white font-semibold hover:bg-blue-700 disabled:opacity-50"
                                 disabled={isDisabled || isUploading}
                                 onClick={SendPost}
+                                data-testid="add-post-submit"
                             >
                                 {isUploading ? "Publicando..." : "Publicar"}
                             </button>

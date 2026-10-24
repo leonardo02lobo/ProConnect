@@ -1,0 +1,106 @@
+# ProConnect E2E stack (add-e2e-ai-ci).
+#   docker-compose -p pc-e2e -f docker-compose.e2e.yml up -d --build --wait
+# Host ports use the +10000 offset from CONTRACT.md so it can run next to a dev stack.
+# Secrets below have throwaway defaults for local runs only; CI (and run-e2e.sh)
+# generate fresh values per run via E2E_JWT_SECRET / E2E_DB_PASSWORD.
+name: pc-e2e
+
+x-jwt: &jwt_secret ${E2E_JWT_SECRET:-e2e-local-only-jwt-secret-not-for-prod-0123456789}
+x-db-password: &db_password ${E2E_DB_PASSWORD:-e2e-local-db-password}
+
+services:
+  mysql:
+    image: mysql:8.4
+    command:
+      - --innodb-buffer-pool-size=64M
+      - --performance-schema=OFF
+      - --skip-name-resolve
+    environment:
+      MYSQL_DATABASE: proconnect
+      MYSQL_USER: proconnect
+      MYSQL_PASSWORD: *db_password
+      MYSQL_ROOT_PASSWORD: *db_password
+    tmpfs:
+      - /var/lib/mysql
+    ports:
+      - "${E2E_MYSQL_PORT:-13306}:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uproconnect -p\"$$MYSQL_PASSWORD\" --silent"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+      start_period: 10s
+    mem_limit: 640m
+
+  api:
+    image: pc-e2e/api:local
+    build:
+      context: ./backProconnect
+    environment:
+      SERVER_PORT: "8081"
+      DB_URL: jdbc:mysql://mysql:3306/proconnect?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USER: proconnect
+      DB_PASSWORD: *db_password
+      JWT_SECRET: *jwt_secret
+      JWT_TTL: PT2H
+      COOKIE_SECURE: "false"
+      CORS_ORIGINS: http://localhost:${E2E_WEB_PORT:-14321}
+      SPRING_JPA_SHOW_SQL: "false"
+    ports:
+      - "${E2E_API_PORT:-18081}:8081"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    mem_limit: 640m
+
+  media:
+    image: pc-e2e/media:local
+    build:
+      context: ./NodeTsPosts
+    environment:
+      PORT: "3001"
+      UPLOAD_DIR: /data/upload
+    tmpfs:
+      - /data/upload:uid=1000,gid=1000
+    ports:
+      - "${E2E_MEDIA_PORT:-13001}:3001"
+    mem_limit: 256m
+
+  gateway:
+    image: pc-e2e/gateway:local
+    build:
+      context: ./gateway
+    environment:
+      PORT: "8080"
+      API_URI: http://api:8081
+      MEDIA_URI: http://media:3001
+      CORS_ORIGINS: http://localhost:${E2E_WEB_PORT:-14321}
+      JWT_SECRET: *jwt_secret
+    ports:
+      - "${E2E_GATEWAY_PORT:-18080}:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+      media:
+        condition: service_healthy
+    mem_limit: 512m
+
+  web:
+    image: pc-e2e/web:local
+    build:
+      context: ./FrontedProConnect
+      args:
+        # Browser-facing gateway URL (baked into the client bundle).
+        PUBLIC_API_URL: http://localhost:${E2E_GATEWAY_PORT:-18080}
+    environment:
+      PORT: "4321"
+      HOST: 0.0.0.0
+      PUBLIC_API_URL: http://localhost:${E2E_GATEWAY_PORT:-18080}
+      # Gateway URL as seen from the SSR server inside the compose network.
+      API_INTERNAL_URL: http://gateway:8080
+    ports:
+      - "${E2E_WEB_PORT:-14321}:4321"
+    depends_on:
+      gateway:
+        condition: service_healthy
+    mem_limit: 384m
