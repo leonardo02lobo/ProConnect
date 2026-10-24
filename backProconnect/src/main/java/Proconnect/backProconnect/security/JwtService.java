@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -24,9 +25,16 @@ public class JwtService {
 
     private final SecretKey key;
     private final Duration ttl;
+    private final TokenDenylist denylist;
 
+    /** Solo para tests unitarios de configuración (sin denylist). */
+    public JwtService(String secret, Duration ttl) {
+        this(secret, ttl, new TokenDenylist(ttl));
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
     public JwtService(@Value("${proconnect.jwt.secret:}") String secret,
-            @Value("${proconnect.jwt.ttl:PT24H}") Duration ttl) {
+            @Value("${proconnect.jwt.ttl:PT24H}") Duration ttl, TokenDenylist denylist) {
         if (secret == null || secret.isBlank()) {
             throw new IllegalStateException(
                     "JWT_SECRET no está definido. Defínelo (>= 32 bytes) antes de arrancar la API.");
@@ -37,6 +45,7 @@ public class JwtService {
         }
         this.key = Keys.hmacShaKeyFor(bytes);
         this.ttl = ttl;
+        this.denylist = denylist;
     }
 
     public Duration getTtl() {
@@ -46,6 +55,7 @@ public class JwtService {
     public String generate(User user) {
         Instant now = Instant.now();
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .subject(String.valueOf(user.getId()))
                 .claim("role", Role.fromString(user.getRole()).name())
                 .claim("name", user.getName())
@@ -59,11 +69,29 @@ public class JwtService {
     public Optional<AuthPrincipal> parse(String token) {
         try {
             Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+            if (denylist.isRevoked(claims.getId())) {
+                return Optional.empty();
+            }
             Long userId = Long.valueOf(claims.getSubject());
             Role role = Role.fromString(claims.get("role", String.class));
             return Optional.of(new AuthPrincipal(userId, role, claims.get("name", String.class)));
         } catch (JwtException | IllegalArgumentException e) {
             return Optional.empty();
+        }
+    }
+
+    /** Revoca el token (logout) hasta su expiración. Ignora tokens inválidos. */
+    public void revoke(String token) {
+        if (token == null || token.isBlank()) {
+            return;
+        }
+        try {
+            Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+            if (claims.getExpiration() != null) {
+                denylist.revoke(claims.getId(), claims.getExpiration().toInstant());
+            }
+        } catch (JwtException | IllegalArgumentException e) {
+            // token inválido o expirado: nada que revocar
         }
     }
 }

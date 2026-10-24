@@ -28,7 +28,7 @@ public class LikeService {
             if (exists) {
                 return "User already liked this post";
             }
-            Like like = new Like(likeDto.getId(), likeDto.getUserId(), likeDto.getPostId(), likeDto.getDate());
+            Like like = new Like(null, likeDto.getUserId(), likeDto.getPostId(), likeDto.getDate());
             likeRepository.save(like);
 
             return "Like added successfully";

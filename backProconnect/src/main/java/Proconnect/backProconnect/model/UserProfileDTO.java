@@ -1,9 +1,12 @@
 package Proconnect.backProconnect.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.List;
 
 public class UserProfileDTO {
     private Long id;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String email;
     private String name;
     private String role;

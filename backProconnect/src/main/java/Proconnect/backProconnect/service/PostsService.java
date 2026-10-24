@@ -15,15 +15,20 @@ import Proconnect.backProconnect.model.PostsResponse;
 import Proconnect.backProconnect.model.UserPublicDto;
 import Proconnect.backProconnect.repository.CommentsRepository;
 import Proconnect.backProconnect.repository.PostsRepository;
+import Proconnect.backProconnect.exception.ResourceNotFoundException;
+import Proconnect.backProconnect.security.OwnershipGuard;
 
 @Service
 public class PostsService {
     private final PostsRepository postsRepository;
     private final CommentsRepository commentsRepository;
+    private final OwnershipGuard guard;
 
-    public PostsService(PostsRepository postsRepository, CommentsRepository commentsRepository) {
+    public PostsService(PostsRepository postsRepository, CommentsRepository commentsRepository,
+            OwnershipGuard guard) {
         this.postsRepository = postsRepository;
         this.commentsRepository = commentsRepository;
+        this.guard = guard;
     }
 
     public String AddPost(PostsDto postsDto) {
@@ -40,27 +45,30 @@ public class PostsService {
         }
     }
 
+    /** Solo el autor o un ADMIN editan (403); 404 si no existe. */
     public String EditPostById(Long Id, PostsDto newPost) {
-        try {
-            if (Long.valueOf(Id) == null || Id == 0) {
-                return "Id cannot be null or zero";
-            }
-            if (newPost == null) {
-                return "Post cannot be null";
-            }
-            Optional<Posts> Findpost = postsRepository.findById(Id);
-            if (!Findpost.isPresent()) {
-                return "Post does not exits";
-            }
-            Posts post = Findpost.get();
-            post.setContent(newPost.getContent());
-            post.setImageUrl(newPost.getImageUrl());
-            post.setTitle(newPost.getTitle());
-            postsRepository.save(post);
-            return "Edited Post";
-        } catch (Exception e) {
-            return "Error: " + e.getMessage();
+        if (newPost == null) {
+            return "Post cannot be null";
         }
+        Posts post = findOr404(Id);
+        guard.assertOwnerOrAdmin(post.getUserId());
+        post.setContent(newPost.getContent());
+        post.setImageUrl(newPost.getImageUrl());
+        post.setTitle(newPost.getTitle());
+        postsRepository.save(post);
+        return "Edited Post";
+    }
+
+    /** El email solo se expone al propio usuario o a un ADMIN. */
+    private String privateEmail(Long userId, String email) {
+        return guard.canSeePrivateDataOf(userId) ? email : null;
+    }
+
+    private Posts findOr404(Long id) {
+        if (id == null || id <= 0) {
+            throw new ResourceNotFoundException();
+        }
+        return postsRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
     }
 
     public List<PostsResponse> GetAllPosts(Long userId) {
@@ -84,7 +92,7 @@ public class PostsService {
                             ((Number) row[5]).longValue(),
                             (String) row[7],
                             (String) row[9],
-                            (String) row[6],
+                            privateEmail(((Number) row[5]).longValue(), (String) row[6]),
                             (String) row[8],
                             (String) row[11],
                             (String) row[12]),
@@ -122,7 +130,7 @@ public class PostsService {
                             ((Number) row[5]).longValue(),
                             (String) row[7],
                             (String) row[9],
-                            (String) row[6],
+                            privateEmail(((Number) row[5]).longValue(), (String) row[6]),
                             (String) row[8],
                             (String) row[11],
                             (String) row[12]),
@@ -151,16 +159,11 @@ public class PostsService {
         }
     }
 
-    public boolean DeletePostById(Long Id) {
-        try {
-            if (Long.valueOf(Id) == null || Id == 0) {
-                return false;
-            }
-            postsRepository.deleteById(Id);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    /** Solo el autor o un ADMIN (moderación) borran (403); 404 si no existe. */
+    public void DeletePostById(Long Id) {
+        Posts post = findOr404(Id);
+        guard.assertOwnerOrAdmin(post.getUserId());
+        postsRepository.delete(post);
     }
 
     private CommentsDto convertToDto(Comments comment) {
@@ -172,7 +175,7 @@ public class PostsService {
                     ((Number) user[0]).longValue(),
                     (String) user[2],
                     (String) user[4],
-                    (String) user[1],
+                    privateEmail(((Number) user[0]).longValue(), (String) user[1]),
                     (String) user[3],
                     (String) user[6],
                     (String) user[7]);

@@ -7,14 +7,18 @@ import org.springframework.stereotype.Service;
 import Proconnect.backProconnect.Entity.ProfilePhotos;
 import Proconnect.backProconnect.model.ProfilePhotosDto;
 import Proconnect.backProconnect.repository.ProfilePhotosRepository;
+import Proconnect.backProconnect.exception.ResourceNotFoundException;
+import Proconnect.backProconnect.security.OwnershipGuard;
 
 @Service
 public class ProfilePhotosService {
     
     private final ProfilePhotosRepository profilePhotosRepository;
+    private final OwnershipGuard guard;
 
-    public ProfilePhotosService(ProfilePhotosRepository profilePhotosRepository) {
+    public ProfilePhotosService(ProfilePhotosRepository profilePhotosRepository, OwnershipGuard guard) {
         this.profilePhotosRepository = profilePhotosRepository;
+        this.guard = guard;
     }
 
     public String AddProfilePhoto(ProfilePhotosDto profilePhotosDto){
@@ -22,7 +26,11 @@ public class ProfilePhotosService {
             if(profilePhotosDto == null){
                 return "Photos cannot be null";
             }
-            ProfilePhotos profilePhotos = new ProfilePhotos(profilePhotosDto.getId(), profilePhotosDto.getUserId(), profilePhotosDto.getPhotoUrl(), profilePhotosDto.getWallPhotoUrl());
+            // Nunca se reutiliza un id del body (evita sobrescribir la fila de otro usuario).
+            ProfilePhotos profilePhotos = profilePhotosRepository.findByUserId(profilePhotosDto.getUserId())
+                    .orElse(new ProfilePhotos(null, profilePhotosDto.getUserId(), null, null));
+            profilePhotos.setPhotoUrl(profilePhotosDto.getPhotoUrl());
+            profilePhotos.setWallPhotoUrl(profilePhotosDto.getWallPhotoUrl());
             profilePhotosRepository.save(profilePhotos);
             return "Photos Add successufly";
         } catch (Exception e) {
@@ -42,39 +50,27 @@ public class ProfilePhotosService {
         }
     }
 
+    /** Solo el propietario de las fotos (o ADMIN) las cambia (403); false si no existen. */
     public boolean UpdatePhotoUrlById(Long id, String newPhotoUrl) {
-        try {
-            if (id == null || id == 0) {
-                return false;
-            }
-            Optional<ProfilePhotos> profileOpt = profilePhotosRepository.findById(id);
-            if (!profileOpt.isPresent()) {
-                return false;
-            }
-            ProfilePhotos profile = profileOpt.get();
-            profile.setPhotoUrl(newPhotoUrl);
-            profilePhotosRepository.save(profile); 
-            return true;
-        } catch (Exception e) {
+        ProfilePhotos profile = (id == null || id <= 0) ? null : profilePhotosRepository.findById(id).orElse(null);
+        if (profile == null) {
             return false;
         }
+        guard.assertOwnerOrAdmin(profile.getUserId());
+        profile.setPhotoUrl(newPhotoUrl);
+        profilePhotosRepository.save(profile);
+        return true;
     }
 
+    /** Solo el propietario de las fotos (o ADMIN) las cambia (403); false si no existen. */
     public boolean UpdateWallPhotoUrlById(Long id, String newWallPhotoUrl) {
-        try {
-            if (id == null || id == 0) {
-                return false;
-            }
-            Optional<ProfilePhotos> profileOpt = profilePhotosRepository.findById(id);
-            if (!profileOpt.isPresent()) {
-                return false;
-            }
-            ProfilePhotos profile = profileOpt.get();
-            profile.setWallPhotoUrl(newWallPhotoUrl);
-            profilePhotosRepository.save(profile); 
-            return true;
-        } catch (Exception e) {
+        ProfilePhotos profile = (id == null || id <= 0) ? null : profilePhotosRepository.findById(id).orElse(null);
+        if (profile == null) {
             return false;
         }
+        guard.assertOwnerOrAdmin(profile.getUserId());
+        profile.setWallPhotoUrl(newWallPhotoUrl);
+        profilePhotosRepository.save(profile);
+        return true;
     }
 }

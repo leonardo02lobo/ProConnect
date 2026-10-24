@@ -1,6 +1,5 @@
 package Proconnect.backProconnect.controller;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,7 +32,8 @@ public class CommentsController {
 
     @DeleteMapping("/delete/{Id}")
     public ResponseEntity<?> DeleteCommentById(@PathVariable Long Id){
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(commentsService.DeleteCommentById(Id));
+        commentsService.DeleteCommentById(Id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/find/{postId}")

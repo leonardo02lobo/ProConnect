@@ -9,6 +9,9 @@ public class PostulationDto {
     private Long jobId;
     private Date date;
 
+    public PostulationDto() {
+    }
+
     public PostulationDto(Long id, Long userId, Long jobId, Date date) {
         Id = id;
         UserId = userId;

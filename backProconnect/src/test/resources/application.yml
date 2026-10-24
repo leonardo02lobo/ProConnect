@@ -22,3 +22,7 @@ proconnect:
     secure: false
   cors:
     origins: http://localhost:4321
+  # Límites altos en la suite general; RateLimitTests usa los valores reales en su propio contexto.
+  ratelimit:
+    auth-per-minute: 100000
+    max-failures: 100000

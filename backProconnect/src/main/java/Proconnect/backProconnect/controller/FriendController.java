@@ -34,6 +34,7 @@ public class FriendController {
         return ResponseEntity.ok(result);
     }
 
+    /** {userIdBeFollowed} es en realidad el id de la solicitud (Friend.id); solo su destinatario la resuelve. */
     @PutMapping("/accept/{userIdBeFollowed}")
     public ResponseEntity<String> acceptFriendRequest(@PathVariable Long userIdBeFollowed) {
         String result = friendService.AcceptFriendUserIdBeFollowed(userIdBeFollowed);
@@ -78,9 +79,10 @@ public class FriendController {
         return ResponseEntity.ok(result);
     }
 
+    /** Solicitudes pendientes recibidas por el usuario autenticado; el {userId} del path se ignora. */
     @GetMapping("/pending/{userId}")
     public ResponseEntity<List<FriendDto>> getPendingRequests(@PathVariable Long userId) {
-        List<FriendDto> pending = friendService.getPendingRequests(userId);
+        List<FriendDto> pending = friendService.getPendingRequests(CurrentUser.id());
         if (pending.isEmpty()) {
             return ResponseEntity.noContent().build();
         }

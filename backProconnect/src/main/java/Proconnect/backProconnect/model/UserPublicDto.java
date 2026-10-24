@@ -1,11 +1,17 @@
 package Proconnect.backProconnect.model;
 
-/** Representación pública de un usuario: nunca incluye el password. */
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+/**
+ * Representación pública de un usuario: nunca incluye el password. El email solo se rellena para el propio
+ * usuario o un ADMIN; en vistas de terceros es null y no se serializa.
+ */
 public class UserPublicDto {
 
     private Long id;
     private String name;
     private String userName;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String email;
     private String role;
     private String photoUrl;

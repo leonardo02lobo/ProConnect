@@ -13,13 +13,13 @@
 
 ## 3. Autorización
 
-- [ ] 3.1 Habilitar `@EnableMethodSecurity` y crear `OwnershipGuard`
-- [ ] 3.2 Checks de autor en edit/delete de posts y comentarios (403; el ADMIN puede moderar)
-- [ ] 3.3 Checks de propietario en companies, jobs y en la vista o resolución de postulaciones; solo `COMPANY_ADMIN` crea empresas
-- [ ] 3.3b Test que recorre todos los endpoints `/api/**` sin sesión y espera 401 (salvo login, registro y logout)
-- [ ] 3.4 Postulaciones y mensajes privados: 404 ante acceso ajeno
-- [ ] 3.5 Users, fotos y workstations: solo el propio usuario o ADMIN; solicitudes de amistad: solo el destinatario acepta o rechaza
-- [ ] 3.6 Quitar el email de las vistas públicas de perfil, feed y comentarios, y ajustar el frontend
+- [x] 3.1 Habilitar `@EnableMethodSecurity` y crear `OwnershipGuard`
+- [x] 3.2 Checks de autor en edit/delete de posts y comentarios (403; el ADMIN puede moderar)
+- [x] 3.3 Checks de propietario en companies, jobs y en la vista o resolución de postulaciones; solo `COMPANY_ADMIN` crea empresas
+- [x] 3.3b Test que recorre todos los endpoints `/api/**` sin sesión y espera 401 (salvo login, registro y logout)
+- [x] 3.4 Postulaciones y mensajes privados: 404 ante acceso ajeno
+- [x] 3.5 Users, fotos y workstations: solo el propio usuario o ADMIN; solicitudes de amistad: solo el destinatario acepta o rechaza
+- [x] 3.6 Quitar el email de las vistas públicas de perfil, feed y comentarios, y ajustar el frontend
 
 ## 4. Media
 
@@ -32,18 +32,18 @@
 ## 5. Hardening HTTP
 
 - [ ] 5.1 Filtro de headers de seguridad en el gateway (CSP en Report-Only, nosniff, Referrer-Policy, Permissions-Policy, frame-ancestors; HSTS en `prod`)
-- [ ] 5.2 Filtro de validación de `Origin`/`Referer` para mutaciones en la API
-- [ ] 5.3 Rate limiting con Bucket4j + Caffeine en `/api/auth/**` (10/min por IP, lockout de 15 min tras 5 fallos por email, 429 + `Retry-After`) y proxies de confianza para `X-Forwarded-For`
+- [x] 5.2 Filtro de validación de `Origin`/`Referer` para mutaciones en la API
+- [x] 5.3 Rate limiting con Bucket4j + Caffeine en `/api/auth/**` (10/min por IP, lockout de 15 min tras 5 fallos por email, 429 + `Retry-After`) y proxies de confianza para `X-Forwarded-For`
 - [ ] 5.4 Revisar los logs: sin passwords ni tokens; login fallido con email e IP
 - [ ] 5.5 Verificar atributos de la cookie de sesión (`HttpOnly`, `SameSite`, `Secure` en prod)
 
 ## 6. Tests de regresión de seguridad
 
-- [ ] 6.1 Tests de integración de IDOR por recurso (A intenta mutar o leer recursos de B → 403/404)
+- [x] 6.1 Tests de integración de IDOR por recurso (A intenta mutar o leer recursos de B → 403/404)
 - [ ] 6.2 Tests de media: HTML disfrazado (415), SVG (415), 12 MB (413), nombre con traversal, EXIF eliminado y subida anónima (401)
 - [ ] 6.3 Tests de headers y CSRF (`Origin` ajeno → 403)
-- [ ] 6.4 Tests de rate limit y lockout (429)
-- [ ] 6.5 Test que recorre las respuestas de los endpoints públicos y falla si aparecen `password`, `token` o email de terceros
+- [x] 6.4 Tests de rate limit y lockout (429)
+- [x] 6.5 Test que recorre las respuestas de los endpoints públicos y falla si aparecen `password`, `token` o email de terceros
 - [ ] 6.6 E2E: `document.cookie` no expone la sesión y la CSP no rompe la app
 
 ## 7. Cierre

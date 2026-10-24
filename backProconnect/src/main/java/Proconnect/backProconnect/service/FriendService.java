@@ -8,14 +8,18 @@ import org.springframework.stereotype.Service;
 import Proconnect.backProconnect.Entity.Friend;
 import Proconnect.backProconnect.model.FriendDto;
 import Proconnect.backProconnect.repository.FriendRepository;
+import Proconnect.backProconnect.exception.ResourceNotFoundException;
+import Proconnect.backProconnect.security.OwnershipGuard;
 
 @Service
 public class FriendService {
 
     private final FriendRepository friendRepository;
+    private final OwnershipGuard guard;
 
-    public FriendService(FriendRepository friendRepository) {
+    public FriendService(FriendRepository friendRepository, OwnershipGuard guard) {
         this.friendRepository = friendRepository;
+        this.guard = guard;
     }
 
     public String sendFriendRequest(Long userIdFollow, Long userIdBeFollowed) {
@@ -34,7 +38,7 @@ public class FriendService {
             if (existing.isPresent()) {
                 return "Friend request already exists";
             }
-            Friend friend = new Friend(Long.valueOf(0),userIdFollow, userIdBeFollowed, "PENDING");
+            Friend friend = new Friend(null, userIdFollow, userIdBeFollowed, "PENDING");
             friendRepository.save(friend);
             return "Friend request sent successufly";
         } catch (Exception e) {
@@ -42,37 +46,33 @@ public class FriendService {
         }
     }
 
-    public String AcceptFriendUserIdBeFollowed(Long userIdBeFollowed) {
-        try {
-            if (userIdBeFollowed == null || userIdBeFollowed <= 0) {
-                return "UserIdBeFollowed cannot be null or less zero";
-            }
-            Optional<Friend> friendoOpt = friendRepository.findById(userIdBeFollowed);
-            if (friendoOpt.isPresent()) {
-                return "Friend request not found";
-            }
-            Friend friend = friendoOpt.get();
-            friend.setStatus("ACCEPTED");
-            friendRepository.save(friend);
-            return "Friend request accepted";
-        } catch (Exception e) {
-            return "Error: " + e.getMessage();
-        }
+    /**
+     * Acepta la solicitud {requestId}. Solo su destinatario (o un ADMIN) puede hacerlo: 403 para el resto,
+     * 404 si no existe.
+     */
+    public String AcceptFriendUserIdBeFollowed(Long requestId) {
+        Friend friend = findRequestForRecipient(requestId);
+        friend.setStatus("ACCEPTED");
+        friendRepository.save(friend);
+        return "Friend request accepted";
     }
 
-    public String rejectFriendRequest(Long userIdBeFollowed) {
-        try {
-            Optional<Friend> friendOpt = friendRepository.findById(userIdBeFollowed);
-            if (friendOpt.isPresent()) {
-                return "Friend request not found";
-            }
-            Friend friend = friendOpt.get();
-            friend.setStatus("REJECTED");
-            friendRepository.save(friend);
-            return "Friend request rejected";
-        } catch (Exception e) {
-            return "Error: " + e.getMessage();
+    /** Rechaza la solicitud {requestId}; mismas reglas que aceptar. */
+    public String rejectFriendRequest(Long requestId) {
+        Friend friend = findRequestForRecipient(requestId);
+        friend.setStatus("REJECTED");
+        friendRepository.save(friend);
+        return "Friend request rejected";
+    }
+
+    private Friend findRequestForRecipient(Long requestId) {
+        Friend friend = (requestId == null || requestId <= 0) ? null
+                : friendRepository.findById(requestId).orElse(null);
+        if (friend == null) {
+            throw new ResourceNotFoundException();
         }
+        guard.assertOwnerOrAdmin(friend.getUserIdBeFollowed());
+        return friend;
     }
 
     public String deleteFriendShip(Long userIdFollow, Long userIdBeFollowed){
@@ -109,7 +109,7 @@ public class FriendService {
                 return "You cannot send a friend request to yourself.";
             }
             Optional<Friend> friendOpt = friendRepository.findByUserIdFollowAndUserIdBeFollowed(userIdFollow, userIdBeFollowed);
-            if(friendOpt.isPresent()){
+            if(friendOpt.isEmpty()){
                 return "Friend request not found";
             }
             Friend friend = friendOpt.get();

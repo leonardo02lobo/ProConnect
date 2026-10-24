@@ -26,6 +26,10 @@ public class Friend {
     @NotNull(message = "Status cannot be null")
     private String status;
 
+    /** Requerido por JPA para materializar la entidad. */
+    public Friend() {
+    }
+
     public Friend(Long id, Long userIdFollow, Long userIdBeFollowed, String status) {
         this.id = id;
         this.userIdFollow = userIdFollow;

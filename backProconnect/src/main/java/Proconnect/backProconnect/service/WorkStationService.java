@@ -9,13 +9,16 @@ import Proconnect.backProconnect.Entity.WorkStation;
 import Proconnect.backProconnect.model.WorkStationDto;
 import Proconnect.backProconnect.repository.WorkStationRepository;
 import Proconnect.backProconnect.specification.WorkStationSpecification;
+import Proconnect.backProconnect.security.OwnershipGuard;
 
 @Service
 public class WorkStationService {
     private final WorkStationRepository workStationRepository;
+    private final OwnershipGuard guard;
 
-    public WorkStationService(WorkStationRepository workStationRepository) {
+    public WorkStationService(WorkStationRepository workStationRepository, OwnershipGuard guard) {
         this.workStationRepository = workStationRepository;
+        this.guard = guard;
     }
 
     public String AddWorkStation(WorkStationDto workStation) {
@@ -23,7 +26,7 @@ public class WorkStationService {
             if (workStation == null) {
                 return "WorkStation cannot be null";
             }
-            WorkStation workStationEntity = new WorkStation(workStation.getId(), workStation.getUserId(), workStation.getWorkStation());
+            WorkStation workStationEntity = new WorkStation(null, workStation.getUserId(), workStation.getWorkStation());
             workStationRepository.save(workStationEntity);
             return "WorkStation add successfully";
         } catch (Exception e) {
@@ -35,43 +38,30 @@ public class WorkStationService {
         return workStationRepository.findAll();
     }
 
+    /** Solo el propietario (o ADMIN) la modifica (403); null si no existe. El propietario no cambia. */
     public String UpdateWorkStationById(Long Id, WorkStationDto newWorkStation) {
-        try {
-            if (Long.valueOf(Id) == null) {
-                return "Id cannot be null";
-            }
-            if (newWorkStation == null) {
-                return "new WorkStation cannot be null";
-            }
-
-            WorkStation existWorkStation = workStationRepository.findById(Id).orElse(null);
-
-            if (existWorkStation == null) {
-                return "The WorkStation with " + Id + " does not exist";
-            }
-            existWorkStation.setUserId(newWorkStation.getUserId());
-            existWorkStation.setWorkStation(newWorkStation.getWorkStation());
-            existWorkStation.setUserId(newWorkStation.getUserId());
-            workStationRepository.save(existWorkStation);
-            return "WorkSation Update successfully";
-        } catch (Exception e) {
-            return "Error: " + e.getMessage();
+        if (Id == null || newWorkStation == null) {
+            return null;
         }
+        WorkStation existWorkStation = workStationRepository.findById(Id).orElse(null);
+        if (existWorkStation == null) {
+            return null;
+        }
+        guard.assertOwnerOrAdmin(existWorkStation.getUserId());
+        existWorkStation.setWorkStation(newWorkStation.getWorkStation());
+        workStationRepository.save(existWorkStation);
+        return "WorkSation Update successfully";
     }
 
+    /** Solo el propietario (o ADMIN) la borra (403); false si no existe. */
     public boolean DeleteWorkStation(Long Id) {
-        try {
-            if (Long.valueOf(Id) == null) {
-                return false;
-            }
-            if (!workStationRepository.existsById(Id)) {
-                return false;
-            }
-            workStationRepository.deleteById(Id);
-            return true;
-        } catch (Exception e) {
+        WorkStation existing = Id == null ? null : workStationRepository.findById(Id).orElse(null);
+        if (existing == null) {
             return false;
         }
+        guard.assertOwnerOrAdmin(existing.getUserId());
+        workStationRepository.delete(existing);
+        return true;
     }
 
     public WorkStation GetWorkStationById(Long Id){

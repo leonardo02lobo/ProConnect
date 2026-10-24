@@ -18,6 +18,8 @@ import Proconnect.backProconnect.model.UserProfileDTO;
 import Proconnect.backProconnect.model.UserPublicDto;
 import Proconnect.backProconnect.repository.ProfilePhotosRepository;
 import Proconnect.backProconnect.repository.UserRepository;
+import Proconnect.backProconnect.exception.ResourceNotFoundException;
+import Proconnect.backProconnect.security.OwnershipGuard;
 import Proconnect.backProconnect.specification.UserSpecification;
 
 @Service
@@ -26,19 +28,34 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ProfilePhotosRepository profilePhotosRepository;
+    private final OwnershipGuard guard;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ProfilePhotosRepository profilePhotosRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+            ProfilePhotosRepository profilePhotosRepository, OwnershipGuard guard) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.profilePhotosRepository = profilePhotosRepository;
+        this.guard = guard;
     }
 
+    /** Vista pública: el email solo se incluye si el actor es el propio usuario o un ADMIN. */
     public UserPublicDto toPublic(User user) {
-        if (user == null) {
-            return null;
-        }
+        return user == null ? null : toPublic(user, guard.canSeePrivateDataOf(user.getId()));
+    }
+
+    /** Vista del propio usuario (login, registro, /me): incluye su email. */
+    public UserPublicDto toSelf(User user) {
+        return user == null ? null : toPublic(user, true);
+    }
+
+    public UserPublicDto getSelfById(Long id) {
+        return id == null ? null : userRepository.findById(id).map(this::toSelf).orElse(null);
+    }
+
+    private UserPublicDto toPublic(User user, boolean includePrivate) {
         Optional<ProfilePhotos> photos = profilePhotosRepository.findByUserId(user.getId());
-        return new UserPublicDto(user.getId(), user.getName(), user.getUserName(), user.getEmail(), user.getRole(),
+        return new UserPublicDto(user.getId(), user.getName(), user.getUserName(),
+                includePrivate ? user.getEmail() : null, user.getRole(),
                 photos.map(ProfilePhotos::getPhotoUrl).orElse(null),
                 photos.map(ProfilePhotos::getWallPhotoUrl).orElse(null));
     }
@@ -54,18 +71,17 @@ public class UserService {
         return userRepository.findAll().stream().map(this::toPublic).toList();
     }
 
+    /** Solo el propio usuario o un ADMIN (403); 404 si no existe. */
     public String UpdateUserById(Long Id, UserDto newUser) {
+        User existingUser = (Id == null ? null : userRepository.findById(Id).orElse(null));
+        if (existingUser == null) {
+            throw new ResourceNotFoundException();
+        }
+        guard.assertOwnerOrAdmin(existingUser.getId());
+        if (newUser == null) {
+            return "Body requerido";
+        }
         try {
-            if (Long.valueOf(Id) == null) {
-                return "Id cannot be null";
-            }
-            if (!userRepository.existsById(Id)) {
-                return "User with Id " + Id + " does not exist";
-            }
-            User existingUser = userRepository.findById(Id).orElse(null);
-            if (existingUser == null) {
-                return "User with Id " + Id + " does not exist";
-            }
             // El id y el rol no se cambian desde aquí; el password se guarda siempre hasheado.
             existingUser.setName(newUser.getName());
             existingUser.setEmail(newUser.getEmail());
@@ -79,23 +95,20 @@ public class UserService {
             userRepository.save(existingUser);
             return "User with Id " + Id + " updated successfully";
         } catch (Exception e) {
-            return "Error: " + e.getMessage();
+            // Sin detalles de la BD en la respuesta.
+            return "Error: no se pudo actualizar el usuario";
         }
     }
 
+    /** Solo el propio usuario o un ADMIN (403); false si no existe. */
     public boolean DeleteUserById(Long Id) {
-        try {
-            if (Long.valueOf(Id) == null) {
-                return false;
-            }
-            if (!userRepository.existsById(Id)) {
-                return false;
-            }
-            userRepository.deleteById(Id);
-            return true;
-        } catch (Exception e) {
+        User existing = (Id == null ? null : userRepository.findById(Id).orElse(null));
+        if (existing == null) {
             return false;
         }
+        guard.assertOwnerOrAdmin(existing.getId());
+        userRepository.deleteById(Id);
+        return true;
     }
 
     public UserPublicDto GetUserById(Long Id) {
@@ -159,7 +172,7 @@ public class UserService {
 
         return new UserProfileDTO(
                 ((Number) first[0]).longValue(),
-                (String) first[1],
+                guard.canSeePrivateDataOf(((Number) first[0]).longValue()) ? (String) first[1] : null,
                 (String) first[2],
                 (String) first[4],
                 (String) first[3],

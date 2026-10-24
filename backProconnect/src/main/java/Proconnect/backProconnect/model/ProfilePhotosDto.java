@@ -7,6 +7,9 @@ public class ProfilePhotosDto {
     private String photoUrl;
     private String wallPhotoUrl;
     
+    public ProfilePhotosDto() {
+    }
+
     public ProfilePhotosDto(Long id, Long userId, String photoUrl, String wallPhotoUrl) {
         Id = id;
         this.userId = userId;
