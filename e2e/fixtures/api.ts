@@ -4,9 +4,8 @@ import { request, type APIRequestContext, type APIResponse } from '@playwright/t
 import { API_URL } from './env';
 
 /**
- * Thin API client over the gateway. It talks to the routes that are valid while
- * `fix-critical-risks` is the base (CONTRACT.md · "Rutas API vigentes"). If
- * `cleanup-codebase` renames routes, only this file should need changes.
+ * Thin API client over the gateway, on the REST routes introduced by `cleanup-codebase`
+ * (see docs/api-routes.md). If routes change again, only this file should need changes.
  */
 
 export interface PublicUser {
@@ -25,7 +24,7 @@ export interface FeedPost {
   content: string;
   imageUrl: string | null;
   totalLikes: number;
-  totalComentarios: number;
+  totalComments: number;
   userLiked?: boolean;
   user?: { id: number; name: string };
   comments: Array<{ id: number; content: string; user?: { id: number; name: string } }>;
@@ -99,37 +98,37 @@ export class ApiClient {
     return body.data.filename;
   }
 
-  /** userId is ignored by the server after fix-critical-risks (actor comes from the token). */
-  async createPost(post: { title: string; content: string; imageUrl?: string }, userId?: number): Promise<void> {
-    await ensureOk(
-      await this.ctx.post('/api/posts/create', {
-        data: { userId, title: post.title, content: post.content, imageUrl: post.imageUrl ?? '' },
+  /** POST /api/posts → 201 with the created post. The author comes from the session cookie. */
+  async createPost(post: { title: string; content: string; imageUrl?: string }): Promise<{ id: number }> {
+    const res = await ensureOk(
+      await this.ctx.post('/api/posts', {
+        data: { title: post.title, content: post.content, imageUrl: post.imageUrl ?? null },
       }),
       'create post',
     );
+    return (await res.json()) as { id: number };
   }
 
-  /** Feed as seen by the given viewer (userLiked depends on the viewer). */
-  async feed(viewerId: number): Promise<FeedPost[]> {
-    let res = await this.ctx.get(`/api/posts/${viewerId}`);
-    if (res.status() === 404 || res.status() === 405) res = await this.ctx.get('/api/posts');
-    await ensureOk(res, 'GET feed');
+  /** Feed as seen by the session user (userLiked depends on the viewer). */
+  async feed(): Promise<FeedPost[]> {
+    const res = await ensureOk(await this.ctx.get('/api/posts'), 'GET feed');
     return (await jsonOrNull<FeedPost[]>(res)) ?? [];
   }
 
-  async findPostByTitle(viewerId: number, title: string): Promise<FeedPost | undefined> {
-    return (await this.feed(viewerId)).find((p) => p.title === title);
+  async findPostByTitle(title: string): Promise<FeedPost | undefined> {
+    return (await this.feed()).find((p) => p.title === title);
   }
 
-  async like(postId: number, userId?: number): Promise<void> {
-    await ensureOk(await this.ctx.post('/api/like/create', { data: { postId, userId } }), 'like');
+  async like(postId: number): Promise<void> {
+    await ensureOk(await this.ctx.post(`/api/posts/${postId}/likes`), 'like');
   }
 
-  async unlike(postId: number, userId?: number): Promise<void> {
-    await ensureOk(await this.ctx.delete('/api/like/delete', { data: { postId, userId } }), 'unlike');
+  /** DELETE without body: the like is identified by route + session. */
+  async unlike(postId: number): Promise<void> {
+    await ensureOk(await this.ctx.delete(`/api/posts/${postId}/likes`), 'unlike');
   }
 
-  async comment(postId: number, content: string, userId?: number): Promise<void> {
-    await ensureOk(await this.ctx.post('/api/comment/create', { data: { postId, content, userId } }), 'comment');
+  async comment(postId: number, content: string): Promise<void> {
+    await ensureOk(await this.ctx.post(`/api/posts/${postId}/comments`, { data: { content } }), 'comment');
   }
 }

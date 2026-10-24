@@ -38,3 +38,12 @@ export interface SeedData {
 export function uniqueId(workerIndex: number): string {
   return `w${workerIndex}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 }
+
+/**
+ * ADMIN created by the API at startup (BOOTSTRAP_ADMIN_* in docker-compose.e2e.yml). Registration always
+ * yields USER, so this is the only account that can own companies in the suite.
+ */
+export const ADMIN = {
+  email: 'admin.e2e@proconnect.test',
+  password: process.env.E2E_ADMIN_PASSWORD ?? 'E2e-Admin-Passw0rd!',
+} as const;

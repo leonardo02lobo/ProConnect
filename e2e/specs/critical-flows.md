@@ -10,7 +10,7 @@ one like and one comment by Bob.
 3. Login with wrong password → error message, still on login, no `pc_session`.
 4. Logout from the header menu (dedicated user) → back to login; `/` redirects to login again.
 5. Without session, `/`, `/Profile` and `/user/{id}` redirect to login.
-6. Without session, API answers 401 for `/api/auth/me`, `GET /api/posts`, `POST /api/posts/create`.
+6. Without session, API answers 401 for `/api/auth/me`, `GET /api/posts`, `POST /api/posts`.
 
 ## 2. Feed (`tests/feed.spec.ts`)
 1. The seed post shows author name, author photo, image loaded through the gateway, like and comment counters ≥ 1 and Bob's comment.

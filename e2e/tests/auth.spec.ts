@@ -66,7 +66,7 @@ test.describe('auth without session', () => {
     try {
       expect((await ctx.get('/api/auth/me')).status()).toBe(401);
       expect((await ctx.get('/api/posts')).status()).toBe(401);
-      expect((await ctx.post('/api/posts/create', { data: { title: 'x', content: 'y' } })).status()).toBe(401);
+      expect((await ctx.post('/api/posts', { data: { title: 'x', content: 'y' } })).status()).toBe(401);
     } finally {
       await ctx.dispose();
     }
