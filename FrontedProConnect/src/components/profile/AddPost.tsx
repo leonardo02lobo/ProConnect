@@ -64,7 +64,7 @@ function AddPost() {
         <section className="w-full max-w-lg bg-white border border-gray-200 rounded-xl shadow-sm p-4">
             <div className="flex gap-4">
                 <img
-                    src="https://cdn-icons-png.flaticon.com/512/1946/1946429.png"
+                    src="/assets/avatar-default.svg"
                     alt="User"
                     className="w-12 h-12 rounded-full object-cover border"
                 />

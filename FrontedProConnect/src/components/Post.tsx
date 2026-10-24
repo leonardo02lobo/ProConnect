@@ -76,7 +76,7 @@ const Post: React.FC<Post> = ({ id, title, content, imageUrl,userId, name, photo
         <section data-testid="post-card" data-post-id={id} className="bg-white rounded-2xl shadow-md p-5 w-full max-w-lg mx-auto mb-6 transition hover:shadow-xl">
             <div className="flex items-center gap-3 mb-4">
                 <img
-                    src={mediaUrl(photoUrl) ?? "https://cdn-icons-png.flaticon.com/512/1946/1946429.png"}
+                    src={mediaUrl(photoUrl) ?? "/assets/avatar-default.svg"}
                     alt={`Foto de ${name}`}
                     data-testid="post-author-photo"
                     className="w-12 h-12 rounded-full object-cover border"

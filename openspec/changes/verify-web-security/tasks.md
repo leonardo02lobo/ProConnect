@@ -40,15 +40,15 @@
 ## 6. Tests de regresión de seguridad
 
 - [x] 6.1 Tests de integración de IDOR por recurso (A intenta mutar o leer recursos de B → 403/404)
-- [ ] 6.2 Tests de media: HTML disfrazado (415), SVG (415), 12 MB (413), nombre con traversal, EXIF eliminado y subida anónima (401)
-- [ ] 6.3 Tests de headers y CSRF (`Origin` ajeno → 403)
+- [x] 6.2 Tests de media: HTML disfrazado (415), SVG (415), 12 MB (413), nombre con traversal, EXIF eliminado y subida anónima (401)
+- [x] 6.3 Tests de headers y CSRF (`Origin` ajeno → 403)
 - [x] 6.4 Tests de rate limit y lockout (429)
 - [x] 6.5 Test que recorre las respuestas de los endpoints públicos y falla si aparecen `password`, `token` o email de terceros
-- [ ] 6.6 E2E: `document.cookie` no expone la sesión y la CSP no rompe la app
+- [x] 6.6 E2E: `document.cookie` no expone la sesión y la CSP no rompe la app
 
 ## 7. Cierre
 
-- [ ] 7.1 Pasar la CSP a enforce tras E2E verdes
+- [x] 7.1 Pasar la CSP a enforce tras E2E verdes
 - [ ] 7.2 Volver bloqueantes los jobs de seguridad (alto/crítico) y agregarlos como checks requeridos en `main`
 - [ ] 7.3 Actualizar la auditoría con el estado final de cada hallazgo y su test asociado
 - [ ] 7.4 Publicar `SECURITY.md` (política de reporte y alcance)

@@ -5,7 +5,7 @@ const Comment: React.FC<CommentsDTO> = ({content,date,id,user}) => {
     return (
         <div data-testid="comment-item" className="flex gap-3 items-start bg-gray-50 p-3 rounded-xl hover:bg-gray-100 transition">
             <img
-                src="https://cdn-icons-png.flaticon.com/512/219/219983.png"
+                src="/assets/avatar-default.svg"
                 alt="Avatar"
                 className="w-10 h-10 rounded-full object-cover"
             />

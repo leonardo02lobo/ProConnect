@@ -46,6 +46,9 @@ services:
       COOKIE_SECURE: "false"
       CORS_ORIGINS: http://localhost:${E2E_WEB_PORT:-14321}
       SPRING_JPA_SHOW_SQL: "false"
+      # verify-web-security: la suite hace muchos logins desde la IP del gateway; límite real en prod = 10/min.
+      RATE_LIMIT_AUTH_PER_MINUTE: "${E2E_RATE_LIMIT_AUTH_PER_MINUTE:-1000}"
+      TRUSTED_PROXIES: 172.16.0.0/12,192.168.0.0/16,127.0.0.1/32
     ports:
       - "${E2E_API_PORT:-18081}:8081"
     depends_on:
