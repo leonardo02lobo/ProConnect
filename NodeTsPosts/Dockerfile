@@ -12,5 +12,6 @@ USER node
 VOLUME ["/data/upload"]
 EXPOSE 3001
 HEALTHCHECK --interval=3s --timeout=2s --start-period=10s --retries=20 \
-  CMD nc -z localhost "${PORT}" || exit 1
-CMD ["node", "index.ts"]
+  CMD wget -qO- "http://localhost:${PORT}/health" | grep -q UP || exit 1
+# = `npm start` (tsx ./index.ts) without npm as PID 1
+CMD ["node_modules/.bin/tsx", "index.ts"]

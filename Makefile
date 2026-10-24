@@ -4,9 +4,11 @@ COMPOSE ?= docker-compose
 E2E_PROJECT ?= pc-e2e
 E2E_COMPOSE = $(COMPOSE) -p $(E2E_PROJECT) -f docker-compose.e2e.yml
 ACT ?= gh act
-ACT_FLAGS ?= --container-architecture linux/amd64 -P ubuntu-latest=catthehacker/ubuntu:act-latest
+ACT_IMAGE ?= pc-act/ubuntu:act-latest
+# One job at a time: matrix jobs share act's toolcache and race when installing the JDK.
+ACT_FLAGS ?= --pull=false -P ubuntu-latest=$(ACT_IMAGE) --concurrent-jobs 1
 
-.PHONY: help e2e-local e2e-up e2e-down e2e-logs e2e-test e2e-report ci-local ci-local-e2e act-dry-run lint-workflows ai-triage ai-heal
+.PHONY: help act-image e2e-local e2e-up e2e-down e2e-logs e2e-test e2e-report ci-local ci-local-e2e act-dry-run lint-workflows ai-triage ai-heal
 
 help: ## Show targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -29,14 +31,21 @@ e2e-test: ## Run Playwright against an already running stack (ARGS="...")
 e2e-report: ## Open the last HTML report
 	cd e2e && npx playwright show-report
 
-ci-local: ## Run .github/workflows/ci.yml locally with act
+act-image: ## Build the local act runner image (.github/act/Dockerfile)
+	docker build -q -t $(ACT_IMAGE) .github/act
+
+ci-local: act-image ## Run .github/workflows/ci.yml locally with act
 	$(ACT) pull_request -W .github/workflows/ci.yml $(ACT_FLAGS)
 
-ci-local-e2e: ## Try e2e.yml with act (needs Docker socket; fallback: make e2e-local)
+ci-local-e2e: act-image ## Try e2e.yml with act (needs Docker socket; fallback: make e2e-local)
 	$(ACT) pull_request -W .github/workflows/e2e.yml $(ACT_FLAGS) --container-options "-v /var/run/docker.sock:/var/run/docker.sock"
 
-act-dry-run: ## Dry-run every workflow with act (syntax + job graph)
-	@for wf in .github/workflows/*.yml; do echo "== $$wf"; $(ACT) -n -W $$wf $(ACT_FLAGS) --list >/dev/null && echo ok || exit 1; done
+act-dry-run: act-image ## act: parse every workflow + dry-run (-n) ci/e2e/heal/triage
+	@for wf in .github/workflows/*.yml; do echo "== $$wf"; $(ACT) -W $$wf --list >/dev/null || exit 1; done
+	$(ACT) pull_request -n -W .github/workflows/ci.yml $(ACT_FLAGS)
+	$(ACT) pull_request -n -W .github/workflows/e2e.yml $(ACT_FLAGS)
+	$(ACT) workflow_dispatch -n -W .github/workflows/ai-e2e-heal.yml --input ref=main $(ACT_FLAGS)
+	$(ACT) workflow_dispatch -n -W .github/workflows/ai-e2e-triage.yml --input run_id=1 --input pr_number=1 --input head_sha=HEAD $(ACT_FLAGS)
 
 lint-workflows: ## actionlint over .github/workflows
 	actionlint -color

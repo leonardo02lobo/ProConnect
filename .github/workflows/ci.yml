@@ -71,8 +71,8 @@ jobs:
           UPLOAD_DIR: ${{ runner.temp }}/upload
         run: |
           mkdir -p "$UPLOAD_DIR"
-          node index.ts > media.log 2>&1 &
-          for _ in $(seq 1 30); do nc -z localhost "$PORT" && break; sleep 1; done
+          npm start > media.log 2>&1 &
+          for _ in $(seq 1 30); do curl -fsS "http://localhost:$PORT/health" && break; sleep 1; done
           name=$(curl -fsS -F "miArchivo=@../e2e/assets/test-image.png" "http://localhost:$PORT/subirImagen" | node -pe 'JSON.parse(require("fs").readFileSync(0)).data.filename')
           curl -fsS -o /dev/null "http://localhost:$PORT/uploads/$name"
           echo "uploaded and served $name"
