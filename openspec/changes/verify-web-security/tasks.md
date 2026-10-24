@@ -24,10 +24,10 @@
 ## 4. Media
 
 - [ ] 4.1 Verificar el filtro JWT del gateway en `/upload/**` (introducido en `fix-critical-risks`): subida y lectura anónimas → 401
-- [ ] 4.2 Multer con `memoryStorage`, `limits` de 5 MB y 1 archivo, y manejo de errores 413
-- [ ] 4.3 Validación por magic bytes (`file-type`) con allowlist JPEG/PNG/WebP/GIF y 415 en otro caso
-- [ ] 4.4 Re-encode con `sharp` (strip de EXIF) y nombre `UUID.<ext>` en `UPLOAD_DIR`
-- [ ] 4.5 `express.static` con `index: false`, `dotfiles: 'deny'`, `nosniff` y `Cache-Control`
+- [x] 4.2 Multer con `memoryStorage`, `limits` de 5 MB y 1 archivo, y manejo de errores 413
+- [x] 4.3 Validación por magic bytes (`file-type`) con allowlist JPEG/PNG/WebP/GIF y 415 en otro caso
+- [x] 4.4 Re-encode con `sharp` (strip de EXIF) y nombre `UUID.<ext>` en `UPLOAD_DIR`
+- [x] 4.5 `express.static` con `index: false`, `dotfiles: 'deny'`, `nosniff` y `Cache-Control`
 
 ## 5. Hardening HTTP
 
