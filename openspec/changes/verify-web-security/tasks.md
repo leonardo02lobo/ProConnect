@@ -1,9 +1,9 @@
 ## 1. Pipeline de escaneo (modo reporte)
 
-- [ ] 1.1 Crear `.github/dependabot.yml` (maven ×2, npm ×3, docker, github-actions; semanal)
-- [ ] 1.2 Crear `.github/workflows/security.yml` con gitleaks, CodeQL (java y js/ts), Semgrep, OWASP Dependency-Check y `npm audit`, sin bloquear todavía
-- [ ] 1.3 Crear `.github/workflows/dast.yml`: stack E2E + login semilla + ZAP baseline autenticado, con reporte como artifact
-- [ ] 1.4 Ejecutar gitleaks sobre todo el historial y registrar en la allowlist la contraseña de MySQL ya rotada
+- [x] 1.1 Crear `.github/dependabot.yml` (maven ×2, npm ×3, docker, github-actions; semanal)
+- [x] 1.2 Crear `.github/workflows/security.yml` con gitleaks, CodeQL (java y js/ts), Semgrep, OWASP Dependency-Check y `npm audit`, sin bloquear todavía
+- [x] 1.3 Crear `.github/workflows/dast.yml`: stack E2E + login semilla + ZAP baseline autenticado, con reporte como artifact
+- [x] 1.4 Ejecutar gitleaks sobre todo el historial y registrar en la allowlist la contraseña de MySQL ya rotada
 
 ## 2. Auditoría inicial
 

@@ -9,6 +9,9 @@ on:
       run_id: { type: string, required: true }
       pr_number: { type: string, required: true }
       head_sha: { type: string, required: true }
+    secrets:
+      ANTHROPIC_API_KEY: { required: false }
+      CLAUDE_CODE_OAUTH_TOKEN: { required: false }
   workflow_dispatch:
     inputs:
       run_id: { description: 'ID of the failed e2e run', type: string, required: true }
@@ -86,9 +89,10 @@ jobs:
           GH_REPO: ${{ github.repository }}
           PR: ${{ inputs.pr_number }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ inputs.run_id }}
+          HEAD_SHA: ${{ inputs.head_sha }}
         run: |
           if [ ! -s e2e/ai-triage.md ]; then printf "## 🤖 Diagnóstico E2E\n\nEl agente no produjo diagnóstico. Revisa el run.\n" > e2e/ai-triage.md; fi
-          { cat e2e/ai-triage.md; printf '\n\n---\n<sub>Generado por ai-e2e-triage sobre %s · %s. Revisión humana obligatoria: el bot no modifica la rama.</sub>\n' "${{ inputs.head_sha }}" "$RUN_URL"; } > comment.md
+          { cat e2e/ai-triage.md; printf '\n\n---\n<sub>Generado por ai-e2e-triage sobre %s · %s. Revisión humana obligatoria: el bot no modifica la rama.</sub>\n' "$HEAD_SHA" "$RUN_URL"; } > comment.md
           gh pr comment "$PR" --body-file comment.md --edit-last --create-if-none
 
       - name: Keep the diagnosis as artifact

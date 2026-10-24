@@ -20,3 +20,4 @@ BackendProConnect/uploads/
 
 # act local artifact server (make ci-local-e2e)
 .act-artifacts/
+security/dast/out/

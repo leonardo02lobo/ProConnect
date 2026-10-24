@@ -43,6 +43,7 @@ public class SecurityHeadersFilter implements WebFilter, Ordered {
             h.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=(), "
                     + "interest-cohort=()");
             h.set("Cross-Origin-Opener-Policy", "same-origin");
+            h.set("Cross-Origin-Resource-Policy", "same-site");
             h.remove("X-Powered-By");
             h.remove("Server");
             if (hsts) {
