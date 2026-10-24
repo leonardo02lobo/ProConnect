@@ -58,8 +58,8 @@
 
 ## 8. Subida a GitHub Actions
 
-- [ ] 8.1 Push de la rama del change y apertura de un PR en draft hacia `main`
-- [ ] 8.2 Verificar `ci` y `e2e` en verde en GitHub Actions
+- [x] 8.1 Push de la rama del change y apertura de un PR en draft (apilado sobre `leonardo02lobo/fix-critical-risks`, PR #2; pasará a `main` al mergear #1)
+- [x] 8.2 Verificar `ci` y `e2e` en verde en GitHub Actions
 - [ ] 8.3 (Usuario) configurar el secret `ANTHROPIC_API_KEY` o `CLAUDE_CODE_OAUTH_TOKEN`
 - [ ] 8.4 Provocar un fallo intencional en un commit temporal del PR, verificar que el bot comenta el diagnóstico y revertir el commit
 - [ ] 8.5 (Usuario) activar branch protection en `main` con `ci` y `e2e` como checks requeridos
