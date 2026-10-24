@@ -22,7 +22,7 @@ fi
 rm -f "$OUT"
 PROMPT="$("$ROOT/e2e/scripts/build-prompt.sh" heal "$RESULTS_DIR" "$ARTIFACTS_DIR" "$OUT")"
 
-ALLOWED="Read Glob Grep LS Edit(e2e/tests/**) Edit(e2e/fixtures/**) Edit(FrontedProConnect/src/**) Write(${OUT}) Write(e2e/tests/**) \
+ALLOWED="Read Glob Grep LS Edit(e2e/tests/**) Edit(e2e/fixtures/**) Edit(FrontedProConnect/src/**) Edit(${OUT}) \
 Bash(cd e2e && npx playwright test:*) Bash(npx playwright test:*) Bash(ls:*) Bash(grep:*) Bash(cat:*) Bash(git diff:*) Bash(git status:*) mcp__playwright-test"
 
 echo "[ai-heal] running claude -p ..." >&2

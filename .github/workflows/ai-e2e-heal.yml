@@ -85,7 +85,7 @@ jobs:
           claude_args: >-
             --max-turns 60
             --mcp-config e2e/mcp.heal.json
-            --allowedTools "Read,Glob,Grep,LS,Edit(e2e/tests/**),Edit(e2e/fixtures/**),Edit(FrontedProConnect/src/**),Write(e2e/ai-heal.md),Bash(cd e2e && npx playwright test:*),Bash(npx playwright test:*),Bash(ls:*),Bash(grep:*),Bash(cat:*),Bash(git diff:*),Bash(git status:*),mcp__playwright-test"
+            --allowedTools "Read,Glob,Grep,LS,Edit(e2e/tests/**),Edit(e2e/fixtures/**),Edit(FrontedProConnect/src/**),Edit(e2e/ai-heal.md),Bash(cd e2e && npx playwright test:*),Bash(npx playwright test:*),Bash(ls:*),Bash(grep:*),Bash(cat:*),Bash(git diff:*),Bash(git status:*),mcp__playwright-test"
             --disallowedTools "WebFetch,WebSearch,Bash(git push:*),Bash(git commit:*),Bash(git reset:*),Bash(git checkout:*)"
 
       - name: Guardrails (no skip/fixme/only, no removed expects/specs)
