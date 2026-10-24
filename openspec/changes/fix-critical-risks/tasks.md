@@ -1,8 +1,8 @@
 ## 1. Higiene del repositorio
 
-- [ ] 1.1 Crear `.gitignore` raíz (`node_modules/`, `dist/`, `target/`, `.env`, `NodeTsPosts/upload/*` con `!.gitkeep`)
-- [ ] 1.2 `git rm -r --cached` de todos los `node_modules/` y de `NodeTsPosts/upload/*`, y agregar `NodeTsPosts/upload/.gitkeep`
-- [ ] 1.3 Verificar que `git ls-files | grep -E 'node_modules/|/upload/'` solo devuelve `.gitkeep`
+- [x] 1.1 Crear `.gitignore` raíz (`node_modules/`, `dist/`, `target/`, `.env`, `NodeTsPosts/upload/*` con `!.gitkeep`)
+- [x] 1.2 `git rm -r --cached` de todos los `node_modules/` y de `NodeTsPosts/upload/*`, y agregar `NodeTsPosts/upload/.gitkeep`
+- [x] 1.3 Verificar que `git ls-files | grep -E 'node_modules/|/upload/'` solo devuelve `.gitkeep`
 
 ## 2. Configuración por entorno
 
