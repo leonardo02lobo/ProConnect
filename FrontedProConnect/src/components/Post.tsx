@@ -73,17 +73,18 @@ const Post: React.FC<Post> = ({ id, title, content, imageUrl,userId, name, photo
     } 
 
     return (
-        <section className="bg-white rounded-2xl shadow-md p-5 w-full max-w-lg mx-auto mb-6 transition hover:shadow-xl">
+        <section data-testid="post-card" data-post-id={id} className="bg-white rounded-2xl shadow-md p-5 w-full max-w-lg mx-auto mb-6 transition hover:shadow-xl">
             <div className="flex items-center gap-3 mb-4">
                 <img
                     src={mediaUrl(photoUrl) ?? "https://cdn-icons-png.flaticon.com/512/1946/1946429.png"}
-                    alt="User"
+                    alt={`Foto de ${name}`}
+                    data-testid="post-author-photo"
                     className="w-12 h-12 rounded-full object-cover border"
                 />
-                <a href={`/user/${userId}`}><p className="font-semibold text-lg">{name}</p></a>
+                <a href={`/user/${userId}`} data-testid="post-author"><p className="font-semibold text-lg">{name}</p></a>
             </div>
             <div className="mb-4">
-                <p className="text-gray-800 mb-3 text-2xl">
+                <p className="text-gray-800 mb-3 text-2xl" data-testid="post-title">
                     {title}
                 </p>
                 <p className="text-gray-800 mb-3">
@@ -94,7 +95,8 @@ const Post: React.FC<Post> = ({ id, title, content, imageUrl,userId, name, photo
                     :
                     <img
                         src={mediaUrl(imageUrl)}
-                        alt="Post"
+                        alt={title}
+                        data-testid="post-image"
                         className="rounded-xl max-h-80 w-full object-cover"
                     />
                 }
@@ -103,12 +105,15 @@ const Post: React.FC<Post> = ({ id, title, content, imageUrl,userId, name, photo
                 <button 
                     className="flex items-center gap-2 hover:text-red-500 transition cursor-pointer"
                     onClick={SystemLike}
+                    data-testid="post-like-button"
+                    aria-pressed={!!userLiked}
+                    aria-label={userLiked ? "Quitar me gusta" : "Me gusta"}
                 >
                     {userLiked ? '❤️' : '♡'}
-                    <span>{totalLikes}</span>
+                    <span data-testid="post-like-count">{totalLikes}</span>
                 </button>
                 <button className="flex items-center gap-2 hover:text-blue-500 transition">
-                    💬 <span>{totalComentarios}</span>
+                    💬 <span data-testid="post-comment-count">{totalComentarios}</span>
                 </button>
                 {/* <button className="flex items-center gap-2 hover:text-green-500 transition">
                         🔗 Compartir
@@ -133,6 +138,8 @@ const Post: React.FC<Post> = ({ id, title, content, imageUrl,userId, name, photo
                 <input
                     type="text"
                     placeholder="Escribe un comentario..."
+                    aria-label="Escribe un comentario"
+                    data-testid="post-comment-input"
                     value={newComment}
                     onChange={handleInputChange}
                     onKeyDown={handleKeyPress}
@@ -141,6 +148,7 @@ const Post: React.FC<Post> = ({ id, title, content, imageUrl,userId, name, photo
                 <button 
                     className="bg-blue-500 text-white px-4 py-2 rounded-xl hover:bg-blue-600 transition"
                     onClick={SendComment}
+                    data-testid="post-comment-submit"
                     disabled={!newComment.trim()}
                 >
                     Enviar

@@ -18,6 +18,6 @@ COPY --from=build --chown=node:node /app /app
 USER node
 EXPOSE 4321
 HEALTHCHECK --interval=3s --timeout=2s --start-period=20s --retries=30 \
-  CMD wget -q --spider "http://localhost:${PORT}/favicon.ico" 2>/dev/null || nc -z localhost "${PORT}" || exit 1
-# SSR (adapter @astrojs/node standalone) -> run the server entry; static build -> astro preview.
-CMD ["sh", "-c", "if [ -f dist/server/entry.mjs ]; then exec node dist/server/entry.mjs; else exec npx astro preview --host 0.0.0.0 --port \"$PORT\"; fi"]
+  CMD wget -qO /dev/null "http://127.0.0.1:${PORT}/login" || exit 1
+# SSR with @astrojs/node standalone (= npm start). HOST/PORT from env.
+CMD ["node", "dist/server/entry.mjs"]

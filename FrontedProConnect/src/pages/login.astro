@@ -7,14 +7,14 @@ import SignUpAndInLayout from "../layouts/SignUpAndInLayout.astro";
         <form class="flex flex-col justify-center items-center gap-4 shadow-2xl shadow-black p-4 rounded-2xl" id="login-form">
             <label for="email" class="flex flex-col gap-3">
                 Email
-                <input type="email" name="email" required autocomplete="email" placeholder="insert your email" class="w-full/2 border border-gray-300 rounded-xl p-3 text-lg outline-none focus:border-blue-500" id="email">
+                <input type="email" name="email" required autocomplete="email" placeholder="insert your email" class="w-full/2 border border-gray-300 rounded-xl p-3 text-lg outline-none focus:border-blue-500" id="email" data-testid="login-email">
             </label>
             <label for="password" class="flex flex-col gap-3">
                 Password
-                <input type="password" name="password" required autocomplete="current-password" placeholder="insert your password" class="w-full/2 border border-gray-300 rounded-xl p-3 text-lg outline-none focus:border-blue-500" id="password">
+                <input type="password" name="password" required autocomplete="current-password" placeholder="insert your password" class="w-full/2 border border-gray-300 rounded-xl p-3 text-lg outline-none focus:border-blue-500" id="password" data-testid="login-password">
             </label>
-            <p id="login-error" class="text-red-600 text-sm hidden" role="alert"></p>
-            <button type="submit" id="login-submit" class="bg-blue-600 hover:bg-blue-700 rounded-2xl px-4 py-3 text-lg text-white cursor-pointer w-full">
+            <p id="login-error" data-testid="login-error" class="text-red-600 text-sm hidden" role="alert"></p>
+            <button type="submit" id="login-submit" data-testid="login-submit" class="bg-blue-600 hover:bg-blue-700 rounded-2xl px-4 py-3 text-lg text-white cursor-pointer w-full">
                 Log in
             </button>
             <p>¿ Do not have account ?. <a href="/register" class="text-blue-600">Create account</a></p>
