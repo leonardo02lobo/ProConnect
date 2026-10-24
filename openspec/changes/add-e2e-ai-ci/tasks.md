@@ -52,8 +52,8 @@
 
 - [x] 7.1 Instalar `act` (`gh extension install nektos/gh-act`) y crear `Makefile` con `e2e-local` y `ci-local`
 - [x] 7.2 Extraer los pasos de E2E a `e2e/scripts/run-e2e.sh` (lo usan `make e2e-local` y `e2e.yml`)
-- [ ] 7.3 Ejecutar `make ci-local` hasta verde
-- [ ] 7.4 Ejecutar `e2e.yml` con act (o `run-e2e.sh` en el host si DinD no es viable) hasta verde
+- [x] 7.3 Ejecutar `make ci-local` hasta verde
+- [x] 7.4 Ejecutar `e2e.yml` con act (o `run-e2e.sh` en el host si DinD no es viable) hasta verde
 - [x] 7.5 Crear `ai-e2e-triage.yml` y `ai-e2e-heal.yml` reutilizando `e2e/prompts/*` con `anthropics/claude-code-action@v1` y permisos mínimos, y validar su sintaxis con `act -n` / `actionlint`
 
 ## 8. Subida a GitHub Actions
@@ -63,4 +63,4 @@
 - [ ] 8.3 (Usuario) configurar el secret `ANTHROPIC_API_KEY` o `CLAUDE_CODE_OAUTH_TOKEN`
 - [ ] 8.4 Provocar un fallo intencional en un commit temporal del PR, verificar que el bot comenta el diagnóstico y revertir el commit
 - [ ] 8.5 (Usuario) activar branch protection en `main` con `ci` y `e2e` como checks requeridos
-- [ ] 8.6 Documentar en el README raíz cómo correr todo en local y en CI
+- [x] 8.6 Documentar en el README raíz cómo correr todo en local y en CI

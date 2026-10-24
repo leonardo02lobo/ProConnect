@@ -37,8 +37,8 @@ act-image: ## Build the local act runner image (.github/act/Dockerfile)
 ci-local: act-image ## Run .github/workflows/ci.yml locally with act
 	$(ACT) pull_request -W .github/workflows/ci.yml $(ACT_FLAGS)
 
-ci-local-e2e: act-image ## Try e2e.yml with act (needs Docker socket; fallback: make e2e-local)
-	$(ACT) pull_request -W .github/workflows/e2e.yml $(ACT_FLAGS) --container-options "-v /var/run/docker.sock:/var/run/docker.sock"
+ci-local-e2e: act-image ## Run e2e.yml with act (act mounts the host Docker socket; fallback: make e2e-local)
+	$(ACT) pull_request -W .github/workflows/e2e.yml $(ACT_FLAGS) --artifact-server-path $(CURDIR)/.act-artifacts
 
 act-dry-run: act-image ## act: parse every workflow + dry-run (-n) ci/e2e/heal/triage
 	@for wf in .github/workflows/*.yml; do echo "== $$wf"; $(ACT) -W $$wf --list >/dev/null || exit 1; done
