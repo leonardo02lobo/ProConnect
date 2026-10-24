@@ -1,0 +1,91 @@
+name: ci
+
+on:
+  pull_request:          # every PR, whatever its base branch (stacked PRs included)
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  java:
+    name: java (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [backProconnect, gateway]
+    defaults:
+      run:
+        working-directory: ${{ matrix.service }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          cache-dependency-path: ${{ matrix.service }}/pom.xml
+      - name: Build and test
+        run: |
+          if [ -x ./mvnw ]; then MVN=./mvnw; else MVN=mvn; fi
+          $MVN -B -ntp verify
+
+  node:
+    name: node (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: NodeTsPosts
+            check: media-smoke
+          - service: FrontedProConnect
+            check: astro
+          - service: e2e
+            check: typecheck
+    defaults:
+      run:
+        working-directory: ${{ matrix.service }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: ${{ matrix.service }}/package-lock.json
+      - run: npm ci --no-audit --no-fund
+
+      - name: Media smoke test (start, upload, serve)
+        if: matrix.check == 'media-smoke'
+        env:
+          PORT: '3901'
+          UPLOAD_DIR: ${{ runner.temp }}/upload
+        run: |
+          mkdir -p "$UPLOAD_DIR"
+          node index.ts > media.log 2>&1 &
+          for _ in $(seq 1 30); do nc -z localhost "$PORT" && break; sleep 1; done
+          name=$(curl -fsS -F "miArchivo=@../e2e/assets/test-image.png" "http://localhost:$PORT/subirImagen" | node -pe 'JSON.parse(require("fs").readFileSync(0)).data.filename')
+          curl -fsS -o /dev/null "http://localhost:$PORT/uploads/$name"
+          echo "uploaded and served $name"
+          kill %1 || true
+
+      - name: Astro check and build
+        if: matrix.check == 'astro'
+        env:
+          PUBLIC_API_URL: http://localhost:8080
+        run: |
+          npx astro check
+          npm run build
+
+      - name: Typecheck E2E suite
+        if: matrix.check == 'typecheck'
+        run: npx tsc --noEmit
