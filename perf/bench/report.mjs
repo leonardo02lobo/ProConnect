@@ -20,7 +20,7 @@ const ORDER = [
 ];
 
 function load(lbl) {
-  const files = fs.readdirSync(dir).filter((f) => f.startsWith(`${lbl}-`) && f.endsWith('.json'));
+  const files = fs.readdirSync(dir).filter((f) => f.startsWith(`${lbl}-`) && f.endsWith('.json') && (f.includes('-queries') || f.includes('-k6-')));
   const q = {};
   const k6 = {};
   for (const f of files) {

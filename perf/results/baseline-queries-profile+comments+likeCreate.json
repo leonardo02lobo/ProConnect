@@ -1,0 +1,331 @@
+{
+  "label": "baseline",
+  "api": "http://127.0.0.1:28080",
+  "measuredAt": "2026-10-24T20:49:29.469Z",
+  "repeat": 10,
+  "warmup": 5,
+  "targets": {
+    "viewerId": 1,
+    "profileUserId": 3,
+    "profileUserPosts": 10,
+    "profileUserCommentRows": 26,
+    "usersWithProfile500": 376,
+    "commentsPostId": 354,
+    "commentsPostCount": 12,
+    "likePostId": 9999,
+    "likeUserId": 1
+  },
+  "results": [
+    {
+      "key": "profile",
+      "endpoint": "GET /api/user/{userId}/profiles-posts (perfil)",
+      "url": "/api/user/3/profiles-posts",
+      "status": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "statementsDml": 53,
+      "statementsTotal": 183,
+      "statementsStable": true,
+      "warmLatencyMs": {
+        "min": 437.641451,
+        "p50": 448.09128,
+        "max": 469.51916,
+        "samples": [
+          451.2,
+          459.9,
+          469.5,
+          448.1,
+          444.3,
+          442.9,
+          457.1,
+          443.3,
+          462.9,
+          437.6
+        ]
+      },
+      "dbTimeMs": 388,
+      "rowsExamined": 3444946,
+      "responseBytes": 15967,
+      "events": {
+        "select": 53,
+        "set_option": 104,
+        "commit": 26
+      },
+      "topDigests": [
+        {
+          "query": "SET `autocommit` = ?",
+          "count": 52,
+          "ms": 1.2,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SELECT `pp1_0` . `id` , `pp1_0` . `photo_url` , `pp1_0` . `user_id` , `pp1_0` . `wall_photo_url` FROM `profile_photos` `pp1_0` WHERE `pp1_0` . `user_id` = ?",
+          "count": 26,
+          "ms": 8.5,
+          "rowsExamined": 23972,
+          "rowsSent": 25
+        },
+        {
+          "query": "SELECT `u1_0` . `id` , `u1_0` . `email` , `u1_0` . `name` , `u1_0` . `password` , `u1_0` . `role` , `u1_0` . `user_name` FROM SYSTEM_USER `u1_0` WHERE `u1_0` . ",
+          "count": 26,
+          "ms": 3.5,
+          "rowsExamined": 26,
+          "rowsSent": 26
+        },
+        {
+          "query": "SET SESSION TRANSACTION READ ONLY",
+          "count": 26,
+          "ms": 1.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "COMMIT",
+          "count": 26,
+          "ms": 0.8,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SET SESSION TRANSACTION READ WRITE",
+          "count": 26,
+          "ms": 0.5,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SELECT `us` . `id` , `us` . `email` , `us` . `name` , `us` . `user_name` , `us` . `role` , `pr` . `photo_url` , `pr` . `wall_photo_url` , `pos` . `id` AS `post_",
+          "count": 1,
+          "ms": 372.8,
+          "rowsExamined": 3420948,
+          "rowsSent": 26
+        }
+      ],
+      "responseSample": "{\"id\":3,\"email\":\"perf.user3@proconnect.test\",\"name\":\"Orpha Osinski\",\"role\":\"USER\",\"userName\":\"orpha.osinski.3\",\"photoUrl\":\"/upload/uploads/avatar-3.jpg\",\"wallPh"
+    },
+    {
+      "key": "comments",
+      "endpoint": "GET /api/comment/find/{postId} (comentarios)",
+      "url": "/api/comment/find/354",
+      "status": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "statementsDml": 1,
+      "statementsTotal": 1,
+      "statementsStable": true,
+      "warmLatencyMs": {
+        "min": 9.530516,
+        "p50": 9.937091,
+        "max": 11.037774,
+        "samples": [
+          11,
+          11,
+          9.7,
+          11,
+          10.4,
+          9.6,
+          9.5,
+          9.9,
+          9.9,
+          10
+        ]
+      },
+      "dbTimeMs": 6,
+      "rowsExamined": 30000,
+      "responseBytes": 2138,
+      "events": {
+        "select": 1
+      },
+      "topDigests": [
+        {
+          "query": "SELECT `c1_0` . `id` , `c1_0` . `content` , `c1_0` . `date` , `c1_0` . `post_id` , `c1_0` . `user_id` FROM `comments` `c1_0` WHERE `c1_0` . `post_id` = ?",
+          "count": 1,
+          "ms": 5.9,
+          "rowsExamined": 30000,
+          "rowsSent": 12
+        }
+      ],
+      "responseSample": "[{\"id\":642,\"postId\":354,\"userId\":501,\"content\":\"Abduco sustineo patior combibo atavus quas certus cras vix debilito.\",\"date\":\"2025-01-14T12:06:30.725+00:00\",\"us"
+    },
+    {
+      "key": "likeCreate",
+      "endpoint": "POST /api/like/create",
+      "url": "/api/like/create",
+      "status": [
+        201,
+        201,
+        201,
+        201,
+        201,
+        201,
+        201,
+        201,
+        201,
+        201
+      ],
+      "statementsDml": 2,
+      "statementsTotal": 5,
+      "statementsStable": true,
+      "warmLatencyMs": {
+        "min": 13.952968,
+        "p50": 14.936095,
+        "max": 28.060542,
+        "samples": [
+          14,
+          16.1,
+          28.1,
+          17.1,
+          15,
+          14.4,
+          14.9,
+          14.8,
+          16.8,
+          14.7
+        ]
+      },
+      "dbTimeMs": 8,
+      "rowsExamined": 50000,
+      "responseBytes": 23,
+      "events": {
+        "select": 1,
+        "insert": 1,
+        "set_option": 2,
+        "commit": 1
+      },
+      "topDigests": [
+        {
+          "query": "SET `autocommit` = ?",
+          "count": 2,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SELECT `l1_0` . `id` FROM `likes` `l1_0` WHERE `l1_0` . `user_id` = ? AND `l1_0` . `post_id` = ? LIMIT ?",
+          "count": 1,
+          "ms": 6.7,
+          "rowsExamined": 50000,
+          "rowsSent": 0
+        },
+        {
+          "query": "COMMIT",
+          "count": 1,
+          "ms": 0.9,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "INSERT INTO `likes` ( DATE , `post_id` , `user_id` ) VALUES (...)",
+          "count": 1,
+          "ms": 0.3,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        }
+      ],
+      "responseSample": "Like added successfully"
+    },
+    {
+      "key": "likeDelete",
+      "endpoint": "DELETE /api/like/delete",
+      "url": "/api/like/delete",
+      "status": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "statementsDml": 3,
+      "statementsTotal": 6,
+      "statementsStable": true,
+      "warmLatencyMs": {
+        "min": 15.116379,
+        "p50": 15.484251,
+        "max": 25.0689,
+        "samples": [
+          15.2,
+          16.1,
+          25.1,
+          16.1,
+          15.5,
+          15.1,
+          16.5,
+          17,
+          15.4,
+          15.5
+        ]
+      },
+      "dbTimeMs": 9,
+      "rowsExamined": 50003,
+      "responseBytes": 25,
+      "events": {
+        "select": 2,
+        "delete": 1,
+        "set_option": 2,
+        "commit": 1
+      },
+      "topDigests": [
+        {
+          "query": "SET `autocommit` = ?",
+          "count": 2,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SELECT `l1_0` . `id` , `l1_0` . `date` , `l1_0` . `post_id` , `l1_0` . `user_id` FROM `likes` `l1_0` WHERE `l1_0` . `user_id` = ? AND `l1_0` . `post_id` = ?",
+          "count": 1,
+          "ms": 7.1,
+          "rowsExamined": 50001,
+          "rowsSent": 1
+        },
+        {
+          "query": "COMMIT",
+          "count": 1,
+          "ms": 1.2,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "DELETE FROM `likes` WHERE `id` = ?",
+          "count": 1,
+          "ms": 0.2,
+          "rowsExamined": 1,
+          "rowsSent": 0
+        },
+        {
+          "query": "SELECT `l1_0` . `id` , `l1_0` . `date` , `l1_0` . `post_id` , `l1_0` . `user_id` FROM `likes` `l1_0` WHERE `l1_0` . `id` = ?",
+          "count": 1,
+          "ms": 0.1,
+          "rowsExamined": 1,
+          "rowsSent": 1
+        }
+      ],
+      "responseSample": "Like removed successfully"
+    }
+  ]
+}

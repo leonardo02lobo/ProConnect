@@ -1,0 +1,94 @@
+[20:45:32] 1/5 EXPLAIN
+Guardado /home/leonardo/orca/workspaces/ProConnect/restructure-models-performance/perf/bench/../results/baseline-explain.txt
+[20:49:11] 2/5 Conteo de queries (endpoints rápidos)
+→ GET /api/user/{userId}/profiles-posts (perfil)
+  profile #1: 200 451.2 ms, 53 DML / 183 total, 15967 B
+  profile #2: 200 459.9 ms, 53 DML / 183 total, 15967 B
+  profile #3: 200 469.5 ms, 53 DML / 183 total, 15967 B
+  profile #4: 200 448.1 ms, 53 DML / 183 total, 15967 B
+  profile #5: 200 444.3 ms, 53 DML / 183 total, 15967 B
+  profile #6: 200 442.9 ms, 53 DML / 183 total, 15967 B
+  profile #7: 200 457.1 ms, 53 DML / 183 total, 15967 B
+  profile #8: 200 443.3 ms, 53 DML / 183 total, 15967 B
+  profile #9: 200 462.9 ms, 53 DML / 183 total, 15967 B
+  profile #10: 200 437.6 ms, 53 DML / 183 total, 15967 B
+→ GET /api/comment/find/{postId} (comentarios)
+  comments #1: 200 11.0 ms, 1 DML / 1 total, 2138 B
+  comments #2: 200 11.0 ms, 1 DML / 1 total, 2138 B
+  comments #3: 200 9.7 ms, 1 DML / 1 total, 2138 B
+  comments #4: 200 11.0 ms, 1 DML / 1 total, 2138 B
+  comments #5: 200 10.4 ms, 1 DML / 1 total, 2138 B
+  comments #6: 200 9.6 ms, 1 DML / 1 total, 2138 B
+  comments #7: 200 9.5 ms, 1 DML / 1 total, 2138 B
+  comments #8: 200 9.9 ms, 1 DML / 1 total, 2138 B
+  comments #9: 200 9.9 ms, 1 DML / 1 total, 2138 B
+  comments #10: 200 10.0 ms, 1 DML / 1 total, 2138 B
+→ POST /api/like/create
+  likeCreate #1: 201 14.0 ms, 2 DML / 5 total, 23 B
+  likeDelete #1: 200 15.2 ms, 3 DML / 6 total
+  likeCreate #2: 201 16.1 ms, 2 DML / 5 total, 23 B
+  likeDelete #2: 200 16.1 ms, 3 DML / 6 total
+  likeCreate #3: 201 28.1 ms, 2 DML / 5 total, 23 B
+  likeDelete #3: 200 25.1 ms, 3 DML / 6 total
+  likeCreate #4: 201 17.1 ms, 2 DML / 5 total, 23 B
+  likeDelete #4: 200 16.1 ms, 3 DML / 6 total
+  likeCreate #5: 201 15.0 ms, 2 DML / 5 total, 23 B
+  likeDelete #5: 200 15.5 ms, 3 DML / 6 total
+  likeCreate #6: 201 14.4 ms, 2 DML / 5 total, 23 B
+  likeDelete #6: 200 15.1 ms, 3 DML / 6 total
+  likeCreate #7: 201 14.9 ms, 2 DML / 5 total, 23 B
+  likeDelete #7: 200 16.5 ms, 3 DML / 6 total
+  likeCreate #8: 201 14.8 ms, 2 DML / 5 total, 23 B
+  likeDelete #8: 200 17.0 ms, 3 DML / 6 total
+  likeCreate #9: 201 16.8 ms, 2 DML / 5 total, 23 B
+  likeDelete #9: 200 15.4 ms, 3 DML / 6 total
+  likeCreate #10: 201 14.7 ms, 2 DML / 5 total, 23 B
+  likeDelete #10: 200 15.5 ms, 3 DML / 6 total
+Guardado /home/leonardo/orca/workspaces/ProConnect/restructure-models-performance/perf/results/baseline-queries-profile+comments+likeCreate.json
+┌─────────┬──────────────┬─────┬───────┬───────┬──────┬───────┬───────────────────────────────────────────┐
+│ (index) │ endpoint     │ dml │ total │ p50ms │ dbMs │ bytes │ status                                    │
+├─────────┼──────────────┼─────┼───────┼───────┼──────┼───────┼───────────────────────────────────────────┤
+│ 0       │ 'profile'    │ 53  │ 183   │ 448   │ 388  │ 15967 │ '200/200/200/200/200/200/200/200/200/200' │
+│ 1       │ 'comments'   │ 1   │ 1     │ 10    │ 6    │ 2138  │ '200/200/200/200/200/200/200/200/200/200' │
+│ 2       │ 'likeCreate' │ 2   │ 5     │ 15    │ 8    │ 23    │ '201/201/201/201/201/201/201/201/201/201' │
+│ 3       │ 'likeDelete' │ 3   │ 6     │ 15    │ 9    │ 25    │ '200/200/200/200/200/200/200/200/200/200' │
+└─────────┴──────────────┴─────┴───────┴───────┴──────┴───────┴───────────────────────────────────────────┘
+[20:49:29] 3/5 k6 endpoints rápidos (serial 1 VU 30 s + load 10 VUs 30 s)
+{"label":"baseline","endpoint":"profile","mode":"serial","vus":1,"duration":"30s","iterations":67,"rps":2.2210473775907045,"errorRate":0,"latencyMs":{"profile":{"count":67,"min":400.903844,"p50":444.911503,"avg":449.9997948656717,"p90":498.87430720000003,"p95":517.189023,"p99":601.0415388000001,"max":635.702871}}}
+{"label":"baseline","endpoint":"profile","mode":"load","vus":10,"duration":"30s","iterations":103,"rps":3.158930532601577,"errorRate":0,"latencyMs":{"profile":{"count":103,"min":1099.280034,"p50":2717.641495,"avg":3076.5724087864082,"p90":4007.1280272,"p95":4089.42242,"p99":4167.10642588,"max":5116.253607}}}
+{"label":"baseline","endpoint":"comments","mode":"serial","vus":1,"duration":"30s","iterations":3876,"rps":129.1719976465539,"errorRate":0,"latencyMs":{"comments":{"count":3876,"min":6.720236,"p50":7.295393000000001,"avg":7.531331479102166,"p90":7.977059499999999,"p95":8.61315325,"p99":10.5112025,"max":43.70897}}}
+{"label":"baseline","endpoint":"comments","mode":"load","vus":10,"duration":"30s","iterations":7333,"rps":244.06836241267663,"errorRate":0,"latencyMs":{"comments":{"count":7333,"min":7.814864,"p50":30.05962,"avg":40.71643299209071,"p90":72.402197,"p95":75.8644316,"p99":80.68783828000001,"max":101.334216}}}
+{"label":"baseline","endpoint":"like","mode":"serial","vus":1,"duration":"30s","iterations":1221,"rps":81.33945009453251,"errorRate":0,"latencyMs":{"likeCreate":{"count":1221,"min":8.925751,"p50":11.026679,"avg":11.727204359541366,"p90":14.712532,"p95":15.372331,"p99":16.688801199999997,"max":22.698451},"likeDelete":{"count":1221,"min":9.57005,"p50":11.685988,"avg":12.440580510237503,"p90":15.692973,"p95":16.279823,"p99":17.8019148,"max":21.39281}}}
+{"label":"baseline","endpoint":"like","mode":"load","vus":10,"duration":"30s","iterations":2995,"rps":199.24581849984708,"errorRate":0,"latencyMs":{"likeCreate":{"count":2995,"min":11.218714,"p50":48.004606,"avg":49.240523910517474,"p90":76.9460644,"p95":81.02263009999997,"p99":86.27552858,"max":98.118015},"likeDelete":{"count":2995,"min":16.986808,"p50":50.551816,"avg":50.592936310183624,"p90":78.22587999999999,"p95":82.0730734,"p99":88.37485148,"max":95.806728}}}
+[20:53:39] 4/5 Feed: k6 serial 30 s (también calienta) + conteo de queries
+{"label":"baseline","endpoint":"feedViewer","mode":"serial","vus":1,"duration":"30s","iterations":1,"rps":0.004151663054638665,"errorRate":0,"latencyMs":{"feedViewer":{"count":1,"min":240860.744095,"p50":240860.744095,"avg":240860.744095,"p90":240860.744095,"p95":240860.744095,"p99":240860.744095,"max":240860.744095}}}
+{"label":"baseline","endpoint":"feedAll","mode":"serial","vus":1,"duration":"30s","iterations":1,"rps":0.005820539744180107,"errorRate":0,"latencyMs":{"feedAll":{"count":1,"min":171803.332349,"p50":171803.332349,"avg":171803.332349,"p90":171803.332349,"p95":171803.332349,"p99":171803.332349,"max":171803.332349}}}
+→ GET /api/posts/{userId} (feed con viewer)
+  feedViewer #1: 200 223707.9 ms, 40001 DML / 40001 total, 18506661 B
+→ GET /api/posts (feed sin viewer)
+  feedAll #1: 200 155702.6 ms, 40001 DML / 40001 total, 18506701 B
+Guardado /home/leonardo/orca/workspaces/ProConnect/restructure-models-performance/perf/results/baseline-queries-feedViewer+feedAll.json
+┌─────────┬──────────────┬───────┬───────┬────────┬────────┬──────────┬────────┐
+│ (index) │ endpoint     │ dml   │ total │ p50ms  │ dbMs   │ bytes    │ status │
+├─────────┼──────────────┼───────┼───────┼────────┼────────┼──────────┼────────┤
+│ 0       │ 'feedViewer' │ 40001 │ 40001 │ 223708 │ 213117 │ 18506661 │ '200'  │
+│ 1       │ 'feedAll'    │ 40001 │ 40001 │ 155703 │ 146433 │ 18506701 │ '200'  │
+└─────────┴──────────────┴───────┴───────┴────────┴────────┴──────────┴────────┘
+[21:07:26] 5/5 Feed: k6 load 3 VUs 30 s
+{"label":"baseline","endpoint":"feedViewer","mode":"load","vus":3,"duration":"30s","iterations":3,"rps":0.00885543207292478,"errorRate":0,"latencyMs":{"feedViewer":{"count":3,"min":338139.276574,"p50":338253.946951,"avg":338389.1369696667,"p90":338670.1392974,"p95":338722.1633407,"p99":338763.78257534,"max":338774.187384}}}
+{"label":"baseline","endpoint":"feedAll","mode":"load","vus":3,"duration":"30s","iterations":3,"rps":0.011653701335244486,"errorRate":0,"latencyMs":{"feedAll":{"count":3,"min":256532.599655,"p50":257424.049681,"avg":257128.22871333334,"p90":257427.2393794,"p95":257427.6380917,"p99":257427.95706154002,"max":257428.036804}}}
+[21:17:42] Informe
+<anonymous_script>:1
+Generando dataset (seed=20261024)...
+^
+
+SyntaxError: Unexpected token 'G', "Generando "... is not valid JSON
+    at JSON.parse (<anonymous>)
+    at load (file:///home/leonardo/orca/workspaces/ProConnect/restructure-models-performance/perf/bench/report.mjs:27:20)
+    at table (file:///home/leonardo/orca/workspaces/ProConnect/restructure-models-performance/perf/bench/report.mjs:49:16)
+    at file:///home/leonardo/orca/workspaces/ProConnect/restructure-models-performance/perf/bench/report.mjs:64:40
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.22.2

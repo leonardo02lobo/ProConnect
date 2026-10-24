@@ -1,0 +1,380 @@
+-- targets: viewer=1 profile_user=3 post=354
+*************************** 1. row ***************************
+section: ==== 1. PostsRepository.GetAllPosts(userId) — EXPLAIN (tabular)
+*************************** 1. row ***************************
+           id: 1
+  select_type: PRIMARY
+        table: pos
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 9933
+     filtered: 100.00
+        Extra: Using where
+*************************** 2. row ***************************
+           id: 1
+  select_type: PRIMARY
+        table: us
+   partitions: NULL
+         type: eq_ref
+possible_keys: PRIMARY
+          key: PRIMARY
+      key_len: 8
+          ref: proconnect.pos.user_id
+         rows: 1
+     filtered: 100.00
+        Extra: NULL
+*************************** 3. row ***************************
+           id: 1
+  select_type: PRIMARY
+        table: prof
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 922
+     filtered: 100.00
+        Extra: Using where; Using join buffer (hash join)
+*************************** 4. row ***************************
+           id: 4
+  select_type: DEPENDENT SUBQUERY
+        table: likes
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 48722
+     filtered: 1.00
+        Extra: Using where
+*************************** 5. row ***************************
+           id: 3
+  select_type: DEPENDENT SUBQUERY
+        table: comments
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 29208
+     filtered: 10.00
+        Extra: Using where
+*************************** 6. row ***************************
+           id: 2
+  select_type: DEPENDENT SUBQUERY
+        table: likes
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 48722
+     filtered: 10.00
+        Extra: Using where
+*************************** 1. row ***************************
+section: ==== 1b. PostsRepository.GetAllPosts(userId) — EXPLAIN ANALYZE (ejecuta la query)
+*************************** 1. row ***************************
+EXPLAIN: -> Left hash join (prof.user_id = pos.user_id)  (cost=916301 rows=9.16e+6) (actual time=0.383..201 rows=10000 loops=1)
+    -> Nested loop inner join  (cost=4510 rows=9933) (actual time=0.0628..166 rows=10000 loops=1)
+        -> Filter: (pos.user_id is not null)  (cost=1034 rows=9933) (actual time=0.0496..34.3 rows=10000 loops=1)
+            -> Table scan on pos  (cost=1034 rows=9933) (actual time=0.0491..25.5 rows=10000 loops=1)
+        -> Single-row index lookup on us using PRIMARY (id=pos.user_id)  (cost=0.25 rows=1) (actual time=0.0117..0.0121 rows=1 loops=10000)
+    -> Hash
+        -> Table scan on prof  (cost=0.0574 rows=922) (actual time=0.0264..0.198 rows=922 loops=1)
+-> Select #2 (subquery in projection; dependent)
+    -> Aggregate: count(0)  (cost=1031 rows=1) (actual time=7.55..7.55 rows=1 loops=10000)
+        -> Filter: (likes.post_id = pos.id)  (cost=543 rows=4872) (actual time=1.66..7.55 rows=5 loops=10000)
+            -> Table scan on likes  (cost=543 rows=48722) (actual time=0.283..5.61 rows=50000 loops=10000)
+-> Select #3 (subquery in projection; dependent)
+    -> Aggregate: count(0)  (cost=656 rows=1) (actual time=5.02..5.02 rows=1 loops=10000)
+        -> Filter: (comments.post_id = pos.id)  (cost=364 rows=2921) (actual time=1.6..5.01 rows=3 loops=10000)
+            -> Table scan on comments  (cost=364 rows=29208) (actual time=0.0249..3.85 rows=30000 loops=10000)
+-> Select #4 (subquery in projection; dependent)
+    -> Aggregate: count(0)  (cost=4539 rows=1) (actual time=8.14..8.14 rows=1 loops=10000)
+        -> Filter: ((likes.user_id = <cache>((@viewer))) and (likes.post_id = pos.id))  (cost=4490 rows=487) (actual time=8.12..8.14 rows=0.004 loops=10000)
+            -> Table scan on likes  (cost=4490 rows=48722) (actual time=0.282..6.21 rows=50000 loops=10000)
+
+*************************** 1. row ***************************
+section: ==== 2. PostsRepository.GetAllPosts() — EXPLAIN (tabular)
+*************************** 1. row ***************************
+           id: 1
+  select_type: PRIMARY
+        table: pos
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 9933
+     filtered: 100.00
+        Extra: Using where
+*************************** 2. row ***************************
+           id: 1
+  select_type: PRIMARY
+        table: us
+   partitions: NULL
+         type: eq_ref
+possible_keys: PRIMARY
+          key: PRIMARY
+      key_len: 8
+          ref: proconnect.pos.user_id
+         rows: 1
+     filtered: 100.00
+        Extra: NULL
+*************************** 3. row ***************************
+           id: 1
+  select_type: PRIMARY
+        table: prof
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 922
+     filtered: 100.00
+        Extra: Using where; Using join buffer (hash join)
+*************************** 4. row ***************************
+           id: 3
+  select_type: DEPENDENT SUBQUERY
+        table: comments
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 29904
+     filtered: 10.00
+        Extra: Using where
+*************************** 5. row ***************************
+           id: 2
+  select_type: DEPENDENT SUBQUERY
+        table: likes
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 48722
+     filtered: 10.00
+        Extra: Using where
+*************************** 1. row ***************************
+section: ==== 3. UserRepository.findUsersWithProfilesAndPosts(userId) — EXPLAIN (tabular)
+*************************** 1. row ***************************
+           id: 1
+  select_type: PRIMARY
+        table: us
+   partitions: NULL
+         type: const
+possible_keys: PRIMARY
+          key: PRIMARY
+      key_len: 8
+          ref: const
+         rows: 1
+     filtered: 100.00
+        Extra: Using temporary; Using filesort
+*************************** 2. row ***************************
+           id: 1
+  select_type: PRIMARY
+        table: pr
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 922
+     filtered: 100.00
+        Extra: Using where
+*************************** 3. row ***************************
+           id: 1
+  select_type: PRIMARY
+        table: pos
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 9933
+     filtered: 100.00
+        Extra: Using where; Using join buffer (hash join)
+*************************** 4. row ***************************
+           id: 1
+  select_type: PRIMARY
+        table: com
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 29904
+     filtered: 100.00
+        Extra: Using where; Using join buffer (hash join)
+*************************** 5. row ***************************
+           id: 4
+  select_type: DEPENDENT SUBQUERY
+        table: likes
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 48722
+     filtered: 1.00
+        Extra: Using where
+*************************** 6. row ***************************
+           id: 3
+  select_type: DEPENDENT SUBQUERY
+        table: comments
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 29904
+     filtered: 10.00
+        Extra: Using where
+*************************** 7. row ***************************
+           id: 2
+  select_type: DEPENDENT SUBQUERY
+        table: likes
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 48722
+     filtered: 10.00
+        Extra: Using where
+*************************** 1. row ***************************
+section: ==== 3b. UserRepository.findUsersWithProfilesAndPosts(userId) — EXPLAIN ANALYZE
+*************************** 1. row ***************************
+EXPLAIN: -> Sort: pos.`date` DESC  (actual time=544..544 rows=26 loops=1)
+    -> Stream results  (cost=27.4e+9 rows=274e+9) (actual time=47.4..543 rows=26 loops=1)
+        -> Left hash join (com.post_id = pos.id)  (cost=27.4e+9 rows=274e+9) (actual time=27.4..39.6 rows=26 loops=1)
+            -> Left hash join (no condition)  (cost=916155 rows=9.16e+6) (actual time=3.05..3.29 rows=10 loops=1)
+                -> Nested loop left join  (cost=94 rows=922) (actual time=0.0282..0.264 rows=1 loops=1)
+                    -> Rows fetched before execution  (cost=0..0 rows=1) (actual time=70e-6..160e-6 rows=1 loops=1)
+                    -> Filter: (pr.user_id = <cache>((@profile_user)))  (cost=94 rows=922) (actual time=0.0271..0.262 rows=1 loops=1)
+                        -> Table scan on pr  (cost=94 rows=922) (actual time=0.0246..0.23 rows=922 loops=1)
+                -> Hash
+                    -> Filter: (pos.user_id = <cache>((@profile_user)))  (cost=1.44 rows=9933) (actual time=0.356..3.01 rows=10 loops=1)
+                        -> Table scan on pos  (cost=1.44 rows=9933) (actual time=0.269..2.71 rows=10000 loops=1)
+            -> Hash
+                -> Table scan on com  (cost=1.42 rows=29904) (actual time=0.377..6.61 rows=30000 loops=1)
+
+*************************** 1. row ***************************
+section: ==== 4. CommentsRepository.findByPostId (derivada, N+1 del feed: 1 por post) — EXPLAIN ANALYZE
+*************************** 1. row ***************************
+EXPLAIN: -> Filter: (c1_0.post_id = <cache>((@post)))  (cost=3063 rows=2990) (actual time=0.279..6.72 rows=12 loops=1)
+    -> Table scan on c1_0  (cost=3063 rows=29904) (actual time=0.135..5.82 rows=30000 loops=1)
+
+*************************** 1. row ***************************
+section: ==== 5. CommentsRepository.findUserWithComment (N+1 del feed: 1 por comentario) — EXPLAIN ANALYZE
+*************************** 1. row ***************************
+EXPLAIN: -> Nested loop left join  (cost=94 rows=922) (actual time=0.121..0.211 rows=1 loops=1)
+    -> Rows fetched before execution  (cost=0..0 rows=1) (actual time=300e-6..320e-6 rows=1 loops=1)
+    -> Filter: (prof.user_id = '501')  (cost=94 rows=922) (actual time=0.118..0.208 rows=1 loops=1)
+        -> Table scan on prof  (cost=94 rows=922) (actual time=0.0197..0.178 rows=922 loops=1)
+
+*************************** 1. row ***************************
+section: ==== 6. ProfilePhotosRepository.findByUserId (N+1 del perfil: 1 por comentario) — EXPLAIN ANALYZE
+*************************** 1. row ***************************
+EXPLAIN: -> Filter: (pp1_0.user_id = <cache>((@profile_user)))  (cost=94 rows=92.2) (actual time=0.0148..0.196 rows=1 loops=1)
+    -> Table scan on pp1_0  (cost=94 rows=922) (actual time=0.0132..0.167 rows=922 loops=1)
+
+*************************** 1. row ***************************
+section: ==== 7. LikeRepository.existsByUserIdAndPostId (like create) — EXPLAIN ANALYZE
+*************************** 1. row ***************************
+EXPLAIN: -> Limit: 1 row(s)  (cost=4928 rows=1) (actual time=8.6..8.6 rows=0 loops=1)
+    -> Filter: ((l1_0.post_id = <cache>((@post))) and (l1_0.user_id = <cache>((@viewer))))  (cost=4928 rows=487) (actual time=8.6..8.6 rows=0 loops=1)
+        -> Table scan on l1_0  (cost=4928 rows=48722) (actual time=0.327..6.84 rows=50000 loops=1)
+
+*************************** 1. row ***************************
+section: ==== Índices existentes
+*************************** 1. row ***************************
+TABLE_NAME: comments
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 2. row ***************************
+TABLE_NAME: company
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 3. row ***************************
+TABLE_NAME: friends
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 4. row ***************************
+TABLE_NAME: jobs
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 5. row ***************************
+TABLE_NAME: likes
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 6. row ***************************
+TABLE_NAME: messages
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 7. row ***************************
+TABLE_NAME: posts
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 8. row ***************************
+TABLE_NAME: postulations
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 9. row ***************************
+TABLE_NAME: profile_photos
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 10. row ***************************
+TABLE_NAME: user
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 11. row ***************************
+TABLE_NAME: user
+INDEX_NAME: UKgj2fy3dcix7ph7k8684gka40c
+      cols: name
+NON_UNIQUE: 0
+*************************** 12. row ***************************
+TABLE_NAME: user
+INDEX_NAME: UKlqjrcobrh9jc8wpcar64q1bfh
+      cols: user_name
+NON_UNIQUE: 0
+*************************** 13. row ***************************
+TABLE_NAME: user
+INDEX_NAME: UKob8kqyqqgmefl0aco34akdtpe
+      cols: email
+NON_UNIQUE: 0
+*************************** 14. row ***************************
+TABLE_NAME: work_stations
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0

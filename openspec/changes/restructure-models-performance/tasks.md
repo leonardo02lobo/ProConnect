@@ -1,10 +1,10 @@
 ## 1. Línea base
 
-- [ ] 1.1 Agregar Testcontainers MySQL y `datasource-proxy` a los tests, y crear el helper `QueryCounter`
-- [ ] 1.2 Implementar el generador de dataset en el perfil `perf` (Datafaker, semilla fija, `JdbcTemplate.batchUpdate`)
-- [ ] 1.3 Escribir el script de benchmark (k6 u oha) para feed, perfil, comentarios de un post y like
-- [ ] 1.4 Ejecutar la medición sobre el código actual y guardar `docs/perf/<fecha>-baseline.md` (queries, p50, p95)
-- [ ] 1.5 Capturar el `EXPLAIN` de las queries actuales del feed y del perfil
+- [ ] 1.1 Agregar Testcontainers MySQL y `datasource-proxy` a los tests, y crear el helper `QueryCounter` — PENDIENTE, diferida a fase 2: toca `backProconnect/pom.xml`, que está modificando `fix-critical-risks`. Mientras tanto el conteo se hace por `performance_schema` (`perf/bench/count-queries.mjs`)
+- [x] 1.2 Implementar el generador de dataset en el perfil `perf` (Datafaker, semilla fija, `JdbcTemplate.batchUpdate`) — implementado fuera de la app para no tocar su código: `perf/seed/seed.mjs` (Node + @faker-js/faker con semilla fija, inserts por lotes con mysql2)
+- [x] 1.3 Escribir el script de benchmark (k6 u oha) para feed, perfil, comentarios de un post y like
+- [x] 1.4 Ejecutar la medición sobre el código actual y guardar `docs/perf/<fecha>-baseline.md` (queries, p50, p95)
+- [x] 1.5 Capturar el `EXPLAIN` de las queries actuales del feed y del perfil
 
 ## 2. Flyway
 

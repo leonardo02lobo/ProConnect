@@ -1,0 +1,22 @@
+{
+  "label": "baseline",
+  "endpoint": "profile",
+  "mode": "serial",
+  "vus": 1,
+  "duration": "30s",
+  "iterations": 67,
+  "rps": 2.2210473775907045,
+  "errorRate": 0,
+  "latencyMs": {
+    "profile": {
+      "count": 67,
+      "min": 400.903844,
+      "p50": 444.911503,
+      "avg": 449.9997948656717,
+      "p90": 498.87430720000003,
+      "p95": 517.189023,
+      "p99": 601.0415388000001,
+      "max": 635.702871
+    }
+  }
+}
