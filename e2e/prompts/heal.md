@@ -6,7 +6,7 @@ gateway http://localhost:18080) and the working directory is the repository root
 
 ## Procedure
 1. Look at the failure summary at the end of this prompt to know which tests fail.
-2. For each failing test, reproduce it: `cd e2e && npx playwright test <file> --reporter=line`
+2. For each failing test, reproduce it: `npx --prefix e2e playwright test -c e2e/playwright.config.ts <file> --reporter=line` (from the repo root)
    (or the `playwright-test` MCP tools `test_run` / `test_debug` / `browser_snapshot` if available).
 3. Decide the cause:
    - **UI changed on purpose** (renamed text, moved element, missing/renamed `data-testid`, new step in the flow):
@@ -15,7 +15,7 @@ gateway http://localhost:18080) and the working directory is the repository root
      kebab-case `data-testid` to the component in `FrontedProConnect/src` (markup only, no logic changes).
    - **Real application bug** (the test expectation is correct): DO NOT modify the test. Record it as a bug.
    - **Environment problem**: do not modify anything; record it.
-4. Re-run the affected spec until it passes. Then run the whole suite once: `cd e2e && npx playwright test --reporter=line`.
+4. Re-run the affected spec until it passes. Then run the whole suite once: `npx --prefix e2e playwright test -c e2e/playwright.config.ts --reporter=line`.
 
 ## Hard rules
 - NEVER add `test.skip`, `test.fixme`, `test.only`, never delete tests or `expect` calls.

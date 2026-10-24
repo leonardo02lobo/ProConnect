@@ -19,11 +19,11 @@ PROMPT="$("$ROOT/e2e/scripts/build-prompt.sh" triage "$RESULTS_DIR" "$ARTIFACTS_
 
 # Read-only toolset: it may read code/artifacts, unzip traces into the artifacts dir and
 # write ONLY the output file. No Edit, no git, no network.
-ALLOWED="Read Glob Grep LS Edit(${OUT}) Bash(unzip:*) Bash(ls:*) Bash(grep:*) Bash(head:*) Bash(tail:*) Bash(wc:*) Bash(find:*) Bash(cat:*)"
+ALLOWED=(Read Glob Grep LS "Edit(${OUT})" "Bash(unzip:*)" "Bash(ls:*)" "Bash(grep:*)" "Bash(head:*)" "Bash(tail:*)" "Bash(wc:*)" "Bash(find:*)" "Bash(cat:*)")
 
 echo "[ai-triage] running claude -p (model: ${CLAUDE_MODEL:-default}) ..." >&2
 answer="$(claude -p "$PROMPT" \
-  --allowedTools $ALLOWED \
+  --allowedTools "${ALLOWED[@]}" \
   --disallowedTools "NotebookEdit" "WebFetch" "WebSearch" "Bash(git push:*)" "Bash(git commit:*)" \
   ${CLAUDE_MODEL:+--model "$CLAUDE_MODEL"} \
   --output-format text)"
