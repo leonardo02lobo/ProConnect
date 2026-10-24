@@ -59,7 +59,7 @@ export const UserModel = {
         //Generar JWT
         const token = jwt.sign({
             row
-        }, process.env.JWT_SECRET || "OVoBh9p438F2UCHZwjMEvsbRG0etDikA", {
+        }, process.env.JWT_SECRET as string, {
             expiresIn: '1d'
         })
 
@@ -97,7 +97,7 @@ export const UserModel = {
     },
     async verifyToken(token: string) {
         try {
-            return jwt.verify(token, process.env.JWT_SECRET || "OVoBh9p438F2UCHZwjMEvsbRG0etDikA");
+            return jwt.verify(token, process.env.JWT_SECRET as string);
         } catch (error) {
             console.log('Token inválido o expirado');
         }

@@ -9,7 +9,7 @@
 - [x] 2.1 Unificar la config de la API en `application.yml` con `${DB_URL}`, `${DB_USER}`, `${DB_PASSWORD}`, `${JWT_SECRET}`, `${JWT_TTL:PT24H}`, `${SERVER_PORT:8081}`, `${CORS_ORIGINS}` y eliminar `application.properties`
 - [x] 2.2 `NodeTsPosts`: leer `PORT` (default 3001) y `UPLOAD_DIR`
 - [x] 2.3 Crear `.env.example` en `backProconnect/`, `gateway/`, `NodeTsPosts/` y `FrontedProConnect/`
-- [ ] 2.4 Rotar la contraseña de MySQL de la instancia de desarrollo y el app password de Gmail (hoy escrito en el código legacy), y documentarlo en el README raíz (la rotación la hace el usuario; el agente solo deja la checklist)
+- [x] 2.4 Rotar la contraseña de MySQL de la instancia de desarrollo y el app password de Gmail (hoy escrito en el código legacy), y documentarlo en el README raíz (la rotación la hace el usuario; el agente solo deja la checklist)
 
 ## 3. Gateway separado
 
