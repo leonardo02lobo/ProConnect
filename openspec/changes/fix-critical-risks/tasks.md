@@ -1,24 +1,24 @@
 ## 1. Higiene del repositorio
 
-- [ ] 1.1 Crear `.gitignore` raíz (`node_modules/`, `dist/`, `target/`, `.env`, `NodeTsPosts/upload/*` con `!.gitkeep`)
-- [ ] 1.2 `git rm -r --cached` de todos los `node_modules/` y de `NodeTsPosts/upload/*`, y agregar `NodeTsPosts/upload/.gitkeep`
-- [ ] 1.3 Verificar que `git ls-files | grep -E 'node_modules/|/upload/'` solo devuelve `.gitkeep`
+- [x] 1.1 Crear `.gitignore` raíz (`node_modules/`, `dist/`, `target/`, `.env`, `NodeTsPosts/upload/*` con `!.gitkeep`)
+- [x] 1.2 `git rm -r --cached` de todos los `node_modules/` y de `NodeTsPosts/upload/*`, y agregar `NodeTsPosts/upload/.gitkeep`
+- [x] 1.3 Verificar que `git ls-files | grep -E 'node_modules/|/upload/'` solo devuelve `.gitkeep`
 
 ## 2. Configuración por entorno
 
-- [ ] 2.1 Unificar la config de la API en `application.yml` con `${DB_URL}`, `${DB_USER}`, `${DB_PASSWORD}`, `${JWT_SECRET}`, `${JWT_TTL:PT24H}`, `${SERVER_PORT:8081}`, `${CORS_ORIGINS}` y eliminar `application.properties`
-- [ ] 2.2 `NodeTsPosts`: leer `PORT` (default 3001) y `UPLOAD_DIR`
-- [ ] 2.3 Crear `.env.example` en `backProconnect/`, `gateway/`, `NodeTsPosts/` y `FrontedProConnect/`
+- [x] 2.1 Unificar la config de la API en `application.yml` con `${DB_URL}`, `${DB_USER}`, `${DB_PASSWORD}`, `${JWT_SECRET}`, `${JWT_TTL:PT24H}`, `${SERVER_PORT:8081}`, `${CORS_ORIGINS}` y eliminar `application.properties`
+- [x] 2.2 `NodeTsPosts`: leer `PORT` (default 3001) y `UPLOAD_DIR`
+- [x] 2.3 Crear `.env.example` en `backProconnect/`, `gateway/`, `NodeTsPosts/` y `FrontedProConnect/`
 - [ ] 2.4 Rotar la contraseña de MySQL de la instancia de desarrollo y el app password de Gmail (hoy escrito en el código legacy), y documentarlo en el README raíz (la rotación la hace el usuario; el agente solo deja la checklist)
 
 ## 3. Gateway separado
 
-- [ ] 3.1 Crear el módulo `gateway/` (Spring Boot 3.3, Java 17, `spring-cloud-starter-gateway`) con su Maven wrapper
-- [ ] 3.2 Configurar rutas `/api/**` → `${API_URI}` (sin strip) y `/upload/**` → `${MEDIA_URI}` con `StripPrefix=1`, en puerto `${PORT:8080}`
-- [ ] 3.3 Configurar `globalcors` con `allowedOrigins` desde `${CORS_ORIGINS}` y `allowCredentials: true`
-- [ ] 3.4 Quitar `spring-cloud-starter-gateway`, `spring-boot-starter-webflux` y `web-application-type: reactive` de `backProconnect`
-- [ ] 3.5 `GlobalFilter` JWT en el gateway para todo `/upload/**` (401 sin cookie válida)
-- [ ] 3.6 Verificar con curl que `GET :8080/api/posts` y `GET :8080/upload/uploads/<file>` responden vía gateway
+- [x] 3.1 Crear el módulo `gateway/` (Spring Boot 3.3, Java 17, `spring-cloud-starter-gateway`) con su Maven wrapper
+- [x] 3.2 Configurar rutas `/api/**` → `${API_URI}` (sin strip) y `/upload/**` → `${MEDIA_URI}` con `StripPrefix=1`, en puerto `${PORT:8080}`
+- [x] 3.3 Configurar `globalcors` con `allowedOrigins` desde `${CORS_ORIGINS}` y `allowCredentials: true`
+- [x] 3.4 Quitar `spring-cloud-starter-gateway`, `spring-boot-starter-webflux` y `web-application-type: reactive` de `backProconnect`
+- [x] 3.5 `GlobalFilter` JWT en el gateway para todo `/upload/**` (401 sin cookie válida)
+- [x] 3.6 Verificar con curl que `GET :8080/api/posts` y `GET :8080/upload/uploads/<file>` responden vía gateway
 
 ## 4. Autenticación JWT
 
@@ -31,7 +31,7 @@
 - [ ] 4.6 Agregar `GET /api/auth/me` y `POST /api/auth/logout`
 - [ ] 4.7 Registro: validar email, unicidad (409) y password ≥ 8; responder 201
 - [ ] 4.8 Corregir `UserService.UpdateUserById` para hashear el password nuevo
-- [ ] 4.9 Quitar `@CrossOrigin(origins = "*")` de los controllers (CORS lo maneja el gateway)
+- [x] 4.9 Quitar `@CrossOrigin(origins = "*")` de los controllers (CORS lo maneja el gateway)
 
 ## 5. Actor desde el token y DTOs sin password
 

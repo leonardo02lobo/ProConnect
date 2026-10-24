@@ -12,7 +12,6 @@ import Proconnect.backProconnect.service.FriendService;
 
 @RestController
 @RequestMapping("/api/friend")
-@CrossOrigin(origins = "*") 
 public class FriendController {
 
     private final FriendService friendService;

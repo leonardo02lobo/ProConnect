@@ -1,0 +1,52 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
+      routes:
+        # API core (Spring MVC). El path se reenvía tal cual: /api/** -> ${API_URI}/api/**
+        - id: api
+          uri: ${API_URI:http://localhost:8081}
+          predicates:
+            - Path=/api/**
+        # Servicio de media (Express). /upload/subirImagen -> ${MEDIA_URI}/subirImagen
+        # /upload/uploads/<archivo> -> ${MEDIA_URI}/uploads/<archivo>
+        - id: media
+          uri: ${MEDIA_URI:http://localhost:3001}
+          predicates:
+            - Path=/upload/**
+          filters:
+            - StripPrefix=1
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            # Lista separada por comas, p. ej. "http://localhost:4321,https://app.example.com". Nunca "*".
+            allowed-origins: ${CORS_ORIGINS:http://localhost:4321}
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowed-headers:
+              - "*"
+            allow-credentials: true
+            max-age: 3600
+
+# Mismo secreto que la API core: el gateway solo valida firma y expiración en /upload/**.
+proconnect:
+  jwt:
+    secret: ${JWT_SECRET:}
+    cookie-name: pc_session
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
