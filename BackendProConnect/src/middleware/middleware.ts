@@ -8,7 +8,7 @@ export const middleware = (req: Request, res: Response, next: NextFunction): voi
             res.status(401).json({error: "Acceso no autorizado"});
             return;
         }
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || "OVoBh9p438F2UCHZwjMEvsbRG0etDikA");
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
         
         (req as any).user = decoded;
         

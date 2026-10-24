@@ -9,7 +9,7 @@
 - [x] 2.1 Unificar la config de la API en `application.yml` con `${DB_URL}`, `${DB_USER}`, `${DB_PASSWORD}`, `${JWT_SECRET}`, `${JWT_TTL:PT24H}`, `${SERVER_PORT:8081}`, `${CORS_ORIGINS}` y eliminar `application.properties`
 - [x] 2.2 `NodeTsPosts`: leer `PORT` (default 3001) y `UPLOAD_DIR`
 - [x] 2.3 Crear `.env.example` en `backProconnect/`, `gateway/`, `NodeTsPosts/` y `FrontedProConnect/`
-- [ ] 2.4 Rotar la contraseña de MySQL de la instancia de desarrollo y el app password de Gmail (hoy escrito en el código legacy), y documentarlo en el README raíz (la rotación la hace el usuario; el agente solo deja la checklist)
+- [x] 2.4 Rotar la contraseña de MySQL de la instancia de desarrollo y el app password de Gmail (hoy escrito en el código legacy), y documentarlo en el README raíz (la rotación la hace el usuario; el agente solo deja la checklist)
 
 ## 3. Gateway separado
 
@@ -39,21 +39,21 @@
 - [x] 5.2 Usar el actor del token en las mutaciones de Posts, Comments, Likes, Friends, Messages, Postulations, ProfilePhotos y WorkStation, sobrescribiendo el `userId` del body
 - [x] 5.3 Crear `UserPublicDto` y reemplazar los usos de `UserDto` en respuestas (`AuthController`, `UserService`, `PostsService`, `CommentsService`, `UserProfileDTO`)
 - [x] 5.4 Marcar `password` como `@JsonProperty(access = WRITE_ONLY)` en `UserDto`
-- [ ] 5.5 Verificar con curl que ninguna respuesta de `/api/user*`, `/api/posts*` ni `/api/comment*` contiene `"password"`
+- [x] 5.5 Verificar con curl que ninguna respuesta de `/api/user*`, `/api/posts*` ni `/api/comment*` contiene `"password"`
 
 ## 6. Frontend
 
-- [ ] 6.1 Crear `src/Service/http.ts` con `apiFetch()` (base `import.meta.env.PUBLIC_API_URL`, `credentials: "include"`) y `mediaUrl()`
-- [ ] 6.2 Migrar `AuthApi`, `PostApi`, `LikeApi`, `Post.tsx`, `AddPost.tsx`, `HeaderProfile.tsx`, `post/[postId].astro` y `user/[userId].astro` a `apiFetch` / `mediaUrl`
-- [ ] 6.3 Reemplazar `getUserFromCookie` por un store (nanostores) cargado desde `GET /api/auth/me`, y dejar de escribir la cookie `user=`
-- [ ] 6.4 Hacer que el logout del `Header` llame a `POST /api/auth/logout`
-- [ ] 6.5 Quitar `password` de `UserDTO` y `UserProfileDTO` en `types/Dtos.ts`
-- [ ] 6.6 Crear `src/middleware.ts` que redirige a `/login` sin cookie `pc_session`, y hacer que `apiFetch` redirija ante un 401
-- [ ] 6.7 Reenviar la cookie del request en el `fetch` SSR de `post/[postId].astro` y `user/[userId].astro`
-- [ ] 6.8 Verificar que `grep -r "localhost:8080" FrontedProConnect/src` está vacío
+- [x] 6.1 Crear `src/Service/http.ts` con `apiFetch()` (base `import.meta.env.PUBLIC_API_URL`, `credentials: "include"`) y `mediaUrl()`
+- [x] 6.2 Migrar `AuthApi`, `PostApi`, `LikeApi`, `Post.tsx`, `AddPost.tsx`, `HeaderProfile.tsx`, `post/[postId].astro` y `user/[userId].astro` a `apiFetch` / `mediaUrl`
+- [x] 6.3 Reemplazar `getUserFromCookie` por un store (nanostores) cargado desde `GET /api/auth/me`, y dejar de escribir la cookie `user=`
+- [x] 6.4 Hacer que el logout del `Header` llame a `POST /api/auth/logout`
+- [x] 6.5 Quitar `password` de `UserDTO` y `UserProfileDTO` en `types/Dtos.ts`
+- [x] 6.6 Crear `src/middleware.ts` que redirige a `/login` sin cookie `pc_session`, y hacer que `apiFetch` redirija ante un 401
+- [x] 6.7 Reenviar la cookie del request en el `fetch` SSR de `post/[postId].astro` y `user/[userId].astro`
+- [x] 6.8 Verificar que `grep -r "localhost:8080" FrontedProConnect/src` está vacío
 
 ## 7. Verificación manual del flujo
 
-- [ ] 7.1 Levantar el stack (MySQL, API :8081, media :3001, gateway :8080, front :4321) sin conflictos de puerto
-- [ ] 7.2 Recorrer registro → login → feed → like → comentar → subir post con imagen → perfil → logout
-- [ ] 7.3 Confirmar 401 sin cookie en `POST /api/posts/create`, `GET /api/posts`, el perfil y `GET /upload/uploads/<file>`, y que un `userId` ajeno en el body se ignora
+- [x] 7.1 Levantar el stack (MySQL, API :8081, media :3001, gateway :8080, front :4321) sin conflictos de puerto
+- [x] 7.2 Recorrer registro → login → feed → like → comentar → subir post con imagen → perfil → logout
+- [x] 7.3 Confirmar 401 sin cookie en `POST /api/posts/create`, `GET /api/posts`, el perfil y `GET /upload/uploads/<file>`, y que un `userId` ajeno en el body se ignora

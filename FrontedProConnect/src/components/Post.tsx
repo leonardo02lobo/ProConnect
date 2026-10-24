@@ -3,7 +3,8 @@ import Comment from "./Comment";
 import type { CommentsDTO } from "../types/Dtos";
 import { useState } from "react";
 import { apis } from "../Service/LikeApi";
-import { getUserFromCookie } from "../Service/GetCookie";
+import { PostsApi } from "../Service/PostApi";
+import { mediaUrl } from "../Service/http";
 
 interface Post {
     id: number;
@@ -12,7 +13,7 @@ interface Post {
     imageUrl: string;
     userId: number;
     name: string;
-    photoUrl: string;
+    photoUrl?: string | null;
     totalLikes: number;
     totalComentarios: number;
     userLiked?: boolean;
@@ -28,20 +29,8 @@ const Post: React.FC<Post> = ({ id, title, content, imageUrl,userId, name, photo
             console.log("El comentario está vacío");
             return;
         }
-        const data = await getUserFromCookie()
-
         try {
-            const response = await fetch("http://localhost:8080/api/comment/create",{
-                method: "POST",
-                headers: {
-                    "Content-Type":"application/json"
-                },
-                body: JSON.stringify({
-                    postId: id,
-                    userId: data.id,
-                    content: newComment
-                })
-            })
+            const response = await PostsApi.Comment(id, newComment)
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -61,11 +50,14 @@ const Post: React.FC<Post> = ({ id, title, content, imageUrl,userId, name, photo
     }
 
     const SystemLike = async () => {
-        const data = await getUserFromCookie()
-        if(!userLiked){
-            apis().AddLike(data.id, id)
-        }else{
-            apis().RemoveLike(data.id,id)
+        try {
+            if(!userLiked){
+                await apis().AddLike(id)
+            }else{
+                await apis().RemoveLike(id)
+            }
+        } catch (error) {
+            console.log((error as Error).message)
         }
         window.location.reload()
     }
@@ -84,7 +76,7 @@ const Post: React.FC<Post> = ({ id, title, content, imageUrl,userId, name, photo
         <section className="bg-white rounded-2xl shadow-md p-5 w-full max-w-lg mx-auto mb-6 transition hover:shadow-xl">
             <div className="flex items-center gap-3 mb-4">
                 <img
-                    src={photoUrl ? `http://localhost:8080/upload/uploads/${photoUrl}` : "https://cdn-icons-png.flaticon.com/512/1946/1946429.png"}
+                    src={mediaUrl(photoUrl) ?? "https://cdn-icons-png.flaticon.com/512/1946/1946429.png"}
                     alt="User"
                     className="w-12 h-12 rounded-full object-cover border"
                 />
@@ -101,7 +93,7 @@ const Post: React.FC<Post> = ({ id, title, content, imageUrl,userId, name, photo
                     <br />
                     :
                     <img
-                        src={`http://localhost:8080/upload/uploads/${imageUrl}`}
+                        src={mediaUrl(imageUrl)}
                         alt="Post"
                         className="rounded-xl max-h-80 w-full object-cover"
                     />

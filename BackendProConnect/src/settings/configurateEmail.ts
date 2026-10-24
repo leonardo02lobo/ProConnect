@@ -1,12 +1,14 @@
 import nodemailer from "nodemailer"
 
+// Credenciales SMTP por entorno (nunca en el código). El app password anterior estaba commiteado
+// y debe rotarse (ver README raíz).
 export const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
+    host: process.env.MAIL_HOST || "smtp.gmail.com",
+    port: Number(process.env.MAIL_PORT || 465),
+    secure: (process.env.MAIL_SECURE ?? "true") === "true",
     auth: {
-        user: "loboleonardo75@gmail.com",
-        pass: "vjpf myuf wzwu ewib",
+        user: process.env.MAIL_USERNAME,
+        pass: process.env.MAIL_PASSWORD,
     },
 });
 
