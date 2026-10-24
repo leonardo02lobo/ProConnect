@@ -1,0 +1,8 @@
+[mysqld]
+# Medición de sentencias por request sin tocar la app
+performance_schema = ON
+performance-schema-consumer-events-statements-history-long = ON
+performance_schema_events_statements_history_long_size = 10000
+innodb_buffer_pool_size = 512M
+max_connections = 200
+skip-name-resolve

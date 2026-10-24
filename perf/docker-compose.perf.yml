@@ -1,0 +1,57 @@
+# Stack de medición de rendimiento (línea base / after).
+# Uso: docker-compose -p pc-perf -f perf/docker-compose.perf.yml up -d --build
+name: pc-perf
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: perfroot
+      MYSQL_DATABASE: proconnect
+      MYSQL_USER: app
+      MYSQL_PASSWORD: apppass
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
+    volumes:
+      - ./mysql/perf.cnf:/etc/mysql/conf.d/perf.cnf:ro
+      - pc-perf-mysql:/var/lib/mysql
+    ports:
+      - "127.0.0.1:23306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-pperfroot"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1536M
+
+  api:
+    build:
+      context: ..
+      dockerfile: perf/docker/api.Dockerfile
+    image: pc-perf-api:baseline
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      # Sobrescribe application.properties sin editarlo. El usuario `app` es el
+      # que se filtra en performance_schema para contar sentencias por request.
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/proconnect?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: app
+      SPRING_DATASOURCE_PASSWORD: apppass
+      # show-sql=true imprime cada sentencia a stdout: se desactiva para no
+      # medir el coste del logging (en fase 2 show-sql sale de prod igualmente).
+      SPRING_JPA_SHOW_SQL: "false"
+      SPRING_DEVTOOLS_RESTART_ENABLED: "false"
+      JAVA_OPTS: "-Xms512m -Xmx768m"
+    ports:
+      - "127.0.0.1:28080:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1280M
+
+volumes:
+  pc-perf-mysql:
