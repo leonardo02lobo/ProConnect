@@ -41,11 +41,11 @@
 ## 6. IA en local
 
 - [x] 6.1 Ejecutar `npx playwright init-agents --loop=claude` y commitear las definiciones de agentes generadas
-- [ ] 6.2 Generar con los agentes (en local) un test adicional (p. ej. búsqueda de usuarios) como prueba del flujo, y revisarlo a mano
+- [x] 6.2 Generar con los agentes (en local) un test adicional (p. ej. búsqueda de usuarios) como prueba del flujo, y revisarlo a mano
 - [x] 6.3 Crear `e2e/prompts/triage.md` y `e2e/scripts/ai-triage.sh` (`claude -p` sobre reporte, trazas y logs → `e2e/ai-triage.md`)
 - [x] 6.4 Crear `e2e/prompts/heal.md` y `e2e/scripts/ai-heal.sh` (healer sobre los tests fallidos, sin skip ni expects relajados)
 - [x] 6.5 Provocar un fallo intencional en local, ejecutar `ai-triage.sh` y validar que el diagnóstico es correcto
-- [ ] 6.6 Romper un selector en local, ejecutar `ai-heal.sh` y validar que lo repara sin debilitar aserciones
+- [x] 6.6 Romper un selector en local, ejecutar `ai-heal.sh` y validar que lo repara sin debilitar aserciones
 - [x] 6.7 Documentar en `e2e/README.md` el flujo local (planner → generator → healer, triage y heal)
 
 ## 7. Workflows en local con act
