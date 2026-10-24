@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:proconnect;MODE=MySQL;NON_KEYWORDS=USER,VALUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+
+proconnect:
+  jwt:
+    secret: test-secret-test-secret-test-secret-123
+    ttl: PT1H
+  cookie:
+    name: pc_session
+    secure: false
+  cors:
+    origins: http://localhost:4321

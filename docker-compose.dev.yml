@@ -1,0 +1,24 @@
+# Entorno de desarrollo local. Uso:
+#   docker-compose -p pc-risks -f docker-compose.dev.yml up -d
+# Los servicios de la app se arrancan en el host (ver README.md). Las credenciales de aquí son
+# solo para desarrollo local; en cualquier otro entorno se inyectan por variables de entorno.
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: proconnect
+      MYSQL_USER: ${DB_USER:-proconnect}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-proconnect-dev}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-proconnect-dev-root}
+    ports:
+      - "${MYSQL_HOST_PORT:-3306}:3306"
+    volumes:
+      - pc-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  pc-mysql-data:
