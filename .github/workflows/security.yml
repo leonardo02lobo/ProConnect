@@ -21,8 +21,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # false = modo reporte (los jobs no fallan); true = bloquean alto/crítico.
-  BLOCKING: 'false'
+  # true = bloquean alto/crítico (verify-web-security 7.2). Poner 'false' solo para volver temporalmente a modo reporte.
+  BLOCKING: 'true'
 
 jobs:
   gitleaks:
@@ -91,22 +91,20 @@ jobs:
     permissions:
       contents: read
       security-events: write
-    container:
-      image: semgrep/semgrep:1.95.0
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      # Se ejecuta con `docker run` (no `container:`) para que el job también funcione bajo act.
       - name: Semgrep (OWASP Top 10, Java, TypeScript, secrets)
         run: |
-          semgrep scan --metrics=off --exclude BackendProConnect \
-            --config p/owasp-top-ten --config p/java --config p/typescript --config p/secrets \
-            --sarif -o semgrep.sarif
+          sg() { docker run --rm -v "$PWD":/src -w /src semgrep/semgrep:1.95.0 semgrep scan --metrics=off \
+                   --exclude BackendProConnect --config p/owasp-top-ten --config p/java --config p/typescript \
+                   --config p/secrets "$@"; }
+          sg --sarif -o semgrep.sarif
           # Bloqueo solo por severidad ERROR (alta).
-          rc=0
-          semgrep scan --metrics=off --exclude BackendProConnect --severity ERROR --error \
-            --config p/owasp-top-ten --config p/java --config p/typescript --config p/secrets || rc=$?
+          rc=0; sg --severity ERROR --error || rc=$?
           if [ "$rc" -ne 0 ] && [ "$BLOCKING" = "true" ]; then exit "$rc"; fi
       - uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4
-        if: always()
+        if: always() && !env.ACT
         with:
           sarif_file: semgrep.sarif
           category: semgrep

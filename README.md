@@ -90,9 +90,18 @@ Estos secretos estuvieron commiteados y **siguen en el historial de git**. El hi
 - [ ] **MySQL**: cambiar la contraseña del usuario `root` de la instancia de desarrollo (antes estaba en `backProconnect/src/main/resources/application.properties` y como fallback en `BackendProConnect/src/models/database.ts`). Crear un usuario de aplicación con permisos solo sobre `proconnect` y usarlo vía `DB_USER`/`DB_PASSWORD`.
 - [ ] **Gmail**: revocar el *app password* de la cuenta que aparecía en `BackendProConnect/src/settings/configurateEmail.ts` (Cuenta de Google → Seguridad → Contraseñas de aplicaciones) y generar uno nuevo solo si se sigue usando. Ahora se lee de `MAIL_USERNAME`/`MAIL_PASSWORD`.
 - [ ] **JWT legacy**: el secreto por defecto de `BackendProConnect` (fallback hardcodeado, ya eliminado) no debe reutilizarse en ningún sitio. Generar `JWT_SECRET` nuevo con `openssl rand -base64 48`.
-- [ ] Revisar el historial con `gitleaks` (se automatiza en `verify-web-security`).
+- [x] Revisar el historial con `gitleaks`: automatizado en `.github/workflows/security.yml` (cron semanal sobre todo el historial). Los hallazgos de esta lista están triados en `.gitleaksignore`; cualquier secreto nuevo hace fallar el job.
 - [ ] Usuarios con password sin hashear: la actualización antigua de usuario guardaba el password en texto plano. Esas cuentas ya no pueden iniciar sesión (el login solo acepta hashes BCrypt). Para detectarlas y obligar a resetear el password:
 
   ```sql
   SELECT id, email FROM proconnect.user WHERE password NOT LIKE '$2%';
   ```
+
+## Seguridad
+
+- Política de reporte: [`SECURITY.md`](SECURITY.md). Auditoría y estado de cada hallazgo: [`docs/security/audit-2026-10-24.md`](docs/security/audit-2026-10-24.md).
+- Autorización: los checks de propiedad/rol viven en los services (`OwnershipGuard`). Recursos públicos ajenos → 403; privados (mensajes, postulaciones) → 404. Solo `COMPANY_ADMIN`/`ADMIN` crean empresas; `ADMIN` modera todo.
+- CSRF: la API rechaza mutaciones con `Origin`/`Referer` fuera de `CORS_ORIGINS`.
+- Fuerza bruta: `RATE_LIMIT_AUTH_PER_MINUTE` (10), `RATE_LIMIT_MAX_FAILURES` (5), `RATE_LIMIT_LOCKOUT` (`PT15M`); detrás del gateway define `TRUSTED_PROXIES` con su red para respetar `X-Forwarded-For`.
+- Headers: el gateway envía CSP, `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`; HSTS con `SPRING_PROFILES_ACTIVE=prod` (o `HSTS_ENABLED=true`). La web usa la CSP con hashes de Astro (`security.csp`).
+- Escaneos locales: `docker run --rm -v "$PWD":/repo -w /repo ghcr.io/gitleaks/gitleaks:v8.30.1 git /repo --config /repo/.gitleaks.toml --gitleaks-ignore-path /repo/.gitleaksignore --log-opts=--all`; DAST: levanta `docker-compose -p pc-sec -f docker-compose.e2e.yml -f docker-compose.sec.yml up -d --build --wait` y ejecuta `security/dast/run-zap.sh`.
