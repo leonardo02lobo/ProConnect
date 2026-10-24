@@ -23,7 +23,7 @@
 
 ## 4. Media
 
-- [ ] 4.1 Verificar el filtro JWT del gateway en `/upload/**` (introducido en `fix-critical-risks`): subida y lectura anónimas → 401
+- [x] 4.1 Verificar el filtro JWT del gateway en `/upload/**` (introducido en `fix-critical-risks`): subida y lectura anónimas → 401
 - [x] 4.2 Multer con `memoryStorage`, `limits` de 5 MB y 1 archivo, y manejo de errores 413
 - [x] 4.3 Validación por magic bytes (`file-type`) con allowlist JPEG/PNG/WebP/GIF y 415 en otro caso
 - [x] 4.4 Re-encode con `sharp` (strip de EXIF) y nombre `UUID.<ext>` en `UPLOAD_DIR`
@@ -31,7 +31,7 @@
 
 ## 5. Hardening HTTP
 
-- [ ] 5.1 Filtro de headers de seguridad en el gateway (CSP en Report-Only, nosniff, Referrer-Policy, Permissions-Policy, frame-ancestors; HSTS en `prod`)
+- [x] 5.1 Filtro de headers de seguridad en el gateway (CSP en Report-Only, nosniff, Referrer-Policy, Permissions-Policy, frame-ancestors; HSTS en `prod`)
 - [x] 5.2 Filtro de validación de `Origin`/`Referer` para mutaciones en la API
 - [x] 5.3 Rate limiting con Bucket4j + Caffeine en `/api/auth/**` (10/min por IP, lockout de 15 min tras 5 fallos por email, 429 + `Retry-After`) y proxies de confianza para `X-Forwarded-For`
 - [ ] 5.4 Revisar los logs: sin passwords ni tokens; login fallido con email e IP
