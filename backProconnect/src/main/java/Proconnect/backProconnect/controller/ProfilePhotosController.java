@@ -35,7 +35,7 @@ public class ProfilePhotosController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> GetPhotoById(@PathVariable Long Id){
+    public ResponseEntity<?> GetPhotoById(@PathVariable("id") Long Id){
         ProfilePhotos photo = profilePhotosService.GetPhotoById(Id);
         if (photo == null) {
             return ResponseEntity.status(404).body("Photo not found");

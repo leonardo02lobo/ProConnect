@@ -14,7 +14,8 @@ export interface PostDTO {
 
 export interface UserProfileDTO {
     id: number;
-    email: string;
+    /** Solo presente para el propio usuario o un ADMIN (verify-web-security). */
+    email?: string;
     name: string;
     role: string;
     userName: string;
@@ -35,7 +36,8 @@ export interface CommentsDTO {
 /** Usuario público (UserPublicDto del backend). Nunca incluye password. */
 export interface UserDTO {
     id: number;
-    email: string;
+    /** Solo presente para el propio usuario o un ADMIN (verify-web-security). */
+    email?: string;
     name: string;
     role: "USER" | "COMPANY_ADMIN" | "ADMIN" | string;
     userName: string;

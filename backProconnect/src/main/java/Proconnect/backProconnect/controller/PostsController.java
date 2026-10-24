@@ -54,11 +54,7 @@ public class PostsController {
     }
     @DeleteMapping("/delete/{Id}")
     public ResponseEntity<?> DeletePostById(@PathVariable Long Id){
-        boolean isDelete = postsService.DeletePostById(Id);
-        if(isDelete){
-            return ResponseEntity.ok().body("Post deleted successfully.");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found.");
-        }
+        postsService.DeletePostById(Id);
+        return ResponseEntity.noContent().build();
     }
 }

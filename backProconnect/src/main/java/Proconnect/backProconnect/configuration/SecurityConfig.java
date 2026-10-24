@@ -2,6 +2,8 @@ package Proconnect.backProconnect.configuration;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -10,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -21,10 +24,15 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import Proconnect.backProconnect.security.AuthRateLimitFilter;
+import Proconnect.backProconnect.security.AuthRateLimiter;
+import Proconnect.backProconnect.security.ClientIpResolver;
 import Proconnect.backProconnect.security.JwtAuthFilter;
+import Proconnect.backProconnect.security.OriginCheckFilter;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
         @Bean
@@ -33,10 +41,12 @@ public class SecurityConfig {
         }
 
         @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+        public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter,
+                        AuthRateLimiter rateLimiter, ClientIpResolver ipResolver,
+                        @Value("${proconnect.cors.origins:http://localhost:4321}") String origins) throws Exception {
                 http
                         // Sesión stateless en cookie HttpOnly + SameSite=Lax; sin mutaciones por GET.
-                        // La protección CSRF adicional se revisa en verify-web-security.
+                        // El token CSRF de Spring se sustituye por validación de Origin/Referer (OriginCheckFilter).
                         .csrf(AbstractHttpConfigurer::disable)
                         .cors(cors -> {})
                         .formLogin(AbstractHttpConfigurer::disable)
@@ -54,6 +64,10 @@ public class SecurityConfig {
                                                 "Sesión requerida"))
                                 .accessDeniedHandler((req, res, e) -> writeJson(res, HttpStatus.FORBIDDEN,
                                                 "Acceso denegado")))
+                        .addFilterBefore(new OriginCheckFilter(allowedOrigins(origins)),
+                                        UsernamePasswordAuthenticationFilter.class)
+                        .addFilterBefore(new AuthRateLimitFilter(rateLimiter, ipResolver),
+                                        UsernamePasswordAuthenticationFilter.class)
                         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
                 return http.build();
         }
@@ -79,6 +93,13 @@ public class SecurityConfig {
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                 source.registerCorsConfiguration("/**", config);
                 return source;
+        }
+
+        static Set<String> allowedOrigins(String origins) {
+                return Arrays.stream(origins.split(",")).map(String::trim)
+                                .filter(o -> !o.isEmpty() && !o.equals("*"))
+                                .map(o -> o.replaceAll("/+$", "").toLowerCase())
+                                .collect(Collectors.toUnmodifiableSet());
         }
 
         private static void writeJson(HttpServletResponse res, HttpStatus status, String message)

@@ -26,7 +26,15 @@ proconnect:
     # Solo poner COOKIE_SECURE=false en desarrollo local sobre http.
     secure: ${COOKIE_SECURE:true}
   cors:
+    # También es la allowlist de Origin/Referer para mutaciones (defensa CSRF).
     origins: ${CORS_ORIGINS:http://localhost:4321}
+  security:
+    # Proxies cuyo X-Forwarded-For se acepta (IP o CIDR, separados por comas). Pon aquí la red del gateway.
+    trusted-proxies: ${TRUSTED_PROXIES:127.0.0.1/32,::1/128}
+  ratelimit:
+    auth-per-minute: ${RATE_LIMIT_AUTH_PER_MINUTE:10}
+    max-failures: ${RATE_LIMIT_MAX_FAILURES:5}
+    lockout: ${RATE_LIMIT_LOCKOUT:PT15M}
 
 management:
   endpoints:

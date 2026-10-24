@@ -31,6 +31,10 @@ public class Company {
     @NotNull(message = "User ID cannot be null")
     private Long userId;
 
+    /** Requerido por JPA para materializar la entidad. */
+    public Company() {
+    }
+
     public Company(Long id, String name, String description, String location, Long userId) {
         Id = id;
         this.name = name;

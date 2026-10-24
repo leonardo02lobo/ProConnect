@@ -37,13 +37,15 @@ public class PostulationController {
         return ResponseEntity.ok().body(postulationService.GetAllPostulations());
     }
 
+    /** Postulaciones recibidas en un empleo (solo el propietario de la empresa o ADMIN). */
+    @GetMapping("/job/{jobId}")
+    public ResponseEntity<?> GetPostulationsByJob(@PathVariable Long jobId){
+        return ResponseEntity.ok().body(postulationService.GetPostulationsByJob(jobId));
+    }
+
     @GetMapping("/id/{id}")
     public ResponseEntity<?> GetPostulationById(@PathVariable Long id){
         Postulation postulation = postulationService.GetPostulationById(id);
-
-        if(postulation == null){
-            return ResponseEntity.badRequest().body("Does not exist Postulations with this Id");
-        }
         return ResponseEntity.ok().body(postulation);
     }
 
@@ -61,12 +63,7 @@ public class PostulationController {
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> DeleteProstulationById(@PathVariable Long id){
-        boolean isDelete = postulationService.DeleteProstulationById(id);
-
-        if(isDelete){
-            return ResponseEntity.ok().body("Postulation delete successufly");
-        }else{
-            return ResponseEntity.badRequest().body("Does not delete");
-        }
+        postulationService.DeleteProstulationById(id);
+        return ResponseEntity.noContent().build();
     }
 }

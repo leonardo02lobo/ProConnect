@@ -35,6 +35,10 @@ public class Job {
 
     private Date date;
 
+    /** Requerido por JPA para materializar la entidad. */
+    public Job() {
+    }
+
     public Job(Long id, Long companyId, String title, String description, String workStation, Date date) {
         Id = id;
         this.companyId = companyId;

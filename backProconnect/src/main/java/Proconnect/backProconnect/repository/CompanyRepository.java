@@ -7,5 +7,6 @@ import Proconnect.backProconnect.Entity.Company;
 
 @Repository
 public interface CompanyRepository extends JpaRepository<Company,Long>{
+    java.util.List<Company> findByUserId(Long userId);
     
 }

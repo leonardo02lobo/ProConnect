@@ -28,6 +28,10 @@ public class Message {
 
     private Date timestamp;
 
+    /** Requerido por JPA para materializar la entidad. */
+    public Message() {
+    }
+
     public Message(Long id, Long senderId, Long receiverId, String content, Date timestamp) {
         this.id = id;
         this.senderId = senderId;

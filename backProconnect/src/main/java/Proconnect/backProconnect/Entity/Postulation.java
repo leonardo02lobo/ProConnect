@@ -25,6 +25,10 @@ public class Postulation {
 
     private Date date;
 
+    /** Requerido por JPA para materializar la entidad. */
+    public Postulation() {
+    }
+
     public Postulation(Long id, Long userId, Long jobId, Date date) {
         Id = id;
         this.userId = userId;
