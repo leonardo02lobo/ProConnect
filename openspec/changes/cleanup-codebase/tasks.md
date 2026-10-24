@@ -44,8 +44,8 @@
 - [x] 5.6 Agregar Mailpit al compose de dev y al de E2E
 - [x] 5.7 Tests: unitario de plantillas, integración (GreenMail o Mailpit) y un fallo de SMTP que no revierte el estado
 - [x] 5.8 E2E: el dueño acepta una postulación y Mailpit recibe el correo en el email del postulante
-- [ ] 5.9 Inventariar en `docs/backlog-legacy.md` el resto de funcionalidad exclusiva de `BackendProConnect`
-- [ ] 5.10 Crear el tag `legacy-express-backend` y eliminar `BackendProConnect/`
+- [x] 5.9 Inventariar en `docs/backlog-legacy.md` el resto de funcionalidad exclusiva de `BackendProConnect`
+- [x] 5.10 Crear el tag `legacy-express-backend` y eliminar `BackendProConnect/`
 
 ## 7. Bugs heredados (FINDINGs de risks, perf, e2e y security en BOARD.md)
 

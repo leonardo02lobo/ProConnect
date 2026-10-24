@@ -12,7 +12,6 @@ target/
 # Archivos subidos por usuarios (servicio de media)
 NodeTsPosts/upload/*
 !NodeTsPosts/upload/.gitkeep
-BackendProConnect/uploads/
 
 # Varios
 .DS_Store

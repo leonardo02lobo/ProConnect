@@ -18,7 +18,7 @@ MySQL :3306 (DB `proconnect`)
 | media | `NodeTsPosts/` | 3001 | `PORT`, `UPLOAD_DIR` |
 | web | `FrontedProConnect/` | 4321 | `PUBLIC_API_URL` (build), `API_INTERNAL_URL` (runtime, opcional) |
 
-Cada servicio tiene un `.env.example` con todas sus variables. Copia los valores a tu entorno (o a un `.env` local, que no se versiona). `BackendProConnect/` es el backend legacy: no forma parte del arranque por defecto y se retira en `cleanup-codebase`.
+Cada servicio tiene un `.env.example` con todas sus variables. Copia los valores a tu entorno (o a un `.env` local, que no se versiona). El backend Express legacy (`BackendProConnect/`) se retiró en `cleanup-codebase`: queda en el tag git `legacy-express-backend` y su funcionalidad pendiente está en [`docs/backlog-legacy.md`](docs/backlog-legacy.md).
 
 ## Autenticación
 
@@ -87,7 +87,7 @@ Configuración que hace el mantenedor: secret `ANTHROPIC_API_KEY` o `CLAUDE_CODE
 
 Estos secretos estuvieron commiteados y **siguen en el historial de git**. El historial no se reescribe, para no romper clones ni worktrees, así que la única mitigación real es rotarlos:
 
-- [ ] **MySQL**: cambiar la contraseña del usuario `root` de la instancia de desarrollo (antes estaba en `backProconnect/src/main/resources/application.properties` y como fallback en `BackendProConnect/src/models/database.ts`). Crear un usuario de aplicación con permisos solo sobre `proconnect` y usarlo vía `DB_USER`/`DB_PASSWORD`.
+- [ ] **MySQL**: cambiar la contraseña del usuario `root` de la instancia de desarrollo (antes estaba en `backProconnect/src/main/resources/application.properties` y como fallback en `BackendProConnect/src/models/database.ts`, hoy solo en el historial y en el tag `legacy-express-backend`). Crear un usuario de aplicación con permisos solo sobre `proconnect` y usarlo vía `DB_USER`/`DB_PASSWORD`.
 - [ ] **Gmail**: revocar el *app password* de la cuenta que aparecía en `BackendProConnect/src/settings/configurateEmail.ts` (Cuenta de Google → Seguridad → Contraseñas de aplicaciones) y generar uno nuevo solo si se sigue usando. Ahora se lee de `MAIL_USERNAME`/`MAIL_PASSWORD`.
 - [ ] **JWT legacy**: el secreto por defecto de `BackendProConnect` (fallback hardcodeado, ya eliminado) no debe reutilizarse en ningún sitio. Generar `JWT_SECRET` nuevo con `openssl rand -base64 48`.
 - [ ] Revisar el historial con `gitleaks` (se automatiza en `verify-web-security`).
