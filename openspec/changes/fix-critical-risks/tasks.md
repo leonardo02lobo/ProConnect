@@ -43,14 +43,14 @@
 
 ## 6. Frontend
 
-- [ ] 6.1 Crear `src/Service/http.ts` con `apiFetch()` (base `import.meta.env.PUBLIC_API_URL`, `credentials: "include"`) y `mediaUrl()`
-- [ ] 6.2 Migrar `AuthApi`, `PostApi`, `LikeApi`, `Post.tsx`, `AddPost.tsx`, `HeaderProfile.tsx`, `post/[postId].astro` y `user/[userId].astro` a `apiFetch` / `mediaUrl`
-- [ ] 6.3 Reemplazar `getUserFromCookie` por un store (nanostores) cargado desde `GET /api/auth/me`, y dejar de escribir la cookie `user=`
-- [ ] 6.4 Hacer que el logout del `Header` llame a `POST /api/auth/logout`
-- [ ] 6.5 Quitar `password` de `UserDTO` y `UserProfileDTO` en `types/Dtos.ts`
-- [ ] 6.6 Crear `src/middleware.ts` que redirige a `/login` sin cookie `pc_session`, y hacer que `apiFetch` redirija ante un 401
-- [ ] 6.7 Reenviar la cookie del request en el `fetch` SSR de `post/[postId].astro` y `user/[userId].astro`
-- [ ] 6.8 Verificar que `grep -r "localhost:8080" FrontedProConnect/src` está vacío
+- [x] 6.1 Crear `src/Service/http.ts` con `apiFetch()` (base `import.meta.env.PUBLIC_API_URL`, `credentials: "include"`) y `mediaUrl()`
+- [x] 6.2 Migrar `AuthApi`, `PostApi`, `LikeApi`, `Post.tsx`, `AddPost.tsx`, `HeaderProfile.tsx`, `post/[postId].astro` y `user/[userId].astro` a `apiFetch` / `mediaUrl`
+- [x] 6.3 Reemplazar `getUserFromCookie` por un store (nanostores) cargado desde `GET /api/auth/me`, y dejar de escribir la cookie `user=`
+- [x] 6.4 Hacer que el logout del `Header` llame a `POST /api/auth/logout`
+- [x] 6.5 Quitar `password` de `UserDTO` y `UserProfileDTO` en `types/Dtos.ts`
+- [x] 6.6 Crear `src/middleware.ts` que redirige a `/login` sin cookie `pc_session`, y hacer que `apiFetch` redirija ante un 401
+- [x] 6.7 Reenviar la cookie del request en el `fetch` SSR de `post/[postId].astro` y `user/[userId].astro`
+- [x] 6.8 Verificar que `grep -r "localhost:8080" FrontedProConnect/src` está vacío
 
 ## 7. Verificación manual del flujo
 

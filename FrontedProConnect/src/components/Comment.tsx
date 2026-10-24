@@ -10,7 +10,7 @@ const Comment: React.FC<CommentsDTO> = ({content,date,id,user}) => {
                 className="w-10 h-10 rounded-full object-cover"
             />
             <div className="flex flex-col">
-                <a href={`/user/${user.id}`}><p className="font-semibold text-sm">{user.name}</p></a>
+                <a href={`/user/${user?.id ?? ""}`}><p className="font-semibold text-sm">{user?.name ?? "Usuario"}</p></a>
                 <p className="text-gray-700 text-sm">
                     {content}
                 </p>

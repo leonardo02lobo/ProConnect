@@ -11,6 +11,9 @@ function RMain() {
         const fetchPosts = async () => {
             try {
                 const response = await PostsApi.Posts();
+                if (response.status === 401) {
+                    return; // apiFetch ya redirige a /login
+                }
                 if (!response.ok) {
                     let errorBody: unknown;
                     try {
@@ -20,12 +23,12 @@ function RMain() {
                     }
                     throw new Error(`HTTP ${response.status}: ${JSON.stringify(errorBody)}`);
                 }
-                const posts: PostDTO[] = await response.json();
-                setPosts(posts);
+                const text = await response.text();
+                const posts: PostDTO[] | null = text ? JSON.parse(text) : null;
+                setPosts(posts ?? []);
             } catch (error) {
                 console.error("Error al obtener posts:", error);
                 setPosts([]);
-                window.location.href = "/SignUp"
             }
         };
         fetchPosts();
@@ -44,7 +47,7 @@ function RMain() {
                         imageUrl={post.imageUrl}
                         userId={post.user?.id ?? 0}
                         name={post.user?.name ?? ""}
-                        photoUrl={post.user?.profilePhotosDto.photoUrl ?? ""}
+                        photoUrl={post.user?.photoUrl ?? ""}
                         totalLikes={post.totalLikes}
                         totalComentarios={post.totalComentarios}
                         userLiked={post.userLiked}

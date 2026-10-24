@@ -1,35 +1,35 @@
 import { useState, useEffect } from "react";
-import { getUserFromCookie } from "../../Service/GetCookie";
+import { apiFetch, mediaUrl } from "../../Service/http";
+import { loadSession } from "../../Service/session";
 import type { UserProfileDTO } from "../../types/Dtos";
 import Post from "../Post";
 
-function HeaderProfile() {
+interface HeaderProfileProps {
+    /** Perfil ya cargado por SSR (página /user/[userId]). Si falta, se carga el de la sesión. */
+    initialUser?: UserProfileDTO | null;
+}
+
+function HeaderProfile({ initialUser }: HeaderProfileProps) {
     async function GetData(): Promise<UserProfileDTO | null> {
-        const dataUser = getUserFromCookie()
-
-        if (!dataUser) {
-            console.log(dataUser)
-            window.location.href = "/SignUp"
+        const me = await loadSession()
+        if (!me) {
+            window.location.href = "/login"
             return null;
-        } else {
-            const response = await fetch(`http://localhost:8080/api/user/${dataUser.id}/profiles-posts`, {
-                headers: {
-                    "Content-type": "application/json"
-                },
-            })
-
-            if (!response.ok) {
-                return null
-            }
-
-            const data = await response.json()
-            return data ?? null
         }
+        const response = await apiFetch(`/api/user/${me.id}/profiles-posts`)
+        if (!response.ok) {
+            return null
+        }
+        const text = await response.text()
+        return text ? JSON.parse(text) : null
     }
 
-    const [user, setUser] = useState<UserProfileDTO | null>(null)
+    const [user, setUser] = useState<UserProfileDTO | null>(initialUser ?? null)
 
     useEffect(() => {
+        if (initialUser) {
+            return
+        }
         let mounted = true
         GetData().then(result => {
             if (mounted) setUser(result)
@@ -37,21 +37,21 @@ function HeaderProfile() {
         return () => {
             mounted = false
         }
-        
+
     }, [])
     return (
         <div className="flex flex-col justify-center items-center bg-white">
             <header className="relative w-full">
-                <a href={`http://localhost:8080/upload/uploads${user?.wallPhotoUrl}`} target="_blank">
+                <a href={mediaUrl(user?.wallPhotoUrl)} target="_blank">
                     <img
-                        src={`http://localhost:8080/upload/uploads${user?.wallPhotoUrl}`}
+                        src={mediaUrl(user?.wallPhotoUrl)}
                         alt="Portada"
                         className="w-full h-48 object-cover"
                     />
                 </a>
-                <a href={`http://localhost:8080/upload/uploads${user?.photoUrl}`} target="_blank">
+                <a href={mediaUrl(user?.photoUrl)} target="_blank">
                     <img
-                        src={`http://localhost:8080/upload/uploads${user?.photoUrl}`}
+                        src={mediaUrl(user?.photoUrl)}
                         alt="Foto de perfil"
                         className="w-24 h-24 rounded-full object-cover border-4 border-white absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bottom-0 z-10"
                     />
@@ -109,7 +109,6 @@ function HeaderProfile() {
                             id={post.id}
                             title={post.title} 
                             content={post.content} 
-                            date={post.date} 
                             imageUrl={post.imageUrl} 
                             userId={user.id}
                             name={user.name} 

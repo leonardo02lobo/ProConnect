@@ -33,21 +33,10 @@ function AddPost() {
         if (isDisabled || isUploading) return;
         setIsUploading(true);
         try {
-            const formData = new FormData();
-            if (imageFile) {
-                formData.append("miArchivo", imageFile);
-            }
-
             let resultFilename: string | null = null;
 
             if (imageFile) {
-                const response = await fetch(
-                    "http://localhost:8080/upload/subirImagen",
-                    {
-                        method: "POST",
-                        body: formData,
-                    }
-                );
+                const response = await PostsApi.UploadImage(imageFile);
 
                 if (!response.ok) {
                     const errorText = await response.text();
