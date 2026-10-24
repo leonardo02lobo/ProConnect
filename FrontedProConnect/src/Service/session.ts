@@ -1,6 +1,6 @@
 import { atom } from "nanostores";
 import type { UserDTO } from "../types/Dtos";
-import { AuthApi } from "./AuthApi";
+import { authService } from "./auth";
 
 /** Usuario de la sesión actual (cargado desde GET /api/auth/me). undefined = aún no cargado. */
 export const $user = atom<UserDTO | null | undefined>(undefined);
@@ -12,8 +12,8 @@ export function loadSession(force = false): Promise<UserDTO | null> {
         return Promise.resolve($user.get() ?? null);
     }
     if (!loading || force) {
-        loading = AuthApi.Me()
-            .then(async (response) => (response.ok ? ((await response.json()) as UserDTO) : null))
+        loading = authService
+            .me()
             .catch(() => null)
             .then((user) => {
                 $user.set(user);
@@ -26,7 +26,7 @@ export function loadSession(force = false): Promise<UserDTO | null> {
 
 export async function logout(): Promise<void> {
     try {
-        await AuthApi.Logout();
+        await authService.logout();
     } finally {
         $user.set(null);
         window.location.href = "/login";

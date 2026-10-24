@@ -22,7 +22,8 @@ import SignUpAndInLayout from "../layouts/SignUpAndInLayout.astro";
     </div>
 
     <script>
-        import { AuthApi } from "../Service/AuthApi";
+        import { authService } from "../Service/auth";
+        import { ApiError } from "../Service/http";
 
         const errorBox = document.getElementById("login-error") as HTMLParagraphElement
 
@@ -33,15 +34,16 @@ import SignUpAndInLayout from "../layouts/SignUpAndInLayout.astro";
             const password = document.getElementById("password") as HTMLInputElement
 
             try {
-                const response: Response = await AuthApi.Login(email.value, password.value)
-                if (response.ok) {
-                    // La sesión queda en la cookie httpOnly pc_session emitida por el backend.
-                    location.href = "/"
-                    return
+                await authService.login(email.value, password.value)
+                // La sesión queda en la cookie httpOnly pc_session emitida por el backend.
+                location.href = "/"
+                return
+            } catch (e) {
+                if (e instanceof ApiError) {
+                    errorBox.textContent = e.status === 401 ? "Credenciales inválidas" : (e.problem?.detail ?? "No se pudo iniciar sesión")
+                } else {
+                    errorBox.textContent = "No se pudo conectar con el servidor"
                 }
-                errorBox.textContent = response.status === 401 ? "Credenciales inválidas" : "No se pudo iniciar sesión"
-            } catch {
-                errorBox.textContent = "No se pudo conectar con el servidor"
             }
             errorBox.classList.remove("hidden")
         });

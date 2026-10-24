@@ -7,7 +7,7 @@ import type { UserProfileDTO } from "../../types/Dtos"
 const { userId } = Astro.params
 
 // SSR: se reenvía la cookie de sesión del navegador al backend.
-const response = await ssrFetch(Astro, `/api/user/${encodeURIComponent(userId ?? "")}/profiles-posts`)
+const response = await ssrFetch(Astro, `/api/users/${encodeURIComponent(userId ?? "")}/profile`)
 if (response.status === 401) {
     return Astro.redirect("/login")
 }

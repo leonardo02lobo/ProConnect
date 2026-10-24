@@ -3,7 +3,7 @@ import { SESSION_COOKIE } from "./Service/server";
 
 // Páginas accesibles sin sesión. Todo lo demás redirige a /login si no hay cookie pc_session.
 // La validez del token la comprueba el backend: un 401 en SSR o en apiFetch también lleva a /login.
-const PUBLIC_PATHS = new Set(["/login", "/register", "/SignUp", "/SignIn"]);
+const PUBLIC_PATHS = new Set(["/login", "/register"]);
 const STATIC_PREFIXES = ["/_astro/", "/assets/", "/favicon", "/@", "/node_modules/", "/src/"];
 
 // Headers de seguridad de las páginas (la CSP con hashes va en <meta>, ver astro.config.mjs).

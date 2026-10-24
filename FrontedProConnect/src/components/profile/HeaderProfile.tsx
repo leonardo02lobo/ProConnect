@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { apiFetch, mediaUrl } from "../../Service/http";
+import { avatarUrl, mediaUrl } from "../../Service/http";
 import { loadSession } from "../../Service/session";
+import { usersService } from "../../Service/users";
 import type { UserProfileDTO } from "../../types/Dtos";
 import Post from "../Post";
 
@@ -10,35 +11,29 @@ interface HeaderProfileProps {
 }
 
 function HeaderProfile({ initialUser }: HeaderProfileProps) {
-    async function GetData(): Promise<UserProfileDTO | null> {
-        const me = await loadSession()
-        if (!me) {
-            window.location.href = "/login"
-            return null;
-        }
-        const response = await apiFetch(`/api/user/${me.id}/profiles-posts`)
-        if (!response.ok) {
-            return null
-        }
-        const text = await response.text()
-        return text ? JSON.parse(text) : null
-    }
-
-    const [user, setUser] = useState<UserProfileDTO | null>(initialUser ?? null)
+    const [user, setUser] = useState<UserProfileDTO | null>(initialUser ?? null);
 
     useEffect(() => {
         if (initialUser) {
-            return
+            return;
         }
-        let mounted = true
-        GetData().then(result => {
-            if (mounted) setUser(result)
-        })
+        let mounted = true;
+        loadSession()
+            .then((me) => {
+                if (!me) {
+                    window.location.href = "/login";
+                    return null;
+                }
+                return usersService.profile(me.id);
+            })
+            .catch(() => null)
+            .then((profile) => {
+                if (mounted) setUser(profile);
+            });
         return () => {
-            mounted = false
-        }
-
-    }, [])
+            mounted = false;
+        };
+    }, [initialUser]);
     return (
         <div className="flex flex-col justify-center items-center bg-white">
             <header className="relative w-full">
@@ -51,7 +46,7 @@ function HeaderProfile({ initialUser }: HeaderProfileProps) {
                 </a>
                 <a href={mediaUrl(user?.photoUrl)} target="_blank">
                     <img
-                        src={mediaUrl(user?.photoUrl)}
+                        src={avatarUrl(user?.photoUrl)}
                         alt="Foto de perfil"
                         className="w-24 h-24 rounded-full object-cover border-4 border-white absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bottom-0 z-10"
                     />
@@ -103,21 +98,8 @@ function HeaderProfile({ initialUser }: HeaderProfileProps) {
                     </div>
                 </nav>
                 <div>
-                    {user?.posts.map((post,i) => (
-                        <Post 
-                            key={post.id}
-                            id={post.id}
-                            title={post.title} 
-                            content={post.content} 
-                            imageUrl={post.imageUrl} 
-                            userId={user.id}
-                            name={user.name} 
-                            photoUrl={user.photoUrl}  
-                            totalComentarios={post.totalComentarios}
-                            totalLikes={post.totalLikes}
-                            userLiked={post.userLiked}
-                            comment={post.comments}
-                        />
+                    {user?.posts.map((post) => (
+                        <Post key={post.id} post={post} />
                     ))}
                 </div>
             </div>

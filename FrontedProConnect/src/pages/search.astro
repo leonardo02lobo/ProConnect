@@ -1,0 +1,35 @@
+---
+import Main from "../layouts/Main.astro"
+import { ssrFetch } from "../Service/server"
+import { avatarUrl } from "../Service/http"
+import type { UserDTO } from "../types/Dtos"
+
+const query = (Astro.url.searchParams.get("q") ?? "").trim()
+
+let users: UserDTO[] = []
+if (query) {
+    // SSR: se reenvía la cookie de sesión del navegador al backend.
+    const response = await ssrFetch(Astro, `/api/users?q=${encodeURIComponent(query)}`)
+    if (response.status === 401) {
+        return Astro.redirect("/login")
+    }
+    users = response.ok ? ((await response.json()) as UserDTO[]) : []
+}
+---
+<Main title={query ? `Buscar: ${query}` : "Buscar"}>
+    <section class="w-full max-w-lg mx-auto my-6 flex flex-col gap-3" data-testid="search-results">
+        <h1 class="text-xl font-semibold">
+            {query ? `Resultados para "${query}"` : "Escribe algo en el buscador"}
+        </h1>
+        {query && users.length === 0 && <p data-testid="search-empty">No se encontraron usuarios</p>}
+        {users.map((user) => (
+            <a href={`/user/${user.id}`} data-testid="search-result" class="flex items-center gap-3 bg-white rounded-xl shadow p-3 hover:shadow-md">
+                <img src={avatarUrl(user.photoUrl)} alt={`Foto de ${user.name}`} class="w-10 h-10 rounded-full object-cover" />
+                <span class="flex flex-col">
+                    <span class="font-semibold" data-testid="search-result-name">{user.name}</span>
+                    <span class="text-sm text-gray-500">@{user.userName}</span>
+                </span>
+            </a>
+        ))}
+    </section>
+</Main>

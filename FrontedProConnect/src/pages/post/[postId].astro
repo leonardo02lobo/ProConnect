@@ -6,7 +6,7 @@ import { mediaUrl } from "../../Service/http"
 const { postId } = Astro.params
 
 // SSR: se reenvía la cookie de sesión del navegador al backend.
-const response = await ssrFetch(Astro, `/api/posts/find/${encodeURIComponent(postId ?? "")}`)
+const response = await ssrFetch(Astro, `/api/posts/${encodeURIComponent(postId ?? "")}`)
 if (response.status === 401) {
     return Astro.redirect("/login")
 }
