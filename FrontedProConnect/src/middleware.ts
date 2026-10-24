@@ -6,13 +6,43 @@ import { SESSION_COOKIE } from "./Service/server";
 const PUBLIC_PATHS = new Set(["/login", "/register", "/SignUp", "/SignIn"]);
 const STATIC_PREFIXES = ["/_astro/", "/assets/", "/favicon", "/@", "/node_modules/", "/src/"];
 
-export const onRequest = defineMiddleware((context, next) => {
+// Headers de seguridad de las páginas (la CSP con hashes va en <meta>, ver astro.config.mjs).
+const SECURITY_HEADERS: Record<string, string> = {
+    "Content-Security-Policy": "frame-ancestors 'none'; object-src 'none'; base-uri 'self'",
+    "X-Frame-Options": "DENY",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+    "Cross-Origin-Opener-Policy": "same-origin",
+};
+const HSTS = process.env.HSTS_ENABLED === "true" ? "max-age=31536000; includeSubDomains" : null;
+
+function withSecurityHeaders(response: Response): Response {
+    for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+        try {
+            // La CSP de Astro (hashes) puede venir ya como header: se añade una segunda política, no se pisa.
+            if (name === "Content-Security-Policy" && response.headers.has(name)) {
+                response.headers.append(name, value);
+            } else {
+                response.headers.set(name, value);
+            }
+        } catch {
+            return response; // headers inmutables (p. ej. redirect): se dejan como están
+        }
+    }
+    if (HSTS) {
+        response.headers.set("Strict-Transport-Security", HSTS);
+    }
+    return response;
+}
+
+export const onRequest = defineMiddleware(async (context, next) => {
     const { pathname } = context.url;
     if (PUBLIC_PATHS.has(pathname) || STATIC_PREFIXES.some((p) => pathname.startsWith(p))) {
-        return next();
+        return withSecurityHeaders(await next());
     }
     if (!context.cookies.get(SESSION_COOKIE)?.value) {
-        return context.redirect("/login");
+        return withSecurityHeaders(context.redirect("/login"));
     }
-    return next();
+    return withSecurityHeaders(await next());
 });
