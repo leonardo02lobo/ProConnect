@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import Proconnect.backProconnect.Entity.ProfilePhotos;
 import Proconnect.backProconnect.model.ProfilePhotosDto;
+import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.ProfilePhotosService;
 import jakarta.validation.Valid;
 
@@ -25,6 +26,7 @@ public class ProfilePhotosController {
 
     @PostMapping("/create")
     public ResponseEntity<?> AddProfilePhoto(@RequestBody @Valid ProfilePhotosDto profilePhotosDto){
+        profilePhotosDto.setUserId(CurrentUser.id());
         String result = profilePhotosService.AddProfilePhoto(profilePhotosDto);
         if (result == null) {
             return ResponseEntity.status(400).body("Failed to create profile photo");

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import Proconnect.backProconnect.model.CommentsDto;
+import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.CommentsService;
 import jakarta.validation.Valid;
 
@@ -26,6 +27,7 @@ public class CommentsController {
 
     @PostMapping("/create")
     public ResponseEntity<?> AddComments(@RequestBody @Valid CommentsDto comments){
+        comments.setUserId(CurrentUser.id());
         return ResponseEntity.ok().body(commentsService.AddComments(comments));
     }
 

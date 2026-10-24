@@ -13,9 +13,9 @@ import Proconnect.backProconnect.Entity.ProfilePhotos;
 import Proconnect.backProconnect.Entity.User;
 import Proconnect.backProconnect.model.CommentsDto;
 import Proconnect.backProconnect.model.PostsDto;
-import Proconnect.backProconnect.model.ProfilePhotosDto;
 import Proconnect.backProconnect.model.UserDto;
 import Proconnect.backProconnect.model.UserProfileDTO;
+import Proconnect.backProconnect.model.UserPublicDto;
 import Proconnect.backProconnect.repository.ProfilePhotosRepository;
 import Proconnect.backProconnect.repository.UserRepository;
 import Proconnect.backProconnect.specification.UserSpecification;
@@ -33,23 +33,25 @@ public class UserService {
         this.profilePhotosRepository = profilePhotosRepository;
     }
 
-    public boolean AddUser(UserDto user) {
-        try {
-            if (user == null) {
-                return false;
-            }
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            User userEntity = new User(user.getId(), user.getName(), user.getUserName(), user.getEmail(),
-                    user.getPassword(), user.getRole());
-            userRepository.save(userEntity);
-            return true;
-        } catch (Exception e) {
-            return false;
+    public UserPublicDto toPublic(User user) {
+        if (user == null) {
+            return null;
         }
+        Optional<ProfilePhotos> photos = profilePhotosRepository.findByUserId(user.getId());
+        return new UserPublicDto(user.getId(), user.getName(), user.getUserName(), user.getEmail(), user.getRole(),
+                photos.map(ProfilePhotos::getPhotoUrl).orElse(null),
+                photos.map(ProfilePhotos::getWallPhotoUrl).orElse(null));
     }
 
-    public List<User> GetAllUsers() {
-        return userRepository.findAll();
+    public UserPublicDto getPublicById(Long id) {
+        if (id == null) {
+            return null;
+        }
+        return userRepository.findById(id).map(this::toPublic).orElse(null);
+    }
+
+    public List<UserPublicDto> GetAllUsers() {
+        return userRepository.findAll().stream().map(this::toPublic).toList();
     }
 
     public String UpdateUserById(Long Id, UserDto newUser) {
@@ -64,11 +66,15 @@ public class UserService {
             if (existingUser == null) {
                 return "User with Id " + Id + " does not exist";
             }
-            existingUser.setId(newUser.getId());
+            // El id y el rol no se cambian desde aquí; el password se guarda siempre hasheado.
             existingUser.setName(newUser.getName());
             existingUser.setEmail(newUser.getEmail());
-            existingUser.setPassword(newUser.getPassword());
-            existingUser.setRole(newUser.getRole());
+            if (newUser.getPassword() != null && !newUser.getPassword().isBlank()) {
+                if (newUser.getPassword().length() < AuthService.MIN_PASSWORD) {
+                    return "Password must be at least " + AuthService.MIN_PASSWORD + " characters";
+                }
+                existingUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+            }
             existingUser.setUserName(newUser.getUserName());
             userRepository.save(existingUser);
             return "User with Id " + Id + " updated successfully";
@@ -92,45 +98,12 @@ public class UserService {
         }
     }
 
-    public User GetUserById(Long Id) {
-        try {
-            if (Long.valueOf(Id) == null) {
-                return null;
-            }
-            Optional<User> user = userRepository.findById(Id);
-
-            return user.orElse(null);
-        } catch (Exception e) {
-            return null;
-        }
+    public UserPublicDto GetUserById(Long Id) {
+        return getPublicById(Id);
     }
 
-    public List<User> SearchByNameOrUsername(String name) {
-        return userRepository.findAll(UserSpecification.hasNameLike(name));
-    }
-
-    public UserDto findUserByUserName(String username) {
-        Optional<User> userOptional = userRepository.findByUserName(username);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            return new UserDto(user.getId(), user.getName(), user.getUserName(), user.getEmail(), user.getPassword(),
-                    user.getRole(),null);
-        }
-        return null;
-    }
-
-    public boolean authUser(String email, String password) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-
-        if (!userOptional.isPresent()) {
-            return false;
-        }
-        User user = userOptional.get();
-        return passwordEncoder.matches(password, user.getPassword());
-    }
-
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public List<UserPublicDto> SearchByNameOrUsername(String name) {
+        return userRepository.findAll(UserSpecification.hasNameLike(name)).stream().map(this::toPublic).toList();
     }
 
     public UserProfileDTO findUsersWithProfilesAndPosts(Long userId) {
@@ -144,48 +117,37 @@ public class UserService {
         Map<Long, List<CommentsDto>> commentsMap = new HashMap<>();
 
         for (Object[] row : results) {
+            if (row[7] == null) {
+                continue; // usuario sin posts
+            }
             Long postId = ((Number) row[7]).longValue();
 
-            if (postId != null && !postsMap.containsKey(postId)) {
+            if (!postsMap.containsKey(postId)) {
                 PostsDto post = new PostsDto(
                         postId,
-                        ((Number) row[0]).longValue(), 
-                        (String) row[9], 
-                        (String) row[8], 
-                        (String) row[11], 
-                        (java.util.Date) row[10], 
+                        ((Number) row[0]).longValue(),
+                        (String) row[9],
+                        (String) row[8],
+                        (String) row[11],
+                        (java.util.Date) row[10],
                         ((Number) row[16]).longValue(),
-                        ((Number) row[17]).longValue(), 
+                        ((Number) row[17]).longValue(),
                         ((Number) row[18]).longValue() > 0,
-                        new ArrayList<>() 
+                        new ArrayList<>()
                 );
                 postsMap.put(postId, post);
                 commentsMap.put(postId, new ArrayList<>());
             }
 
-            Long userIdComment = ((Number)row[15]).longValue();
-            Optional<User> userComment = userRepository.findById(userIdComment);
-            Optional<ProfilePhotos> profileOptional = profilePhotosRepository.findByUserId(userIdComment);
-            UserDto userCommenDto = null;
-            ProfilePhotosDto profilePhotosDto = null;
-
-            if(profileOptional.isPresent()){
-                ProfilePhotos profilePhotos = profileOptional.get();
-                profilePhotosDto = new ProfilePhotosDto(profilePhotos.getId(), profilePhotos.getUserId(), profilePhotos.getPhotoUrl(), profilePhotos.getWallPhotoUrl());
-            }
-
-            if(userComment.isPresent()){
-                User user = userComment.get();
-                userCommenDto = new UserDto(userIdComment, user.getName(), user.getUserName(), user.getEmail(), user.getPassword(), user.getRole(),profilePhotosDto);
-            }
-            if (row[14] != null) { 
+            if (row[14] != null && row[15] != null) {
+                Long userIdComment = ((Number) row[15]).longValue();
                 CommentsDto comment = new CommentsDto(
-                        ((Number) row[14]).longValue(), 
-                        postId, 
-                        ((Number) row[15]).longValue(), 
-                        (String) row[12], 
-                        (java.util.Date) row[13], 
-                        userCommenDto
+                        ((Number) row[14]).longValue(),
+                        postId,
+                        userIdComment,
+                        (String) row[12],
+                        (java.util.Date) row[13],
+                        getPublicById(userIdComment)
                 );
                 commentsMap.get(postId).add(comment);
             }

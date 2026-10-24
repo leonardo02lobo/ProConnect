@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import Proconnect.backProconnect.Entity.Postulation;
 import Proconnect.backProconnect.model.PostulationDto;
+import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.PostulationService;
 import jakarta.validation.Valid;
 
@@ -27,6 +28,7 @@ public class PostulationController {
     
     @PostMapping("/create")
     public ResponseEntity<?> AddPostulation(@RequestBody @Valid PostulationDto postulationDto){
+        postulationDto.setUserId(CurrentUser.id());
         return ResponseEntity.ok().body(postulationService.AddPostulation(postulationDto));
     }
 
@@ -47,6 +49,7 @@ public class PostulationController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> UpdatePostulationById(@PathVariable Long id, @RequestBody @Valid PostulationDto postulationDto){
+        postulationDto.setUserId(CurrentUser.id());
         boolean isUpdate = postulationService.UpdatePostulationById(id, postulationDto);
 
         if(isUpdate){

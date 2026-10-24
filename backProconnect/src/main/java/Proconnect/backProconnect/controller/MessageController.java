@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import Proconnect.backProconnect.model.MessageDto;
+import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.MessageService;
 import jakarta.validation.Valid;
 
@@ -25,12 +26,14 @@ public class MessageController {
 
     @PostMapping("/create")
     public ResponseEntity<?> AddMessage(@RequestBody @Valid MessageDto messageDto){
+        messageDto.setSenderId(CurrentUser.id());
         return ResponseEntity.ok().body(messageService.AddMessage(messageDto));
     }
 
+    /** Lista los mensajes enviados por el usuario autenticado; el {userId} del path se ignora. */
     @GetMapping("list/{userId}")
-    public ResponseEntity<?> ListMessageById(@PathVariable Long senderId){
-        return ResponseEntity.ok().body(messageService.ListMessagesByUserId(senderId));
+    public ResponseEntity<?> ListMessageById(@PathVariable Long userId){
+        return ResponseEntity.ok().body(messageService.ListMessagesByUserId(CurrentUser.id()));
     }
 
     @DeleteMapping("/delete/{Id}")
