@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import Proconnect.backProconnect.model.WorkStationDto;
+import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.WorkStationService;
 import jakarta.validation.Valid;
 
@@ -27,6 +28,7 @@ public class WorkStationController {
 
     @PostMapping("/create")
     public ResponseEntity<?> AddWorkStation(@RequestBody @Valid WorkStationDto workStation){
+        workStation.setUserId(CurrentUser.id());
         var result = workStationService.AddWorkStation(workStation);
         if (result != null) {
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
@@ -45,6 +47,7 @@ public class WorkStationController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> UpdateWorkStationById(@PathVariable Long id, @RequestBody @Valid WorkStationDto workStation){
+        workStation.setUserId(CurrentUser.id());
         var result = workStationService.UpdateWorkStationById(id, workStation);
         if (result != null) {
             return ResponseEntity.ok().body(result);

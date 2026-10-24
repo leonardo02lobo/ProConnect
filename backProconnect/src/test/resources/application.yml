@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:proconnect;MODE=MySQL;NON_KEYWORDS=USER,VALUE;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:mem:proconnect;MODE=MySQL;NON_KEYWORDS=USER,VALUE;DB_CLOSE_DELAY=-1;INIT=CREATE SCHEMA IF NOT EXISTS proconnect
     username: sa
     password: ""
     driver-class-name: org.h2.Driver
@@ -8,6 +8,10 @@ spring:
     hibernate:
       ddl-auto: create-drop
     database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        # Las queries nativas usan el schema literal "proconnect."
+        default_schema: proconnect
 
 proconnect:
   jwt:

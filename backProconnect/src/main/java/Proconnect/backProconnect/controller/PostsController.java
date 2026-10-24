@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import Proconnect.backProconnect.model.PostsDto;
+import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.PostsService;
 import jakarta.validation.Valid;
 
@@ -27,6 +28,7 @@ public class PostsController {
 
     @PostMapping("/create")
     public ResponseEntity<?> AddPost(@RequestBody @Valid PostsDto postsDto){
+        postsDto.setUserId(CurrentUser.id());
         return ResponseEntity.status(HttpStatus.CREATED).body(postsService.AddPost(postsDto));
     }
 
@@ -35,14 +37,15 @@ public class PostsController {
         return ResponseEntity.ok().body(postsService.EditPostById(Id, newPost));
     }
 
+    /** Compatibilidad: el viewer (para userLiked) sale del token; el {userId} del path se ignora. */
     @GetMapping("/{userId}")
     public ResponseEntity<?> GetAllPosts(@PathVariable Long userId){
-        return ResponseEntity.ok().body(postsService.GetAllPosts(userId));
+        return ResponseEntity.ok().body(postsService.GetAllPosts(CurrentUser.id()));
     }
 
-     @GetMapping
+    @GetMapping
     public ResponseEntity<?> GetAllPost(){
-        return ResponseEntity.ok().body(postsService.GetAllPosts());
+        return ResponseEntity.ok().body(postsService.GetAllPosts(CurrentUser.id()));
     }
 
     @GetMapping("/find/{Id}")

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import Proconnect.backProconnect.model.LikeDto;
+import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.LikeService;
 import jakarta.validation.Valid;
 
@@ -28,12 +29,13 @@ public class LikeController {
 
     @PostMapping("/create")
     public ResponseEntity<?> addLike(@RequestBody @Valid LikeDto likeDto){
+        likeDto.setUserId(CurrentUser.id());
         return ResponseEntity.status(HttpStatus.CREATED).body(likeService.addLike(likeDto));
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<?> removeLike(@RequestBody Map<String, Long> request) {
-        Long userId = request.get("userId");
+        Long userId = CurrentUser.id(); // se ignora cualquier userId del body
         Long postId = request.get("postId");
         
         try {

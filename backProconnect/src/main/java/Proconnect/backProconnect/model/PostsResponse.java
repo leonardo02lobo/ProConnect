@@ -6,7 +6,7 @@ import java.util.List;
 public class PostsResponse {
     private Long id;
     private Long userId;
-    private UserDto user;
+    private UserPublicDto user;
     private String content;
     private String title;
     private String imageUrl;
@@ -19,7 +19,7 @@ public class PostsResponse {
     public PostsResponse() {
     }
 
-    public PostsResponse(Long id, Long userId, UserDto user, String content, String title, String imageUrl, Date date,
+    public PostsResponse(Long id, Long userId, UserPublicDto user, String content, String title, String imageUrl, Date date,
             Long totalLikes, Long totalComentarios, boolean userLiked, List<CommentsDto> comments) {
         this.id = id;
         this.userId = userId;
@@ -50,11 +50,11 @@ public class PostsResponse {
         this.userId = userId;
     }
 
-    public UserDto getUser() {
+    public UserPublicDto getUser() {
         return user;
     }
 
-    public void setUser(UserDto user) {
+    public void setUser(UserPublicDto user) {
         this.user = user;
     }
 

@@ -12,8 +12,7 @@ import Proconnect.backProconnect.Entity.Posts;
 import Proconnect.backProconnect.model.CommentsDto;
 import Proconnect.backProconnect.model.PostsDto;
 import Proconnect.backProconnect.model.PostsResponse;
-import Proconnect.backProconnect.model.ProfilePhotosDto;
-import Proconnect.backProconnect.model.UserDto;
+import Proconnect.backProconnect.model.UserPublicDto;
 import Proconnect.backProconnect.repository.CommentsRepository;
 import Proconnect.backProconnect.repository.PostsRepository;
 
@@ -32,8 +31,8 @@ public class PostsService {
             if (postsDto == null) {
                 return "Posts cannot be null";
             }
-            Posts posts = new Posts(postsDto.getId(), postsDto.getUserId(), postsDto.getContent(), postsDto.getTitle(),
-                    postsDto.getImageUrl(), postsDto.getDate());
+            Posts posts = new Posts(null, postsDto.getUserId(), postsDto.getContent(), postsDto.getTitle(),
+                    postsDto.getImageUrl(), new java.util.Date());
             postsRepository.save(posts);
             return "Posts Add Successufly";
         } catch (Exception e) {
@@ -81,15 +80,14 @@ public class PostsService {
             PostsResponse post = new PostsResponse(
                     ((Number) row[0]).longValue(),
                     ((Number) row[5]).longValue(),
-                    new UserDto(
+                    new UserPublicDto(
                             ((Number) row[5]).longValue(),
                             (String) row[7],
                             (String) row[9],
                             (String) row[6],
-                            "",
                             (String) row[8],
-                            new ProfilePhotosDto(((Number) row[10]) == null ? 0 : ((Number) row[10]).longValue(),
-                                    ((Number) row[5]).longValue(), (String) row[11], (String) row[12])),
+                            (String) row[11],
+                            (String) row[12]),
                     (String) row[2],
                     (String) row[1],
                     (String) row[4],
@@ -120,15 +118,14 @@ public class PostsService {
             PostsResponse post = new PostsResponse(
                     ((Number) row[0]).longValue(),
                     ((Number) row[5]).longValue(),
-                    new UserDto(
+                    new UserPublicDto(
                             ((Number) row[5]).longValue(),
                             (String) row[7],
                             (String) row[9],
                             (String) row[6],
-                            "",
                             (String) row[8],
-                            new ProfilePhotosDto(((Number) row[10]) == null ? 0 : ((Number) row[10]).longValue(),
-                                    ((Number) row[5]).longValue(), (String) row[11], (String) row[12])),
+                            (String) row[11],
+                            (String) row[12]),
                     (String) row[2],
                     (String) row[1],
                     (String) row[4],
@@ -168,14 +165,18 @@ public class PostsService {
 
     private CommentsDto convertToDto(Comments comment) {
         List<Object[]> userList = commentsRepository.findUserWithComment(comment.getId());
-
-        Object[] user = null;
-
-        if (userList.isEmpty()) {
-            user = null;
+        UserPublicDto author = null;
+        if (!userList.isEmpty()) {
+            Object[] user = userList.get(0);
+            author = new UserPublicDto(
+                    ((Number) user[0]).longValue(),
+                    (String) user[2],
+                    (String) user[4],
+                    (String) user[1],
+                    (String) user[3],
+                    (String) user[6],
+                    (String) user[7]);
         }
-
-        user = userList.get(0);
 
         return new CommentsDto(
                 comment.getId(),
@@ -183,17 +184,6 @@ public class PostsService {
                 comment.getUserId(),
                 comment.getContent(),
                 comment.getDate(),
-                new UserDto(
-                        ((Number) user[0]) == null ? 0 : ((Number) user[0]).longValue(),
-                        (String) user[2],
-                        (String) user[4],
-                        (String) user[1],
-                        "",
-                        (String) user[3],
-                        new ProfilePhotosDto(
-                                ((Number) user[5]) == null ? 0 : ((Number) user[5]).longValue(),
-                                ((Number) user[0]).longValue(),
-                                (String) user[6],
-                                (String) user[7])));
+                author);
     }
 }

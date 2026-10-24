@@ -22,23 +22,23 @@
 
 ## 4. Autenticación JWT
 
-- [ ] 4.1 Agregar `spring-boot-starter-security` y `jjwt` (api, impl, jackson) al `pom.xml`
-- [ ] 4.2 Implementar `JwtService` (firmar y validar, HS256, el arranque falla si `JWT_SECRET` falta o tiene menos de 32 bytes)
-- [ ] 4.3 Implementar `JwtAuthFilter`, que lee la cookie `pc_session` y llena el `SecurityContext` con `userId` y `role`
-- [ ] 4.4 Configurar `SecurityFilterChain` stateless: `permitAll` solo en login/register/logout y `/actuator/health`, `authenticated` en todo lo demás (lecturas incluidas), 401 JSON en entry point
-- [ ] 4.4b Enum `Role { USER, COMPANY_ADMIN, ADMIN }`, `USER` forzado en el registro y rol en los claims del JWT
-- [ ] 4.5 Reescribir `AuthController.login` para emitir la cookie (`HttpOnly`, `SameSite=Lax`, `Secure` según `COOKIE_SECURE`) y devolver `UserPublicDto`
-- [ ] 4.6 Agregar `GET /api/auth/me` y `POST /api/auth/logout`
-- [ ] 4.7 Registro: validar email, unicidad (409) y password ≥ 8; responder 201
-- [ ] 4.8 Corregir `UserService.UpdateUserById` para hashear el password nuevo
+- [x] 4.1 Agregar `spring-boot-starter-security` y `jjwt` (api, impl, jackson) al `pom.xml`
+- [x] 4.2 Implementar `JwtService` (firmar y validar, HS256, el arranque falla si `JWT_SECRET` falta o tiene menos de 32 bytes)
+- [x] 4.3 Implementar `JwtAuthFilter`, que lee la cookie `pc_session` y llena el `SecurityContext` con `userId` y `role`
+- [x] 4.4 Configurar `SecurityFilterChain` stateless: `permitAll` solo en login/register/logout y `/actuator/health`, `authenticated` en todo lo demás (lecturas incluidas), 401 JSON en entry point
+- [x] 4.4b Enum `Role { USER, COMPANY_ADMIN, ADMIN }`, `USER` forzado en el registro y rol en los claims del JWT
+- [x] 4.5 Reescribir `AuthController.login` para emitir la cookie (`HttpOnly`, `SameSite=Lax`, `Secure` según `COOKIE_SECURE`) y devolver `UserPublicDto`
+- [x] 4.6 Agregar `GET /api/auth/me` y `POST /api/auth/logout`
+- [x] 4.7 Registro: validar email, unicidad (409) y password ≥ 8; responder 201
+- [x] 4.8 Corregir `UserService.UpdateUserById` para hashear el password nuevo
 - [x] 4.9 Quitar `@CrossOrigin(origins = "*")` de los controllers (CORS lo maneja el gateway)
 
 ## 5. Actor desde el token y DTOs sin password
 
-- [ ] 5.1 Crear el helper `CurrentUser` / usar `@AuthenticationPrincipal` para obtener el `userId` autenticado
-- [ ] 5.2 Usar el actor del token en las mutaciones de Posts, Comments, Likes, Friends, Messages, Postulations, ProfilePhotos y WorkStation, sobrescribiendo el `userId` del body
-- [ ] 5.3 Crear `UserPublicDto` y reemplazar los usos de `UserDto` en respuestas (`AuthController`, `UserService`, `PostsService`, `CommentsService`, `UserProfileDTO`)
-- [ ] 5.4 Marcar `password` como `@JsonProperty(access = WRITE_ONLY)` en `UserDto`
+- [x] 5.1 Crear el helper `CurrentUser` / usar `@AuthenticationPrincipal` para obtener el `userId` autenticado
+- [x] 5.2 Usar el actor del token en las mutaciones de Posts, Comments, Likes, Friends, Messages, Postulations, ProfilePhotos y WorkStation, sobrescribiendo el `userId` del body
+- [x] 5.3 Crear `UserPublicDto` y reemplazar los usos de `UserDto` en respuestas (`AuthController`, `UserService`, `PostsService`, `CommentsService`, `UserProfileDTO`)
+- [x] 5.4 Marcar `password` como `@JsonProperty(access = WRITE_ONLY)` en `UserDto`
 - [ ] 5.5 Verificar con curl que ninguna respuesta de `/api/user*`, `/api/posts*` ni `/api/comment*` contiene `"password"`
 
 ## 6. Frontend
