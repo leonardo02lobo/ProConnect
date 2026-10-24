@@ -1,9 +1,10 @@
 package Proconnect.backProconnect.security;
 
+import Proconnect.backProconnect.exception.ProblemResponses;
+
 import java.io.IOException;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import Proconnect.backProconnect.exception.TooManyRequestsException;
@@ -36,12 +37,8 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
         try {
             limiter.consumeIp(ipResolver.resolve(request));
         } catch (TooManyRequestsException e) {
-            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             response.setHeader("Retry-After", String.valueOf(e.getRetryAfterSeconds()));
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write("{\"status\":429,\"error\":\"Too Many Requests\",\"message\":\""
-                    + e.getMessage() + "\"}");
+            ProblemResponses.write(request, response, HttpStatus.TOO_MANY_REQUESTS, e.getMessage());
             return;
         }
         chain.doFilter(request, response);

@@ -9,5 +9,6 @@ import Proconnect.backProconnect.Entity.ProfilePhotos;
 
 @Repository
 public interface ProfilePhotosRepository extends JpaRepository<ProfilePhotos, Long> {
-    Optional<ProfilePhotos> findByUserId(Long userId);
+    /** La fila más reciente: datos legacy pueden tener varias por usuario. */
+    Optional<ProfilePhotos> findFirstByUserIdOrderByIdDesc(Long userId);
 }

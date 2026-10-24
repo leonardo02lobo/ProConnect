@@ -4,15 +4,20 @@ import org.springframework.data.jpa.domain.Specification;
 
 import Proconnect.backProconnect.Entity.User;
 
-public class UserSpecification {
+public final class UserSpecification {
 
+    private UserSpecification() {
+    }
+
+    /** Coincidencia parcial, sin distinguir mayúsculas, en el nombre o en el userName. */
     public static Specification<User> hasNameLike(String name) {
-        return (root, query, criteriBuilder) -> {
+        return (root, query, cb) -> {
             if (name == null || name.trim().isEmpty()) {
-                return criteriBuilder.conjunction();
+                return cb.conjunction();
             }
-            return criteriBuilder.like(criteriBuilder.lower(root.get("name")),
-                    "%" + name.toLowerCase() + "%");
+            String pattern = "%" + name.trim().toLowerCase() + "%";
+            return cb.or(cb.like(cb.lower(root.get("name")), pattern),
+                    cb.like(cb.lower(root.get("userName")), pattern));
         };
     }
 }

@@ -1,60 +1,61 @@
 package Proconnect.backProconnect.service;
 
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import Proconnect.backProconnect.Entity.Like;
+import Proconnect.backProconnect.exception.ConflictException;
+import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.model.LikeDto;
 import Proconnect.backProconnect.repository.LikeRepository;
+import Proconnect.backProconnect.repository.PostsRepository;
 
 @Service
 public class LikeService {
 
     private final LikeRepository likeRepository;
+    private final PostsRepository postsRepository;
 
-    public LikeService(LikeRepository likeRepository) {
+    public LikeService(LikeRepository likeRepository, PostsRepository postsRepository) {
         this.likeRepository = likeRepository;
+        this.postsRepository = postsRepository;
     }
 
-    public String addLike(LikeDto likeDto) {
-        try {
-            if (likeDto == null) {
-                return "Like cannot be null";
-            }
+    @Transactional(readOnly = true)
+    public List<LikeDto> listByPost(Long postId) {
+        assertPostExists(postId);
+        return likeRepository.findByPostIdOrderByIdAsc(postId).stream().map(LikeService::toDto).toList();
+    }
 
-            boolean exists = likeRepository.existsByUserIdAndPostId(likeDto.getUserId(), likeDto.getPostId());
-            if (exists) {
-                return "User already liked this post";
-            }
-            Like like = new Like(null, likeDto.getUserId(), likeDto.getPostId(), likeDto.getDate());
-            likeRepository.save(like);
+    /** Like del usuario de la sesión: 404 si el post no existe, 409 si ya le dio like. */
+    @Transactional
+    public LikeDto like(Long postId, Long userId) {
+        assertPostExists(postId);
+        if (likeRepository.existsByUserIdAndPostId(userId, postId)) {
+            throw new ConflictException("Ya diste like a este post");
+        }
+        return toDto(likeRepository.save(new Like(null, userId, postId, new Date())));
+    }
 
-            return "Like added successfully";
-        } catch (Exception e) {
-            return "Error: " + e.getMessage();
+    /** Quita el like del usuario de la sesión: 404 si el post no existe o no tenía like. */
+    @Transactional
+    public void unlike(Long postId, Long userId) {
+        assertPostExists(postId);
+        Like like = likeRepository.findByUserIdAndPostId(userId, postId)
+                .orElseThrow(() -> new NotFoundException("No habías dado like a este post"));
+        likeRepository.delete(like);
+    }
+
+    private void assertPostExists(Long postId) {
+        if (postId == null || postId <= 0 || !postsRepository.existsById(postId)) {
+            throw new NotFoundException("Post no encontrado");
         }
     }
 
-    public String removeLikeByUserAndPost(Long userId, Long postId) {
-    try {
-        Optional<Like> like = likeRepository.findByUserIdAndPostId(userId, postId);
-        if (like.isEmpty()) {
-            return "Like not found";
-        }
-        likeRepository.delete(like.get());
-        return "Like removed successfully";
-    } catch (Exception e) {
-        return "Error: " + e.getMessage();
-    }
-}
-
-    public List<LikeDto> getLikesByPost(Long postId) {
-        return likeRepository.findByPostId(postId);
-    }
-
-    public boolean existsByUserAndPost(Long userId, Long postId) {
-        return likeRepository.existsByUserIdAndPostId(userId, postId);
+    private static LikeDto toDto(Like like) {
+        return new LikeDto(like.getId(), like.getUserId(), like.getPostId(), like.getDate());
     }
 }

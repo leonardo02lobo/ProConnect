@@ -16,7 +16,7 @@ public class Job {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @NotNull(message = "Company ID cannot be null")
     private Long companyId;
@@ -40,7 +40,7 @@ public class Job {
     }
 
     public Job(Long id, Long companyId, String title, String description, String workStation, Date date) {
-        Id = id;
+        this.id = id;
         this.companyId = companyId;
         this.title = title;
         this.description = description;
@@ -49,11 +49,11 @@ public class Job {
     }
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public Long getCompanyId() {

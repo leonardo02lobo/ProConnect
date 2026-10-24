@@ -16,7 +16,7 @@ public class Comments {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @NotNull(message = "Post ID cannot be null")
     private Long postId;
@@ -34,7 +34,7 @@ public class Comments {
     }
 
     public Comments(Long id, Long postId, Long userId, String content, Date date) {
-        Id = id;
+        this.id = id;
         this.postId = postId;
         this.userId = userId;
         this.content = content;
@@ -42,11 +42,11 @@ public class Comments {
     }
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public Long getPostId() {

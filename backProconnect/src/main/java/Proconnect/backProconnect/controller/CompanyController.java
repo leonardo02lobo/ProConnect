@@ -1,5 +1,8 @@
 package Proconnect.backProconnect.controller;
 
+import java.net.URI;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -9,42 +12,50 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import Proconnect.backProconnect.model.CompanyDto;
+import Proconnect.backProconnect.model.CompanyRequest;
 import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.CompanyService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/company")
+@RequestMapping("/api/companies")
 public class CompanyController {
-    
+
     private final CompanyService companyService;
 
-    public CompanyController(CompanyService companyService){
+    public CompanyController(CompanyService companyService) {
         this.companyService = companyService;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> AddCompany(@RequestBody @Valid CompanyDto company){
-        company.setUserId(CurrentUser.id());
-        return ResponseEntity.status(HttpStatus.CREATED).body(companyService.AddCompany(company));
-    }
-
     @GetMapping
-    public ResponseEntity<?> GetAllCompany(){
-        return ResponseEntity.ok().body(companyService.GetAllCompany());
+    public List<CompanyDto> list() {
+        return companyService.list();
     }
 
-    @PutMapping("/edit/{Id}")
-    public ResponseEntity<?> EditCompanyById(@PathVariable Long Id, @RequestBody @Valid CompanyDto company){
-        company.setUserId(CurrentUser.id());
-        return ResponseEntity.ok().body(companyService.EditCompanyById(Id,company)); 
+    @GetMapping("/{id}")
+    public CompanyDto get(@PathVariable Long id) {
+        return companyService.get(id);
     }
 
-    @DeleteMapping("/delete/{Id}")
-    public ResponseEntity<?> DeleteCompanyById(@PathVariable Long Id){
-        return ResponseEntity.ok().body(companyService.DeleteCompanyById(Id)); 
+    @PostMapping
+    public ResponseEntity<CompanyDto> create(@RequestBody @Valid CompanyRequest request) {
+        CompanyDto created = companyService.create(CurrentUser.id(), request);
+        return ResponseEntity.created(URI.create("/api/companies/" + created.id())).body(created);
+    }
+
+    @PutMapping("/{id}")
+    public CompanyDto update(@PathVariable Long id, @RequestBody @Valid CompanyRequest request) {
+        return companyService.update(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        companyService.delete(id);
     }
 }

@@ -1,138 +1,133 @@
 package Proconnect.backProconnect.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import Proconnect.backProconnect.Entity.Friend;
-import Proconnect.backProconnect.model.FriendDto;
+import Proconnect.backProconnect.exception.ConflictException;
+import Proconnect.backProconnect.exception.NotFoundException;
+import Proconnect.backProconnect.exception.ValidationException;
+import Proconnect.backProconnect.model.FriendRequestDto;
 import Proconnect.backProconnect.repository.FriendRepository;
-import Proconnect.backProconnect.exception.ResourceNotFoundException;
+import Proconnect.backProconnect.repository.UserRepository;
 import Proconnect.backProconnect.security.OwnershipGuard;
 
 @Service
 public class FriendService {
 
+    static final String PENDING = "PENDING";
+    static final String ACCEPTED = "ACCEPTED";
+    static final String REJECTED = "REJECTED";
+
     private final FriendRepository friendRepository;
+    private final UserRepository userRepository;
     private final OwnershipGuard guard;
 
-    public FriendService(FriendRepository friendRepository, OwnershipGuard guard) {
+    public FriendService(FriendRepository friendRepository, UserRepository userRepository, OwnershipGuard guard) {
         this.friendRepository = friendRepository;
+        this.userRepository = userRepository;
         this.guard = guard;
     }
 
-    public String sendFriendRequest(Long userIdFollow, Long userIdBeFollowed) {
-        try {
-            if (userIdFollow == null || userIdFollow <= 0) {
-                return "userIdFollow cannot be null or less zero";
-            }
-            if (userIdBeFollowed == null || userIdBeFollowed <= 0) {
-                return "userIdBeFollowed cannot be null or less zero";
-            }
-            if (userIdFollow.equals(userIdBeFollowed)) {
-                return "You cannot send a friend request to yourself.";
-            }
-            Optional<Friend> existing = friendRepository.findByUserIdFollowAndUserIdBeFollowed(userIdFollow,
-                    userIdBeFollowed);
-            if (existing.isPresent()) {
-                return "Friend request already exists";
-            }
-            Friend friend = new Friend(null, userIdFollow, userIdBeFollowed, "PENDING");
-            friendRepository.save(friend);
-            return "Friend request sent successufly";
-        } catch (Exception e) {
-            return "Error: " + e.getMessage();
-        }
-    }
-
     /**
-     * Acepta la solicitud {requestId}. Solo su destinatario (o un ADMIN) puede hacerlo: 403 para el resto,
-     * 404 si no existe.
+     * Solicitud de {@code requesterId} (sesión) a {@code recipientId}: 400 a uno mismo, 404 si el destinatario no
+     * existe y 409 si ya hay una solicitud pendiente o una amistad entre ambos. Una solicitud rechazada se puede
+     * volver a enviar.
      */
-    public String AcceptFriendUserIdBeFollowed(Long requestId) {
-        Friend friend = findRequestForRecipient(requestId);
-        friend.setStatus("ACCEPTED");
-        friendRepository.save(friend);
-        return "Friend request accepted";
-    }
-
-    /** Rechaza la solicitud {requestId}; mismas reglas que aceptar. */
-    public String rejectFriendRequest(Long requestId) {
-        Friend friend = findRequestForRecipient(requestId);
-        friend.setStatus("REJECTED");
-        friendRepository.save(friend);
-        return "Friend request rejected";
-    }
-
-    private Friend findRequestForRecipient(Long requestId) {
-        Friend friend = (requestId == null || requestId <= 0) ? null
-                : friendRepository.findById(requestId).orElse(null);
-        if (friend == null) {
-            throw new ResourceNotFoundException();
+    @Transactional
+    public FriendRequestDto sendRequest(Long requesterId, Long recipientId) {
+        if (requesterId.equals(recipientId)) {
+            throw new ValidationException("userId", "No puedes enviarte una solicitud a ti mismo");
         }
+        if (!userRepository.existsById(recipientId)) {
+            throw new NotFoundException("Usuario no encontrado");
+        }
+        List<Friend> existing = friendRepository.findBetween(requesterId, recipientId);
+        if (existing.stream().anyMatch(f -> !REJECTED.equals(f.getStatus()))) {
+            throw new ConflictException("Ya existe una solicitud o amistad con este usuario");
+        }
+        friendRepository.deleteAll(existing);
+        return toDto(friendRepository.save(new Friend(null, requesterId, recipientId, PENDING)));
+    }
+
+    /** Solicitudes pendientes recibidas por el usuario. */
+    @Transactional(readOnly = true)
+    public List<FriendRequestDto> pendingReceivedBy(Long userId) {
+        return friendRepository.findByUserIdBeFollowedAndStatusOrderByIdAsc(userId, PENDING).stream()
+                .map(FriendService::toDto).toList();
+    }
+
+    /** Solo el destinatario (o un ADMIN) acepta: 403 al resto, 404 si no existe, 409 si ya no está pendiente. */
+    @Transactional
+    public FriendRequestDto accept(Long requestId) {
+        return resolve(requestId, ACCEPTED);
+    }
+
+    /** Rechaza la solicitud; mismas reglas que aceptar. */
+    @Transactional
+    public FriendRequestDto reject(Long requestId) {
+        return resolve(requestId, REJECTED);
+    }
+
+    /** El emisor (o un ADMIN) cancela su solicitud pendiente: 403 al resto, 409 si ya se resolvió. */
+    @Transactional
+    public void cancel(Long requestId) {
+        Friend friend = findOr404(requestId);
+        guard.assertOwnerOrAdmin(friend.getUserIdFollow());
+        if (!PENDING.equals(friend.getStatus())) {
+            throw new ConflictException("Solo se pueden cancelar solicitudes pendientes");
+        }
+        friendRepository.delete(friend);
+    }
+
+    /** Amistades aceptadas del usuario. */
+    @Transactional(readOnly = true)
+    public List<FriendRequestDto> friendsOf(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("Usuario no encontrado");
+        }
+        return friendRepository.findByParticipantAndStatus(userId, ACCEPTED).stream().map(FriendService::toDto)
+                .toList();
+    }
+
+    /** Relación (pendiente, aceptada o rechazada) entre el usuario de la sesión y otro: 404 si no hay ninguna. */
+    @Transactional(readOnly = true)
+    public FriendRequestDto relationBetween(Long me, Long otherUserId) {
+        return friendRepository.findBetween(me, otherUserId).stream().reduce((first, last) -> last)
+                .map(FriendService::toDto).orElseThrow(() -> new NotFoundException("No hay relación"));
+    }
+
+    /** Elimina la amistad aceptada entre el usuario de la sesión y otro: 404 si no son amigos. */
+    @Transactional
+    public void removeFriendship(Long me, Long otherUserId) {
+        List<Friend> accepted = friendRepository.findBetween(me, otherUserId).stream()
+                .filter(f -> ACCEPTED.equals(f.getStatus())).toList();
+        if (accepted.isEmpty()) {
+            throw new NotFoundException("No sois amigos");
+        }
+        friendRepository.deleteAll(accepted);
+    }
+
+    private FriendRequestDto resolve(Long requestId, String status) {
+        Friend friend = findOr404(requestId);
         guard.assertOwnerOrAdmin(friend.getUserIdBeFollowed());
-        return friend;
-    }
-
-    public String deleteFriendShip(Long userIdFollow, Long userIdBeFollowed){
-        try {
-            if (userIdFollow == null || userIdFollow <= 0) {
-                return "userIdFollow cannot be null or less zero";
-            }
-            if (userIdBeFollowed == null || userIdBeFollowed <= 0) {
-                return "userIdBeFollowed cannot be null or less zero";
-            }
-            if (userIdFollow.equals(userIdBeFollowed)) {
-                return "You cannot send a friend request to yourself.";
-            }
-            List<Friend> relations = friendRepository.findByUserIdFollowOrUserIdBeFollowedAndStatus(userIdFollow,userIdBeFollowed,"ACCEPTED");
-            if(relations.isEmpty()){
-                return "FriendShip not found";
-            }
-            friendRepository.deleteAll(relations);
-            return "FriendShip deleted successufly";
-        } catch (Exception e) {
-            return "Error: "+e.getMessage();
+        if (!PENDING.equals(friend.getStatus())) {
+            throw new ConflictException("La solicitud ya fue resuelta");
         }
+        friend.setStatus(status);
+        return toDto(friendRepository.save(friend));
     }
 
-    public String cancelFriendUserIdBeFollowed(Long userIdFollow, Long userIdBeFollowed){
-        try {
-            if (userIdFollow == null || userIdFollow <= 0) {
-                return "userIdFollow cannot be null or less zero";
-            }
-            if (userIdBeFollowed == null || userIdBeFollowed <= 0) {
-                return "userIdBeFollowed cannot be null or less zero";
-            }
-            if (userIdFollow.equals(userIdBeFollowed)) {
-                return "You cannot send a friend request to yourself.";
-            }
-            Optional<Friend> friendOpt = friendRepository.findByUserIdFollowAndUserIdBeFollowed(userIdFollow, userIdBeFollowed);
-            if(friendOpt.isEmpty()){
-                return "Friend request not found";
-            }
-            Friend friend = friendOpt.get();
-            if(!friend.getStatus().equals("PENDING")){
-                return "Cannot cancel a request that is not pending";
-            }
-
-            friendRepository.delete(friend);
-            return "Friend request cancelled";
-        } catch (Exception e) {
-            return "Error: "+e.getMessage();
+    private Friend findOr404(Long requestId) {
+        if (requestId == null || requestId <= 0) {
+            throw new NotFoundException("Solicitud no encontrada");
         }
+        return friendRepository.findById(requestId).orElseThrow(() -> new NotFoundException("Solicitud no encontrada"));
     }
 
-    public List<FriendDto> getPendingRequests(Long userId) {
-        return friendRepository.findByUserIdBeFollowedAndStatus(userId, "PENDING");
-    }
-
-    public List<Friend> getFriends(Long userId) {
-        return friendRepository.findByUserIdFollowOrUserIdBeFollowedAndStatus(userId, userId, "ACCEPTED");
-    }
-
-    public Optional<Friend> findFriendship(Long userId, Long otherUserId) {
-        return friendRepository.findByUserIdFollowAndUserIdBeFollowed(userId, otherUserId);
+    private static FriendRequestDto toDto(Friend f) {
+        return new FriendRequestDto(f.getId(), f.getUserIdFollow(), f.getUserIdBeFollowed(), f.getStatus());
     }
 }

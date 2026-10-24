@@ -1,8 +1,11 @@
 package Proconnect.backProconnect.exception;
 
-/** Recurso inexistente o privado de otro usuario (404, mismo cuerpo en ambos casos). */
-public class ResourceNotFoundException extends RuntimeException {
+/**
+ * Alias histórico de {@link NotFoundException} (introducido por verify-web-security). Se mantiene para que las
+ * ramas que aún lo usan compilen; el código nuevo usa {@link NotFoundException}.
+ */
+public class ResourceNotFoundException extends NotFoundException {
     public ResourceNotFoundException() {
-        super("Recurso no encontrado");
+        super();
     }
 }

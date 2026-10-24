@@ -1,5 +1,9 @@
 package Proconnect.backProconnect.controller;
 
+import java.net.URI;
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,62 +12,63 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import Proconnect.backProconnect.Entity.Postulation;
 import Proconnect.backProconnect.model.PostulationDto;
+import Proconnect.backProconnect.model.PostulationRequest;
 import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.PostulationService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/postulation")
+@RequestMapping("/api/postulations")
 public class PostulationController {
-    
+
     private final PostulationService postulationService;
 
-    public PostulationController(PostulationService postulationService){
+    public PostulationController(PostulationService postulationService) {
         this.postulationService = postulationService;
     }
-    
-    @PostMapping("/create")
-    public ResponseEntity<?> AddPostulation(@RequestBody @Valid PostulationDto postulationDto){
-        postulationDto.setUserId(CurrentUser.id());
-        return ResponseEntity.ok().body(postulationService.AddPostulation(postulationDto));
+
+    @PostMapping
+    public ResponseEntity<PostulationDto> create(@RequestBody @Valid PostulationRequest request) {
+        PostulationDto created = postulationService.create(CurrentUser.id(), request);
+        return ResponseEntity.created(URI.create("/api/postulations/" + created.id())).body(created);
     }
 
+    /** Las propias y las recibidas en empleos de mis empresas (ADMIN: todas). */
     @GetMapping
-    public ResponseEntity<?> GetAllPostulations(){
-        return ResponseEntity.ok().body(postulationService.GetAllPostulations());
+    public List<PostulationDto> list() {
+        return postulationService.listVisible();
     }
 
-    /** Postulaciones recibidas en un empleo (solo el propietario de la empresa o ADMIN). */
-    @GetMapping("/job/{jobId}")
-    public ResponseEntity<?> GetPostulationsByJob(@PathVariable Long jobId){
-        return ResponseEntity.ok().body(postulationService.GetPostulationsByJob(jobId));
+    @GetMapping("/{id}")
+    public PostulationDto get(@PathVariable Long id) {
+        return postulationService.get(id);
     }
 
-    @GetMapping("/id/{id}")
-    public ResponseEntity<?> GetPostulationById(@PathVariable Long id){
-        Postulation postulation = postulationService.GetPostulationById(id);
-        return ResponseEntity.ok().body(postulation);
+    @PutMapping("/{id}")
+    public PostulationDto update(@PathVariable Long id, @RequestBody @Valid PostulationRequest request) {
+        return postulationService.update(id, request);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> UpdatePostulationById(@PathVariable Long id, @RequestBody @Valid PostulationDto postulationDto){
-        postulationDto.setUserId(CurrentUser.id());
-        boolean isUpdate = postulationService.UpdatePostulationById(id, postulationDto);
-
-        if(isUpdate){
-            return ResponseEntity.ok().body("Postulation update successufly");
-        }else{
-            return ResponseEntity.badRequest().body("Does not update");
-        }
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        postulationService.delete(id);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> DeleteProstulationById(@PathVariable Long id){
-        postulationService.DeleteProstulationById(id);
-        return ResponseEntity.noContent().build();
+    /** Acepta (dueño de la empresa o ADMIN) y notifica al postulante por correo. Sin body. */
+    @PostMapping("/{id}/accept")
+    public PostulationDto accept(@PathVariable Long id) {
+        return postulationService.accept(id);
+    }
+
+    /** Rechaza (dueño de la empresa o ADMIN) y notifica al postulante por correo. Sin body. */
+    @PostMapping("/{id}/reject")
+    public PostulationDto reject(@PathVariable Long id) {
+        return postulationService.reject(id);
     }
 }

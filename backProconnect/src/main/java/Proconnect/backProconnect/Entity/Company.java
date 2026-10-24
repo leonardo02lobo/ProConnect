@@ -14,7 +14,7 @@ public class Company {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @NotBlank(message = "Name is mandatory")
     @NotNull(message = "Name cannot be null")
@@ -36,7 +36,7 @@ public class Company {
     }
 
     public Company(Long id, String name, String description, String location, Long userId) {
-        Id = id;
+        this.id = id;
         this.name = name;
         this.description = description;
         this.location = location;
@@ -44,11 +44,11 @@ public class Company {
     }
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getName() {

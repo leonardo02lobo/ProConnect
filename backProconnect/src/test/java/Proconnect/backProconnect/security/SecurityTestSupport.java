@@ -24,7 +24,7 @@ import Proconnect.backProconnect.repository.WorkStationRepository;
 import jakarta.servlet.http.Cookie;
 
 /** Utilidades comunes de los tests de seguridad: datos limpios, usuarios con rol y sesión real por cookie. */
-abstract class SecurityTestSupport {
+public abstract class SecurityTestSupport {
 
     protected static final String PASSWORD = "password123";
 
@@ -80,6 +80,18 @@ abstract class SecurityTestSupport {
             users.save(user);
         }
         return user.getId();
+    }
+
+    /**
+     * Cuerpo de error sin los campos de correlación ({@code traceId} es aleatorio por petición e {@code instance}
+     * repite la URI pedida): lo que queda es lo que podría filtrar información del recurso.
+     */
+    protected static String withoutCorrelation(String problemJson) {
+        return stripCorrelation(problemJson);
+    }
+
+    public static String stripCorrelation(String problemJson) {
+        return problemJson.replaceAll(",?\\s*\"(traceId|instance)\"\\s*:\\s*\"[^\"]*\"", "");
     }
 
     protected Cookie login(String name) throws Exception {

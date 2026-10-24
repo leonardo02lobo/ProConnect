@@ -16,7 +16,7 @@ public class Posts {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @NotNull(message = "User ID cannot be null")
     private Long userId;
@@ -38,7 +38,7 @@ public class Posts {
     }
 
     public Posts(Long id, Long userId, String content, String title, String imageUrl, Date date) {
-        Id = id;
+        this.id = id;
         this.userId = userId;
         this.content = content;
         this.title = title;
@@ -47,11 +47,11 @@ public class Posts {
     }
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public Long getUserId() {

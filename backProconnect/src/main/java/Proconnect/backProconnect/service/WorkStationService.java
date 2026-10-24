@@ -4,15 +4,19 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import Proconnect.backProconnect.Entity.WorkStation;
+import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.model.WorkStationDto;
+import Proconnect.backProconnect.model.WorkStationRequest;
 import Proconnect.backProconnect.repository.WorkStationRepository;
-import Proconnect.backProconnect.specification.WorkStationSpecification;
 import Proconnect.backProconnect.security.OwnershipGuard;
+import Proconnect.backProconnect.specification.WorkStationSpecification;
 
 @Service
 public class WorkStationService {
+
     private final WorkStationRepository workStationRepository;
     private final OwnershipGuard guard;
 
@@ -21,63 +25,49 @@ public class WorkStationService {
         this.guard = guard;
     }
 
-    public String AddWorkStation(WorkStationDto workStation) {
-        try {
-            if (workStation == null) {
-                return "WorkStation cannot be null";
-            }
-            WorkStation workStationEntity = new WorkStation(null, workStation.getUserId(), workStation.getWorkStation());
-            workStationRepository.save(workStationEntity);
-            return "WorkStation add successfully";
-        } catch (Exception e) {
-            return "Error: " + e.getMessage();
-        }
+    @Transactional
+    public WorkStationDto create(Long ownerId, WorkStationRequest request) {
+        return toDto(workStationRepository.save(new WorkStation(null, ownerId, request.workStation().trim())));
     }
 
-    public List<WorkStation> GetAllWorkStation() {
-        return workStationRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<WorkStationDto> list(Optional<String> query) {
+        List<WorkStation> result = query.filter(q -> !q.isBlank())
+                .map(q -> workStationRepository.findAll(WorkStationSpecification.hasWorkStationLike(q.trim())))
+                .orElseGet(workStationRepository::findAll);
+        return result.stream().map(WorkStationService::toDto).toList();
     }
 
-    /** Solo el propietario (o ADMIN) la modifica (403); null si no existe. El propietario no cambia. */
-    public String UpdateWorkStationById(Long Id, WorkStationDto newWorkStation) {
-        if (Id == null || newWorkStation == null) {
-            return null;
-        }
-        WorkStation existWorkStation = workStationRepository.findById(Id).orElse(null);
-        if (existWorkStation == null) {
-            return null;
-        }
-        guard.assertOwnerOrAdmin(existWorkStation.getUserId());
-        existWorkStation.setWorkStation(newWorkStation.getWorkStation());
-        workStationRepository.save(existWorkStation);
-        return "WorkSation Update successfully";
+    @Transactional(readOnly = true)
+    public WorkStationDto get(Long id) {
+        return toDto(findOr404(id));
     }
 
-    /** Solo el propietario (o ADMIN) la borra (403); false si no existe. */
-    public boolean DeleteWorkStation(Long Id) {
-        WorkStation existing = Id == null ? null : workStationRepository.findById(Id).orElse(null);
-        if (existing == null) {
-            return false;
-        }
-        guard.assertOwnerOrAdmin(existing.getUserId());
-        workStationRepository.delete(existing);
-        return true;
+    /** Solo el propietario (o ADMIN) la modifica (403); 404 si no existe. El propietario no cambia. */
+    @Transactional
+    public WorkStationDto update(Long id, WorkStationRequest request) {
+        WorkStation ws = findOr404(id);
+        guard.assertOwnerOrAdmin(ws.getUserId());
+        ws.setWorkStation(request.workStation().trim());
+        return toDto(workStationRepository.save(ws));
     }
 
-    public WorkStation GetWorkStationById(Long Id){
-        try {
-            if(Long.valueOf(Id) == null){
-                return null;
-            }
-            Optional<WorkStation> workStation = workStationRepository.findById(Id);
-
-            return workStation.orElse(null);
-        } catch (Exception e) {
-            return null;
-        }
+    /** Solo el propietario (o ADMIN) la borra (403); 404 si no existe. */
+    @Transactional
+    public void delete(Long id) {
+        WorkStation ws = findOr404(id);
+        guard.assertOwnerOrAdmin(ws.getUserId());
+        workStationRepository.delete(ws);
     }
 
-    public List<WorkStation> SearchByWorkStation(String workStation){
-        return workStationRepository.findAll(WorkStationSpecification.hasWorkStationLike(workStation));
+    private WorkStation findOr404(Long id) {
+        if (id == null || id <= 0) {
+            throw new NotFoundException("Puesto no encontrado");
+        }
+        return workStationRepository.findById(id).orElseThrow(() -> new NotFoundException("Puesto no encontrado"));
+    }
+
+    private static WorkStationDto toDto(WorkStation ws) {
+        return new WorkStationDto(ws.getId(), ws.getUserId(), ws.getWorkStation());
     }
 }

@@ -29,9 +29,8 @@ class SensitiveDataTests extends SecurityTestSupport {
         comments.save(new Comments(null, postId, anaId, "hola", new java.util.Date()));
         Cookie bob = login("bob");
 
-        List<String> urls = List.of("/api/posts", "/api/posts/" + anaId, "/api/user", "/api/user/search/" + anaId,
-                "/api/user/search/name/ana", "/api/user/" + anaId + "/profiles-posts", "/api/comment/find/" + postId,
-                "/api/posts/find/" + postId);
+        List<String> urls = List.of("/api/posts", "/api/posts/" + postId, "/api/users", "/api/users/" + anaId,
+                "/api/users?q=ana", "/api/users/" + anaId + "/profile", "/api/posts/" + postId + "/comments");
         for (String url : urls) {
             String body = mvc.perform(get(url).cookie(bob)).andExpect(status().isOk()).andReturn().getResponse()
                     .getContentAsString();
@@ -43,7 +42,7 @@ class SensitiveDataTests extends SecurityTestSupport {
         Cookie ana = login("ana");
         assertThat(mvc.perform(get("/api/auth/me").cookie(ana)).andReturn().getResponse().getContentAsString())
                 .contains("ana@example.com");
-        assertThat(mvc.perform(get("/api/user/" + anaId + "/profiles-posts").cookie(ana)).andReturn().getResponse()
+        assertThat(mvc.perform(get("/api/users/" + anaId + "/profile").cookie(ana)).andReturn().getResponse()
                 .getContentAsString()).contains("ana@example.com");
     }
 }

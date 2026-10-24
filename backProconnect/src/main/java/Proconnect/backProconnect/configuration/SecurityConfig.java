@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -23,13 +22,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
+import Proconnect.backProconnect.exception.ProblemResponses;
 import Proconnect.backProconnect.security.AuthRateLimitFilter;
 import Proconnect.backProconnect.security.AuthRateLimiter;
 import Proconnect.backProconnect.security.ClientIpResolver;
 import Proconnect.backProconnect.security.JwtAuthFilter;
 import Proconnect.backProconnect.security.OriginCheckFilter;
-import jakarta.servlet.http.HttpServletResponse;
+import Proconnect.backProconnect.web.ProblemCorsProcessor;
 
 @Configuration
 @EnableMethodSecurity
@@ -60,10 +61,10 @@ public class SecurityConfig {
                                 .requestMatchers("/error").permitAll()
                                 .anyRequest().authenticated())
                         .exceptionHandling(ex -> ex
-                                .authenticationEntryPoint((req, res, e) -> writeJson(res, HttpStatus.UNAUTHORIZED,
-                                                "Sesión requerida"))
-                                .accessDeniedHandler((req, res, e) -> writeJson(res, HttpStatus.FORBIDDEN,
-                                                "Acceso denegado")))
+                                .authenticationEntryPoint((req, res, e) -> ProblemResponses.write(req, res,
+                                                HttpStatus.UNAUTHORIZED, "Sesión requerida"))
+                                .accessDeniedHandler((req, res, e) -> ProblemResponses.write(req, res,
+                                                HttpStatus.FORBIDDEN, "Acceso denegado")))
                         .addFilterBefore(new OriginCheckFilter(allowedOrigins(origins)),
                                         UsernamePasswordAuthenticationFilter.class)
                         .addFilterBefore(new AuthRateLimitFilter(rateLimiter, ipResolver),
@@ -76,6 +77,24 @@ public class SecurityConfig {
         @Bean
         public FilterRegistrationBean<JwtAuthFilter> jwtAuthFilterRegistration(JwtAuthFilter filter) {
                 FilterRegistrationBean<JwtAuthFilter> registration = new FilterRegistrationBean<>(filter);
+                registration.setEnabled(false);
+                return registration;
+        }
+
+        /**
+         * Spring Security usa el bean llamado {@code corsFilter} en {@code .cors()}: mismo CORS, pero los rechazos
+         * en problem+json. Solo corre dentro de la cadena de seguridad (no como filtro servlet suelto).
+         */
+        @Bean
+        public CorsFilter corsFilter(CorsConfigurationSource corsConfigurationSource) {
+                CorsFilter filter = new CorsFilter(corsConfigurationSource);
+                filter.setCorsProcessor(new ProblemCorsProcessor());
+                return filter;
+        }
+
+        @Bean
+        public FilterRegistrationBean<CorsFilter> corsFilterRegistration(CorsFilter filter) {
+                FilterRegistrationBean<CorsFilter> registration = new FilterRegistrationBean<>(filter);
                 registration.setEnabled(false);
                 return registration;
         }
@@ -100,14 +119,5 @@ public class SecurityConfig {
                                 .filter(o -> !o.isEmpty() && !o.equals("*"))
                                 .map(o -> o.replaceAll("/+$", "").toLowerCase())
                                 .collect(Collectors.toUnmodifiableSet());
-        }
-
-        private static void writeJson(HttpServletResponse res, HttpStatus status, String message)
-                        throws java.io.IOException {
-                res.setStatus(status.value());
-                res.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                res.setCharacterEncoding("UTF-8");
-                res.getWriter().write("{\"status\":" + status.value() + ",\"error\":\"" + status.getReasonPhrase()
-                                + "\",\"message\":\"" + message + "\"}");
         }
 }

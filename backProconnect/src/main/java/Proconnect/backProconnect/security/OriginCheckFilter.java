@@ -1,11 +1,12 @@
 package Proconnect.backProconnect.security;
 
+import Proconnect.backProconnect.exception.ProblemResponses;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.Set;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
@@ -42,10 +43,7 @@ public class OriginCheckFilter extends OncePerRequestFilter {
             origin = originOf(request.getHeader("Referer"));
         }
         if (origin != null && !allowedOrigins.contains(normalize(origin))) {
-            response.setStatus(HttpStatus.FORBIDDEN.value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write("{\"status\":403,\"error\":\"Forbidden\",\"message\":\"Origen no permitido\"}");
+            ProblemResponses.write(request, response, HttpStatus.FORBIDDEN, "Origen no permitido");
             return;
         }
         chain.doFilter(request, response);

@@ -22,7 +22,9 @@ public class User{
 
     @NotBlank(message = "Name is mandatory")
     @NotNull(message = "Name cannot be null")
-    @Column(unique = true, nullable = false)
+    // Sin UNIQUE: dos personas pueden llamarse igual (el identificador público es userName).
+    // Las BD existentes conservan el índice hasta la migración Flyway de restructure-models-performance.
+    @Column(nullable = false)
     private String name;
 
     @NotBlank(message = "Username is mandatory")

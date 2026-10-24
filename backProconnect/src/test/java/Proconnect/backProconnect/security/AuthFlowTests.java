@@ -121,15 +121,16 @@ class AuthFlowTests {
                 .content("{\"email\":\"ghost@example.com\",\"password\":\"nope-nope\"}"))
                 .andExpect(status().isUnauthorized()).andReturn();
         assertThat(wrongPass.getResponse().getHeader(HttpHeaders.SET_COOKIE)).isNull();
-        assertThat(wrongPass.getResponse().getContentAsString()).isEqualTo(noUser.getResponse().getContentAsString());
+        assertThat(SecurityTestSupport.stripCorrelation(wrongPass.getResponse().getContentAsString()))
+                .isEqualTo(SecurityTestSupport.stripCorrelation(noUser.getResponse().getContentAsString()));
     }
 
     @Test
     void everyApiEndpointRequiresSession() throws Exception {
         mvc.perform(get("/api/posts")).andExpect(status().isUnauthorized());
-        mvc.perform(get("/api/user")).andExpect(status().isUnauthorized());
-        mvc.perform(get("/api/user/1/profiles-posts")).andExpect(status().isUnauthorized());
-        mvc.perform(post("/api/posts/create").contentType(MediaType.APPLICATION_JSON).content("{\"title\":\"x\"}"))
+        mvc.perform(get("/api/users")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/users/1/profile")).andExpect(status().isUnauthorized());
+        mvc.perform(post("/api/posts").contentType(MediaType.APPLICATION_JSON).content("{\"title\":\"x\"}"))
                 .andExpect(status().isUnauthorized());
         assertThat(postsRepository.count()).isZero();
         mvc.perform(get("/actuator/health")).andExpect(status().isOk());
@@ -154,7 +155,7 @@ class AuthFlowTests {
         Long bobId = userRepository.findByEmail("bob@example.com").orElseThrow().getId();
         Cookie ana = login("ana@example.com", "password123");
 
-        mvc.perform(post("/api/posts/create").cookie(ana).contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/posts").cookie(ana).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"userId\":" + bobId + ",\"title\":\"hola\",\"content\":\"c\"}"))
                 .andExpect(status().isCreated());
         List<Posts> posts = postsRepository.findAll();
@@ -162,7 +163,7 @@ class AuthFlowTests {
         assertThat(posts.get(0).getUserId()).isEqualTo(anaId);
 
         Long postId = posts.get(0).getId();
-        mvc.perform(post("/api/like/create").cookie(ana).contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/posts/" + postId + "/likes").cookie(ana).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"userId\":" + bobId + ",\"postId\":" + postId + "}"))
                 .andExpect(status().isCreated());
         assertThat(likeRepository.existsByUserIdAndPostId(anaId, postId)).isTrue();
@@ -171,7 +172,7 @@ class AuthFlowTests {
         String feed = mvc.perform(get("/api/posts").cookie(ana)).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         assertThat(feed).contains("\"userLiked\":true").doesNotContain("password");
-        String users = mvc.perform(get("/api/user").cookie(ana)).andExpect(status().isOk())
+        String users = mvc.perform(get("/api/users").cookie(ana)).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         assertThat(users).contains("ana@example.com").doesNotContain("password").doesNotContain("$2");
     }

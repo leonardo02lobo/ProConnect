@@ -25,20 +25,20 @@ class HttpHardeningTests extends SecurityTestSupport {
     void mutationFromForeignOriginIsRejected() throws Exception {
         createUser("ana", "USER");
         Cookie ana = login("ana");
-        mvc.perform(post("/api/posts/create").cookie(ana).header("Origin", "https://evil.example")
+        mvc.perform(post("/api/posts").cookie(ana).header("Origin", "https://evil.example")
                 .contentType(MediaType.APPLICATION_JSON).content(POST_BODY)).andExpect(status().isForbidden());
-        mvc.perform(post("/api/posts/create").cookie(ana).header("Referer", "https://evil.example/form.html")
+        mvc.perform(post("/api/posts").cookie(ana).header("Referer", "https://evil.example/form.html")
                 .contentType(MediaType.APPLICATION_JSON).content(POST_BODY)).andExpect(status().isForbidden());
-        mvc.perform(post("/api/posts/create").cookie(ana).header("Origin", "null")
+        mvc.perform(post("/api/posts").cookie(ana).header("Origin", "null")
                 .contentType(MediaType.APPLICATION_JSON).content(POST_BODY)).andExpect(status().isForbidden());
         assertThat(posts.count()).isZero();
 
-        mvc.perform(post("/api/posts/create").cookie(ana).header("Origin", "http://localhost:4321")
+        mvc.perform(post("/api/posts").cookie(ana).header("Origin", "http://localhost:4321")
                 .contentType(MediaType.APPLICATION_JSON).content(POST_BODY)).andExpect(status().isCreated());
-        mvc.perform(post("/api/posts/create").cookie(ana).header("Referer", "http://localhost:4321/feed")
+        mvc.perform(post("/api/posts").cookie(ana).header("Referer", "http://localhost:4321/feed")
                 .contentType(MediaType.APPLICATION_JSON).content(POST_BODY)).andExpect(status().isCreated());
         // Sin Origin ni Referer (cliente no navegador / SSR): se permite.
-        mvc.perform(post("/api/posts/create").cookie(ana)
+        mvc.perform(post("/api/posts").cookie(ana)
                 .contentType(MediaType.APPLICATION_JSON).content(POST_BODY)).andExpect(status().isCreated());
         assertThat(posts.count()).isEqualTo(3);
     }
