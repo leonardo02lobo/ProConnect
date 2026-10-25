@@ -98,3 +98,14 @@ migrado en el mismo change).
 | `POST /api/workstation/create` | `POST /api/workstations` | 201 |
 | `PUT /api/workstation/update/{id}` | `PUT /api/workstations/{id}` | 200 + recurso |
 | `DELETE /api/workstation/delete/{id}` | `DELETE /api/workstations/{id}` | 204 |
+
+## Administración (add-role-management)
+
+Solo `ADMIN` (403 para el resto, también con `hasRole('ADMIN')` sobre `/api/admin/**` en la cadena de seguridad).
+El rol de cada petición es el vigente en la BD (cache ≤ 30 s, invalidada al cambiar), no el claim del JWT:
+un cambio de rol se aplica a las sesiones abiertas en la siguiente petición.
+
+| Ruta | Notas |
+|---|---|
+| `GET /api/admin/users?q=&page=&size=` | `{content:[{id,name,userName,email,role}], page, size, totalElements, totalPages}`; `q` busca en nombre, userName y email; `page` desde 0; `size` 1–100 (por defecto 20) |
+| `PUT /api/admin/users/{id}/role` | body `{"role":"USER"\|"COMPANY_ADMIN"\|"ADMIN"}` → 200 con el usuario; 400 rol inválido; 404 usuario inexistente; 409 si un ADMIN se quita su propio rol o si el cambio deja 0 ADMIN; mismo rol → 200 sin auditoría. Cada cambio queda en `role_changes` (actor, usuario, de, a, fecha), que no tiene rutas de modificación |
