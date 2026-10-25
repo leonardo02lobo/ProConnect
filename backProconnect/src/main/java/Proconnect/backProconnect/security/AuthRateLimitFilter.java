@@ -13,6 +13,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 /** Límite por IP en POST /api/auth/login y /api/auth/register: 429 + Retry-After al superarlo. */
 public class AuthRateLimitFilter extends OncePerRequestFilter {
 
+    /** Mensaje fijo (verify-web-security): nunca se refleja texto de la excepción en el cuerpo. */
+    private static final String TOO_MANY_DETAIL = "Demasiados intentos. Inténtalo más tarde.";
+
     private final AuthRateLimiter limiter;
     private final ClientIpResolver ipResolver;
 
@@ -36,7 +39,8 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
             limiter.consumeIp(ipResolver.resolve(request));
         } catch (TooManyRequestsException e) {
             response.setHeader("Retry-After", String.valueOf(e.getRetryAfterSeconds()));
-            ProblemResponses.write(request, response, HttpStatus.TOO_MANY_REQUESTS, e.getMessage());
+            ProblemResponses.write(
+                    request, response, HttpStatus.TOO_MANY_REQUESTS, TOO_MANY_DETAIL);
             return;
         }
         chain.doFilter(request, response);

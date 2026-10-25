@@ -130,3 +130,25 @@ test('servido con Content-Type image/* y nosniff; sin listado de directorio ni d
     assert.ok(!(await r.text()).includes(data.filename), p)
   }
 })
+
+test('limita las subidas por cliente (429 con Retry-After)', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'media-rl-'))
+  process.env.UPLOAD_RATE_LIMIT_PER_MINUTE = '2'
+  const { createApp: create } = await import(`../app.ts?rl=${Date.now()}`)
+  const srv = create(dir).listen(0)
+  await new Promise((r) => srv.once('listening', r))
+  const url = `http://127.0.0.1:${(srv.address() as AddressInfo).port}/subirImagen`
+  const send = async () => {
+    const form = new FormData()
+    form.append('miArchivo', new Blob([await png()], { type: 'image/png' }), 'a.png')
+    return fetch(url, { method: 'POST', body: form })
+  }
+  assert.equal((await send()).status, 201)
+  assert.equal((await send()).status, 201)
+  const limited = await send()
+  assert.equal(limited.status, 429)
+  assert.ok(limited.headers.get('retry-after'))
+  srv.close()
+  delete process.env.UPLOAD_RATE_LIMIT_PER_MINUTE
+  await fs.rm(dir, { recursive: true, force: true })
+})
