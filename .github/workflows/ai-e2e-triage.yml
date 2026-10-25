@@ -1,0 +1,100 @@
+name: ai-e2e-triage
+
+# AI diagnosis of a failed e2e run, posted as a PR comment. READ-ONLY on the repo:
+# Claude only reads code/artifacts and writes e2e/ai-triage.md; a plain step posts it.
+# Same prompt as local `e2e/scripts/ai-triage.sh` (e2e/prompts/triage.md + build-prompt.sh).
+on:
+  workflow_call:
+    inputs:
+      run_id: { type: string, required: true }
+      pr_number: { type: string, required: true }
+      head_sha: { type: string, required: true }
+  workflow_dispatch:
+    inputs:
+      run_id: { description: 'ID of the failed e2e run', type: string, required: true }
+      pr_number: { description: 'PR number to comment on', type: string, required: true }
+      head_sha: { description: 'Commit SHA to analyse', type: string, required: true }
+
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+      actions: read
+    env:
+      HAS_CLAUDE_AUTH: ${{ secrets.ANTHROPIC_API_KEY != '' || secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+    steps:
+      - name: Skip when no Claude credentials are configured
+        if: env.HAS_CLAUDE_AUTH != 'true'
+        run: echo "::notice::ANTHROPIC_API_KEY / CLAUDE_CODE_OAUTH_TOKEN not configured — skipping AI triage."
+
+      - uses: actions/checkout@v4
+        if: env.HAS_CLAUDE_AUTH == 'true'
+        with:
+          ref: ${{ inputs.head_sha }}
+          persist-credentials: false
+
+      - name: Download e2e artifacts of the failed run
+        if: env.HAS_CLAUDE_AUTH == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-report
+          path: e2e
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - uses: actions/setup-node@v4
+        if: env.HAS_CLAUDE_AUTH == 'true'
+        with:
+          node-version: '22'
+
+      - name: Build prompt (shared with local script)
+        id: prompt
+        if: env.HAS_CLAUDE_AUTH == 'true'
+        run: |
+          mkdir -p e2e/artifacts/traces
+          {
+            echo 'text<<__PROMPT_EOF__'
+            ./e2e/scripts/build-prompt.sh triage e2e/test-results e2e/artifacts e2e/ai-triage.md
+            echo '__PROMPT_EOF__'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Claude triage
+        if: env.HAS_CLAUDE_AUTH == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
+          prompt: ${{ steps.prompt.outputs.text }}
+          claude_args: >-
+            --max-turns 30
+            --allowedTools "Read,Glob,Grep,LS,Edit(e2e/ai-triage.md),Bash(unzip:*),Bash(ls:*),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(find:*),Bash(cat:*)"
+            --disallowedTools "WebFetch,WebSearch,Bash(git push:*),Bash(git commit:*)"
+
+      - name: Comment diagnosis on the PR
+        if: env.HAS_CLAUDE_AUTH == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR: ${{ inputs.pr_number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ inputs.run_id }}
+        run: |
+          if [ ! -s e2e/ai-triage.md ]; then printf "## 🤖 Diagnóstico E2E\n\nEl agente no produjo diagnóstico. Revisa el run.\n" > e2e/ai-triage.md; fi
+          { cat e2e/ai-triage.md; printf '\n\n---\n<sub>Generado por ai-e2e-triage sobre %s · %s. Revisión humana obligatoria: el bot no modifica la rama.</sub>\n' "${{ inputs.head_sha }}" "$RUN_URL"; } > comment.md
+          gh pr comment "$PR" --body-file comment.md --edit-last --create-if-none
+
+      - name: Keep the diagnosis as artifact
+        if: env.HAS_CLAUDE_AUTH == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-triage
+          path: e2e/ai-triage.md
+          if-no-files-found: ignore

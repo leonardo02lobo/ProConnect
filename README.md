@@ -56,6 +56,33 @@ Abre `http://localhost:4321` usando `localhost`, no `127.0.0.1`, para que la coo
 
 Para compilar y testear sin Maven local: `docker run --rm -v "$PWD":/app -v "$HOME/.m2":/root/.m2 -w /app maven:3.9-eclipse-temurin-17 mvn -B verify`, desde `backProconnect/` o `gateway/`. Los tests de la API usan H2 en memoria y no necesitan MySQL.
 
+## Tests E2E y CI (local primero, luego GitHub Actions)
+
+Todo se ejecuta primero en local con los mismos scripts que usan los workflows. Detalle en [`e2e/README.md`](e2e/README.md).
+
+```bash
+make help              # todos los objetivos
+make e2e-local         # levanta el stack pc-e2e (puertos +10000), siembra datos y corre Playwright
+make e2e-test ARGS="tests/like.spec.ts --headed"   # repetir contra el stack ya levantado
+make e2e-down          # parar el stack
+make ci-local          # ci.yml con act (Maven verify, smoke de media, astro check + build, typecheck e2e)
+make ci-local-e2e      # e2e.yml con act (usa el Docker del host)
+make lint-workflows    # actionlint
+make ai-triage         # diagnóstico con Claude Code (claude -p) del último fallo E2E
+make ai-heal           # healer con Claude Code sobre los tests rotos (deja cambios para revisar)
+```
+
+Requisitos locales: Docker + `docker-compose`, Node 22, `gh` con la extensión `nektos/gh-act`, `actionlint` y el CLI de Claude Code para los objetivos de IA.
+
+| Workflow | Cuándo | Qué hace |
+|---|---|---|
+| `ci` | cada PR (cualquier base) y push a `main` | build y tests por servicio |
+| `e2e` | cada PR y push a `main` | stack Compose + Playwright; artifact `e2e-report` (reporte, trazas, vídeos, logs redactados) |
+| `ai-e2e-triage` | cuando `e2e` falla en un PR | Claude comenta en el PR un diagnóstico (solo lectura, nunca hace push) |
+| `ai-e2e-heal` | manual | healer + guardarraíles y abre un PR draft separado para revisión humana |
+
+Configuración que hace el mantenedor: secret `ANTHROPIC_API_KEY` o `CLAUDE_CODE_OAUTH_TOKEN` (`claude setup-token`) para los workflows de IA; "Allow GitHub Actions to create and approve pull requests" para `ai-e2e-heal`; branch protection en `main` exigiendo `ci` y `e2e`.
+
 ## Checklist de rotación de credenciales (acción manual requerida)
 
 Estos secretos estuvieron commiteados y **siguen en el historial de git**. El historial no se reescribe, para no romper clones ni worktrees, así que la única mitigación real es rotarlos:

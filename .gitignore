@@ -17,3 +17,6 @@ BackendProConnect/uploads/
 # Varios
 .DS_Store
 *.log
+
+# act local artifact server (make ci-local-e2e)
+.act-artifacts/
