@@ -1,11 +1,15 @@
 package Proconnect.backProconnect.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/** DTO de entrada (registro/actualización). Para respuestas usar UserPublicDto. */
 public class UserDto {
     
     private Long id;
     private String name;
     private String userName;
     private String email;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     private String role;
     private ProfilePhotosDto profilePhotosDto;

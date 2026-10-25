@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.*;
 
 import Proconnect.backProconnect.Entity.Friend;
 import Proconnect.backProconnect.model.FriendDto;
+import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.FriendService;
 
 @RestController
 @RequestMapping("/api/friend")
-@CrossOrigin(origins = "*") 
 public class FriendController {
 
     private final FriendService friendService;
@@ -23,8 +23,9 @@ public class FriendController {
 
     @PostMapping("/create")
     public ResponseEntity<String> sendFriendRequest(
-            @RequestParam Long userIdFollow,
+            @RequestParam(required = false) Long userIdFollow,
             @RequestParam Long userIdBeFollowed) {
+        userIdFollow = CurrentUser.id(); // el seguidor siempre es el usuario autenticado
 
         String result = friendService.sendFriendRequest(userIdFollow, userIdBeFollowed);
         if (result.toLowerCase().contains("error")) {
@@ -53,8 +54,9 @@ public class FriendController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteFriendship(
-            @RequestParam Long userIdFollow,
+            @RequestParam(required = false) Long userIdFollow,
             @RequestParam Long userIdBeFollowed) {
+        userIdFollow = CurrentUser.id(); // el seguidor siempre es el usuario autenticado
 
         String result = friendService.deleteFriendShip(userIdFollow, userIdBeFollowed);
         if (result.toLowerCase().contains("error")) {
@@ -65,8 +67,9 @@ public class FriendController {
 
     @DeleteMapping("/cancel")
     public ResponseEntity<String> cancelFriendRequest(
-            @RequestParam Long userIdFollow,
+            @RequestParam(required = false) Long userIdFollow,
             @RequestParam Long userIdBeFollowed) {
+        userIdFollow = CurrentUser.id(); // el seguidor siempre es el usuario autenticado
 
         String result = friendService.cancelFriendUserIdBeFollowed(userIdFollow, userIdBeFollowed);
         if (result.toLowerCase().contains("error")) {

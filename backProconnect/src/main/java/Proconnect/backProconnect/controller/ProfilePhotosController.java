@@ -1,7 +1,6 @@
 package Proconnect.backProconnect.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,12 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import Proconnect.backProconnect.Entity.ProfilePhotos;
 import Proconnect.backProconnect.model.ProfilePhotosDto;
+import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.ProfilePhotosService;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/profilePhoto")
-@CrossOrigin(origins = "*")
 public class ProfilePhotosController {
     
     private final ProfilePhotosService profilePhotosService;
@@ -27,6 +26,7 @@ public class ProfilePhotosController {
 
     @PostMapping("/create")
     public ResponseEntity<?> AddProfilePhoto(@RequestBody @Valid ProfilePhotosDto profilePhotosDto){
+        profilePhotosDto.setUserId(CurrentUser.id());
         String result = profilePhotosService.AddProfilePhoto(profilePhotosDto);
         if (result == null) {
             return ResponseEntity.status(400).body("Failed to create profile photo");

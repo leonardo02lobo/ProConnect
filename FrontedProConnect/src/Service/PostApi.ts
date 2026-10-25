@@ -1,42 +1,26 @@
-import { getUserFromCookie } from "./GetCookie";
-
-const URL_BASE = "http://localhost:8080/api/posts"
+import { apiFetch, apiJson } from "./http";
 
 export const PostsApi = {
 
-    Create: (content: string, title: string, imageUrl: string): Promise<Response> => {
-        const user = getUserFromCookie();
-        if (!user || !user.id) {
-            return Promise.reject(new Error('No se encontró la cookie de usuario'));
-        }
-        return fetch(`${URL_BASE}/create`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                userId: user.id,
-                content: content,
-                title: title,
-                imageUrl: imageUrl,
-                totalLikes: 0,
-                totalComentarios: 0,
-                userLiked: false
-            })
-        })
-            .then((response) => {
-                return response;
-            });
-    },
-    Posts: (): Promise<Response> => {
-        const user = getUserFromCookie();
-        if (!user || !user.id) {
-            return Promise.reject(new Error('No se encontró la cookie de usuario'));
-        }
+    // El autor sale de la sesión (cookie); no se envía userId.
+    Create: (content: string, title: string, imageUrl: string): Promise<Response> =>
+        apiJson("/api/posts/create", "POST", {
+            content: content,
+            title: title,
+            imageUrl: imageUrl,
+            totalLikes: 0,
+            totalComentarios: 0,
+            userLiked: false
+        }),
 
-        return fetch(`${URL_BASE}/${user.id}`)
-            .then((response) => {
-                return response;
-            });
-    }
+    Posts: (): Promise<Response> => apiFetch("/api/posts"),
+
+    Comment: (postId: number, content: string): Promise<Response> =>
+        apiJson("/api/comment/create", "POST", { postId, content }),
+
+    UploadImage: (file: File): Promise<Response> => {
+        const formData = new FormData();
+        formData.append("miArchivo", file);
+        return apiFetch("/upload/subirImagen", { method: "POST", body: formData });
+    },
 }

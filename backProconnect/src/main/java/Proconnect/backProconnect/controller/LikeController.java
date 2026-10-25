@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import Proconnect.backProconnect.model.LikeDto;
+import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.LikeService;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/like")
-@CrossOrigin(origins = "*")
 public class LikeController {
     
     private final LikeService likeService;
@@ -30,12 +29,13 @@ public class LikeController {
 
     @PostMapping("/create")
     public ResponseEntity<?> addLike(@RequestBody @Valid LikeDto likeDto){
+        likeDto.setUserId(CurrentUser.id());
         return ResponseEntity.status(HttpStatus.CREATED).body(likeService.addLike(likeDto));
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<?> removeLike(@RequestBody Map<String, Long> request) {
-        Long userId = request.get("userId");
+        Long userId = CurrentUser.id(); // se ignora cualquier userId del body
         Long postId = request.get("postId");
         
         try {

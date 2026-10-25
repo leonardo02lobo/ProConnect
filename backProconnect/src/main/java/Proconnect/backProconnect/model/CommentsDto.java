@@ -8,12 +8,12 @@ public class CommentsDto {
     private Long userId;
     private String content;
     private Date date;
-    private UserDto user;
+    private UserPublicDto user;
 
     public CommentsDto() {
     }
 
-    public CommentsDto(Long id, Long postId, Long userId, String content, Date date, UserDto user) {
+    public CommentsDto(Long id, Long postId, Long userId, String content, Date date, UserPublicDto user) {
         this.id = id;
         this.postId = postId;
         this.userId = userId;
@@ -62,11 +62,11 @@ public class CommentsDto {
         this.date = date;
     }
 
-    public UserDto getUser() {
+    public UserPublicDto getUser() {
         return user;
     }
 
-    public void setUser(UserDto user) {
+    public void setUser(UserPublicDto user) {
         this.user = user;
     }
 }

@@ -16,11 +16,10 @@ export interface UserProfileDTO {
     id: number;
     email: string;
     name: string;
-    password: string;
     role: string;
     userName: string;
-    photoUrl: string;
-    wallPhotoUrl: string;
+    photoUrl: string | null;
+    wallPhotoUrl: string | null;
     posts: PostDTO[];
 }
 
@@ -30,22 +29,16 @@ export interface CommentsDTO {
     userId: number;
     content: string;
     date: Date;
-    user: UserDTO;
+    user: UserDTO | null;
 }
 
+/** Usuario público (UserPublicDto del backend). Nunca incluye password. */
 export interface UserDTO {
     id: number;
     email: string;
     name: string;
-    password: string;
-    role: string;
+    role: "USER" | "COMPANY_ADMIN" | "ADMIN" | string;
     userName: string;
-    profilePhotosDto: ProfilePhotoDto;
-}
-
-export interface ProfilePhotoDto {
-    Id: number;
-    userId: number;
-    photoUrl: string;
-    wallPhotoUrl: string;
+    photoUrl: string | null;
+    wallPhotoUrl: string | null;
 }

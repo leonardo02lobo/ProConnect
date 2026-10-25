@@ -2,7 +2,6 @@ package Proconnect.backProconnect.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,12 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import Proconnect.backProconnect.model.WorkStationDto;
+import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.WorkStationService;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/workstation")
-@CrossOrigin(origins = "*")
 public class WorkStationController {
     
     private final WorkStationService workStationService;
@@ -29,6 +28,7 @@ public class WorkStationController {
 
     @PostMapping("/create")
     public ResponseEntity<?> AddWorkStation(@RequestBody @Valid WorkStationDto workStation){
+        workStation.setUserId(CurrentUser.id());
         var result = workStationService.AddWorkStation(workStation);
         if (result != null) {
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
@@ -47,6 +47,7 @@ public class WorkStationController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> UpdateWorkStationById(@PathVariable Long id, @RequestBody @Valid WorkStationDto workStation){
+        workStation.setUserId(CurrentUser.id());
         var result = workStationService.UpdateWorkStationById(id, workStation);
         if (result != null) {
             return ResponseEntity.ok().body(result);

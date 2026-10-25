@@ -1,0 +1,29 @@
+schema: spec-driven
+
+context: |
+  ProConnect: red social profesional cerrada (estilo LinkedIn). Toda la app requiere login.
+  Stack: Astro 5 + React 19 + Tailwind 4 (FrontedProConnect), Spring Boot 3.3 / Java 17 + JPA + MySQL
+  (backProconnect, API core), Spring Cloud Gateway (gateway/), Express 5 + multer (NodeTsPosts, media).
+  BackendProConnect (Express legacy) se retira en cleanup-codebase tras migrar los correos de postulación.
+  Roles: USER, COMPANY_ADMIN, ADMIN. Feed global cronológico.
+  Cada change se implementa en su propia rama leonardo02lobo/<change> y worktree propio.
+  Artefactos y comunicación en español; código e identificadores en inglés.
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+# Example:
+#   context: |
+#     Tech stack: TypeScript, React, Node.js
+#     We use conventional commits
+#     Domain: e-commerce platform
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours

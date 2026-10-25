@@ -1,0 +1,55 @@
+## 1. Línea base
+
+- [ ] 1.1 Agregar Testcontainers MySQL y `datasource-proxy` a los tests, y crear el helper `QueryCounter`
+- [ ] 1.2 Implementar el generador de dataset en el perfil `perf` (Datafaker, semilla fija, `JdbcTemplate.batchUpdate`)
+- [ ] 1.3 Escribir el script de benchmark (k6 u oha) para feed, perfil, comentarios de un post y like
+- [ ] 1.4 Ejecutar la medición sobre el código actual y guardar `docs/perf/<fecha>-baseline.md` (queries, p50, p95)
+- [ ] 1.5 Capturar el `EXPLAIN` de las queries actuales del feed y del perfil
+
+## 2. Flyway
+
+- [ ] 2.1 Agregar `flyway-core` y `flyway-mysql`, y configurar `baselineOnMigrate`
+- [ ] 2.2 Generar `V1__baseline.sql` desde el esquema actual
+- [ ] 2.3 Cambiar a `ddl-auto=validate` y verificar el arranque contra una base vacía y una existente
+
+## 3. Integridad e índices
+
+- [ ] 3.1 `V2__constraints_and_indexes.sql`: auditar y limpiar duplicados y huérfanos, y crear FKs (CASCADE/RESTRICT según el diseño), `UNIQUE` e índices
+- [ ] 3.2 Probar la migración V2 sobre una copia con el dataset de referencia, con backup previo documentado
+- [ ] 3.3 Test: un doble like concurrente produce un solo registro y un 409
+
+## 4. Entidades
+
+- [ ] 4.1 Agregar relaciones `@ManyToOne(fetch = LAZY)` según D3, sin `@OneToMany` en `User`/`Post`
+- [ ] 4.2 Migrar `Date` → `Instant` (`DATETIME(6)`, UTC) en todas las entidades
+- [ ] 4.3 Crear los enums `FriendStatus` y `Role` y la migración de normalización de valores
+- [ ] 4.4 Poner `open-in-view=false`, el batch fetch size y la configuración de Hikari; `show-sql` solo en `dev`
+
+## 5. Media en User y contadores
+
+- [ ] 5.1 `V3__user_media_columns.sql`: `avatar_url` y `cover_url` en `user` + copia desde `profile_photos`
+- [ ] 5.2 Adaptar código y DTOs para leer y escribir `avatarUrl`/`coverUrl`
+- [ ] 5.3 `V4__post_counters.sql`: `like_count`, `comment_count` + backfill y test de consistencia
+- [ ] 5.4 Actualizar contadores en las transacciones de like, unlike, comentar y borrar comentario
+
+## 6. Queries paginadas
+
+- [ ] 6.1 Implementar el feed en 3 queries (posts+autor, likes del viewer, preview de 3 comentarios con `ROW_NUMBER`) con cursor opaco
+- [ ] 6.2 Validar con `EXPLAIN` el uso del índice `posts(created_at, id)` y ajustar el predicado si hace falta
+- [ ] 6.3 `GET /api/posts/{id}/comments` paginado por cursor
+- [ ] 6.4 Perfil: datos de usuario + primera página de posts por cursor, sin JOIN con comments
+- [ ] 6.5 Paginación `Pageable` (máx. 100) en usuarios, empresas, empleos, postulaciones, puestos, mensajes y amigos
+- [ ] 6.6 Tests de integración con `QueryCounter`: feed ≤ 4 y perfil ≤ 4 sentencias
+
+## 7. Frontend y E2E
+
+- [ ] 7.1 Feed y perfil con "cargar más" o scroll infinito usando `nextCursor`
+- [ ] 7.2 Modal o página de comentarios completos paginados
+- [ ] 7.3 Usar `avatarUrl`/`coverUrl` en los componentes
+- [ ] 7.4 Actualizar y ampliar los E2E (paginación del feed y contadores tras like/unlike)
+
+## 8. Contract y cierre
+
+- [ ] 8.1 `V5__drop_profile_photos.sql` y eliminar la entidad y el repositorio `ProfilePhotos`
+- [ ] 8.2 Benchmark final → `docs/perf/<fecha>-after.md` con la comparación contra la línea base
+- [ ] 8.3 Confirmar los umbrales: ≤ 4 queries y p95 ≤ 150 ms en feed y perfil (reportando el hardware)

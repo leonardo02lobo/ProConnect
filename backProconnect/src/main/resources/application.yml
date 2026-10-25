@@ -1,32 +1,35 @@
+# Configuración de la API core. Todos los secretos salen de variables de entorno (ver .env.example).
 server:
-  port: 8080
+  port: ${SERVER_PORT:8081}
 
 spring:
   application:
-    name: gateway
-  main:
-    web-application-type: reactive
-  cloud:
-    gateway:
-      default-filters:
-        - StripPrefix=1
-      routes:
-        - id: subirImagen
-          uri: http://localhost:3000
-          predicates:
-            - Path=/upload/**
-            - Method=POST
-        - id: uploads
-          uri: http://localhost:3000
-          predicates:
-            - Path=/upload/**
-            - Method=GET
-      globalcors:
-        corsConfigurations:
-          '[/**]':
-            allowedOrigins: "*"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
+    name: backProconnect
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/proconnect}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: ${JPA_SHOW_SQL:false}
+    open-in-view: false
+
+proconnect:
+  jwt:
+    # Obligatorio, >= 32 bytes. Sin valor por defecto: el arranque falla si falta.
+    secret: ${JWT_SECRET:}
+    ttl: ${JWT_TTL:PT24H}
+  cookie:
+    name: pc_session
+    # Solo poner COOKIE_SECURE=false en desarrollo local sobre http.
+    secure: ${COOKIE_SECURE:true}
+  cors:
+    origins: ${CORS_ORIGINS:http://localhost:4321}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

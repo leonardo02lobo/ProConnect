@@ -1,0 +1,19 @@
+# Dependencias y builds
+node_modules/
+dist/
+target/
+.astro/
+
+# Entorno / secretos (usar los .env.example como plantilla)
+.env
+.env.*
+!.env.example
+
+# Archivos subidos por usuarios (servicio de media)
+NodeTsPosts/upload/*
+!NodeTsPosts/upload/.gitkeep
+BackendProConnect/uploads/
+
+# Varios
+.DS_Store
+*.log

@@ -1,5 +1,7 @@
 package Proconnect.backProconnect.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,6 +35,7 @@ public class User{
     @Column(unique = true,nullable = false)
     private String email;
 
+    @JsonIgnore
     @NotBlank(message = "Password is mandatory")
     @NotNull(message = "Password cannot be null")
     @Size(min = 7, max = 100, message = "Password be in range 7 at 100 characters long")
@@ -80,6 +83,7 @@ public class User{
         this.email = email;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }

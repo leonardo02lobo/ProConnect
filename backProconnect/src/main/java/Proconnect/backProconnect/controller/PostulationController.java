@@ -1,7 +1,6 @@
 package Proconnect.backProconnect.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,12 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import Proconnect.backProconnect.Entity.Postulation;
 import Proconnect.backProconnect.model.PostulationDto;
+import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.PostulationService;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/postulation")
-@CrossOrigin(origins = "*")
 public class PostulationController {
     
     private final PostulationService postulationService;
@@ -29,6 +28,7 @@ public class PostulationController {
     
     @PostMapping("/create")
     public ResponseEntity<?> AddPostulation(@RequestBody @Valid PostulationDto postulationDto){
+        postulationDto.setUserId(CurrentUser.id());
         return ResponseEntity.ok().body(postulationService.AddPostulation(postulationDto));
     }
 
@@ -49,6 +49,7 @@ public class PostulationController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> UpdatePostulationById(@PathVariable Long id, @RequestBody @Valid PostulationDto postulationDto){
+        postulationDto.setUserId(CurrentUser.id());
         boolean isUpdate = postulationService.UpdatePostulationById(id, postulationDto);
 
         if(isUpdate){

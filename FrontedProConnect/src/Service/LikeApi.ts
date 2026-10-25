@@ -1,59 +1,26 @@
-const URL_BASE = "http://localhost:8080/api/like"
+import { apiJson } from "./http";
 
+// El usuario del like sale de la sesión (cookie), no se envía userId.
 export const apis = () => {
-    async function AddLike(userId: number, postId: number) {
-        try {
-            const response = await fetch(`${URL_BASE}/create`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    userId,
-                    postId
-                })
-            })
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error("Error del servidor:", errorText);
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.text()
-            console.log(data)
-        } catch (error) {
-            console.log((error as Error).message)
+    async function AddLike(postId: number) {
+        const response = await apiJson("/api/like/create", "POST", { postId });
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Error del servidor:", errorText);
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        return response.text();
     }
 
-    async function RemoveLike(userId: number, postId: number) {
-        try {
-            const response = await fetch(`${URL_BASE}/delete`, { 
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ 
-                    userId: userId,
-                    postId: postId
-                })
-            })
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error("Error del servidor:", errorText);
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.text();
-            console.log("Like eliminado:", data);
-            return data;
-        } catch (error) {
-            console.log((error as Error).message);
-            throw error;
+    async function RemoveLike(postId: number) {
+        const response = await apiJson("/api/like/delete", "DELETE", { postId });
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Error del servidor:", errorText);
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        return response.text();
     }
 
-    return { AddLike,RemoveLike }
+    return { AddLike, RemoveLike }
 }

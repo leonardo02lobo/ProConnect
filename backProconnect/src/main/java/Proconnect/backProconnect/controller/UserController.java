@@ -2,7 +2,6 @@ package Proconnect.backProconnect.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,27 +13,31 @@ import org.springframework.web.bind.annotation.RestController;
 
 import Proconnect.backProconnect.model.UserDto;
 import Proconnect.backProconnect.model.UserProfileDTO;
+import Proconnect.backProconnect.service.AuthService;
 import Proconnect.backProconnect.service.UserService;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/user")
-@CrossOrigin(origins = "*")
 public class UserController {
 
     private final UserService userService;
+    private final AuthService authService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, AuthService authService) {
         this.userService = userService;
+        this.authService = authService;
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> AddUser(@RequestBody @Valid UserDto user) {
-        Object createdUser = userService.AddUser(user);
-        if (createdUser != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User could not be created.");
+    public ResponseEntity<?> AddUser(@RequestBody UserDto user) {
+        // Mismo flujo que /api/auth/register: valida, hashea y fuerza el rol USER.
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(userService.toPublic(authService.register(user)));
+        } catch (AuthService.DuplicateUserException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
