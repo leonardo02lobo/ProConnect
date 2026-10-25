@@ -1,22 +1,29 @@
 ---
-import Main from "../../layouts/Main.astro"
-import HeaderProfile from "../../components/profile/HeaderProfile"
-import { ssrFetch } from "../../Service/server"
-import type { UserProfileDTO } from "../../types/Dtos"
+import Main from "../../layouts/Main.astro";
+import HeaderProfile from "../../components/profile/HeaderProfile";
+import { ssrFetch } from "../../Service/server";
+import type { UserProfileDTO } from "../../types/Dtos";
 
-const { userId } = Astro.params
+const { userId } = Astro.params;
 
 // SSR: se reenvía la cookie de sesión del navegador al backend.
-const response = await ssrFetch(Astro, `/api/user/${encodeURIComponent(userId ?? "")}/profiles-posts`)
+const response = await ssrFetch(Astro, `/api/users/${encodeURIComponent(userId ?? "")}/profile`);
 if (response.status === 401) {
-    return Astro.redirect("/login")
+    return Astro.redirect("/login");
 }
-const text = response.ok ? await response.text() : ""
-const profile: UserProfileDTO | null = text ? JSON.parse(text) : null
+const text = response.ok ? await response.text() : "";
+const profile: UserProfileDTO | null = text ? JSON.parse(text) : null;
 if (!profile) {
-    Astro.response.status = 404
+    Astro.response.status = 404;
 }
 ---
+
 <Main title={profile?.name ?? "Usuario"}>
-    {profile ? <HeaderProfile client:load initialUser={profile} /> : <p class="text-center p-6">Usuario no encontrado</p>}
+    {
+        profile ? (
+            <HeaderProfile client:load initialUser={profile} />
+        ) : (
+            <p class="text-center p-6">Usuario no encontrado</p>
+        )
+    }
 </Main>

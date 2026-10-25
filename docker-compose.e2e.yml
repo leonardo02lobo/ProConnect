@@ -7,6 +7,7 @@ name: pc-e2e
 
 x-jwt: &jwt_secret ${E2E_JWT_SECRET:-e2e-local-only-jwt-secret-not-for-prod-0123456789}
 x-db-password: &db_password ${E2E_DB_PASSWORD:-e2e-local-db-password}
+x-admin-password: &admin_password ${E2E_ADMIN_PASSWORD:-E2e-Admin-Passw0rd!}
 
 services:
   mysql:
@@ -33,7 +34,7 @@ services:
     mem_limit: 640m
 
   api:
-    image: pc-e2e/api:local
+    image: ${E2E_IMAGE_PREFIX:-pc-e2e}/api:local
     build:
       context: ./backProconnect
     environment:
@@ -46,20 +47,49 @@ services:
       COOKIE_SECURE: "false"
       CORS_ORIGINS: http://localhost:${E2E_WEB_PORT:-14321}
       SPRING_JPA_SHOW_SQL: "false"
+      # verify-web-security: la suite hace muchos logins desde la IP del gateway; límite real en prod = 10/min.
+      RATE_LIMIT_AUTH_PER_MINUTE: "${E2E_RATE_LIMIT_AUTH_PER_MINUTE:-1000}"
+      TRUSTED_PROXIES: 172.16.0.0/12,192.168.0.0/16,127.0.0.1/32
+      # Correos de postulación → Mailpit (la suite consulta su API).
+      MAIL_HOST: mailpit
+      MAIL_PORT: "1025"
+      MAIL_FROM: '"Respuesta a su solicitud de empleo" <no-reply@proconnect.test>'
+      # ADMIN de la suite (dueño de empresa en el test de correos); se crea al arrancar.
+      BOOTSTRAP_ADMIN_EMAIL: admin.e2e@proconnect.test
+      BOOTSTRAP_ADMIN_PASSWORD: *admin_password
+      BOOTSTRAP_ADMIN_NAME: Admin E2E
     ports:
       - "${E2E_API_PORT:-18081}:8081"
     depends_on:
       mysql:
         condition: service_healthy
+      mailpit:
+        condition: service_healthy
     mem_limit: 640m
 
+  mailpit:
+    image: axllent/mailpit:v1.27.9
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "true"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "true"
+      MP_MAX_MESSAGES: "500"
+    ports:
+      - "${E2E_MAILPIT_PORT:-18025}:8025"
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    mem_limit: 128m
+
   media:
-    image: pc-e2e/media:local
+    image: ${E2E_IMAGE_PREFIX:-pc-e2e}/media:local
     build:
       context: ./NodeTsPosts
     environment:
       PORT: "3001"
       UPLOAD_DIR: /data/upload
+      UPLOAD_RATE_LIMIT_PER_MINUTE: "1000"
     tmpfs:
       - /data/upload:uid=1000,gid=1000
     ports:
@@ -67,7 +97,7 @@ services:
     mem_limit: 256m
 
   gateway:
-    image: pc-e2e/gateway:local
+    image: ${E2E_IMAGE_PREFIX:-pc-e2e}/gateway:local
     build:
       context: ./gateway
     environment:
@@ -86,7 +116,7 @@ services:
     mem_limit: 512m
 
   web:
-    image: pc-e2e/web:local
+    image: ${E2E_IMAGE_PREFIX:-pc-e2e}/web:local
     build:
       context: ./FrontedProConnect
       args:

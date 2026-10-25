@@ -1,40 +1,40 @@
 package Proconnect.backProconnect.repository;
 
+import Proconnect.backProconnect.Entity.Posts;
+import Proconnect.backProconnect.repository.projection.FeedRow;
 import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import Proconnect.backProconnect.Entity.Posts;
-
 @Repository
-public interface PostsRepository extends JpaRepository<Posts, Long>{
-    @Query(value = """
-            SELECT  
-                pos.id, pos.title, pos.content, pos.date, pos.image_url,
-                us.id as userId, us.email, us.name, us.role, us.user_name,
-                prof.id as profileId,prof.photo_url, prof.wall_photo_url,
-                (SELECT COUNT(*) FROM proconnect.likes WHERE post_id = pos.id) as total_likes,
-                (SELECT COUNT(*) FROM proconnect.comments WHERE post_id = pos.id) as total_comments,
-                (SELECT COUNT(*) FROM proconnect.likes WHERE post_id = pos.id AND user_id = :userId) as user_liked
-            FROM proconnect.posts as pos
-            JOIN proconnect.user as us ON pos.user_id = us.id
-            LEFT JOIN proconnect.profile_photos as prof ON us.id = prof.user_id;
-            """, nativeQuery = true)
-    List<Object[]> GetAllPosts(@Param("userId") Long userId);
+public interface PostsRepository extends JpaRepository<Posts, Long> {
 
-    @Query(value = """
-            SELECT  
-                pos.id, pos.title, pos.content, pos.date, pos.image_url,
-                us.id as userId, us.email, us.name, us.role, us.user_name,
-                prof.id as profileId,prof.photo_url, prof.wall_photo_url,
-                (SELECT COUNT(*) FROM proconnect.likes WHERE post_id = pos.id) as total_likes,
-                (SELECT COUNT(*) FROM proconnect.comments WHERE post_id = pos.id) as total_comments
-            FROM proconnect.posts as pos
-            JOIN proconnect.user as us ON pos.user_id = us.id
-            LEFT JOIN proconnect.profile_photos as prof ON us.id = prof.user_id;
-            """, nativeQuery = true)
-    List<Object[]> GetAllPosts();
+    /**
+     * Feed (o posts de un autor si {@code authorId} no es null) con autor, contadores y si el
+     * viewer dio like. Una sola fila de foto por usuario (la más reciente) para no duplicar posts,
+     * y orden determinista (más nuevo primero). Optimización (contadores desnormalizados, índices,
+     * paginación): restructure-models-performance.
+     */
+    @Query(
+            value =
+                    """
+            SELECT
+                pos.id AS id, pos.title AS title, pos.content AS content, pos.date AS date, pos.image_url AS imageUrl,
+                us.id AS userId, us.email AS userEmail, us.name AS userName, us.role AS userRole,
+                us.user_name AS userUserName,
+                prof.photo_url AS photoUrl, prof.wall_photo_url AS wallPhotoUrl,
+                (SELECT COUNT(*) FROM proconnect.likes WHERE post_id = pos.id) AS totalLikes,
+                (SELECT COUNT(*) FROM proconnect.comments WHERE post_id = pos.id) AS totalComments,
+                (SELECT COUNT(*) FROM proconnect.likes WHERE post_id = pos.id AND user_id = :viewerId) AS userLiked
+            FROM proconnect.posts AS pos
+            JOIN proconnect.user AS us ON pos.user_id = us.id
+            LEFT JOIN proconnect.profile_photos AS prof ON prof.id =
+                (SELECT MAX(p2.id) FROM proconnect.profile_photos p2 WHERE p2.user_id = us.id)
+            WHERE (:authorId IS NULL OR pos.user_id = :authorId)
+            ORDER BY pos.date DESC, pos.id DESC
+            """,
+            nativeQuery = true)
+    List<FeedRow> findFeed(@Param("viewerId") Long viewerId, @Param("authorId") Long authorId);
 }

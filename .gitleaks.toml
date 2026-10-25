@@ -1,0 +1,44 @@
+# gitleaks: reglas por defecto + reglas para los patrones de secretos que este repo tuvo en el historial
+# (las reglas por defecto no los detectan porque no tienen formato de token conocido).
+# Los hallazgos históricos ya triados están en .gitleaksignore (rotación: checklist del README).
+title = "ProConnect gitleaks config"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "spring-datasource-password"
+description = "Password literal en spring.datasource.password"
+regex = '''spring\.datasource\.password\s*[=:]\s*([^\s$][^\s]{2,})'''
+secretGroup = 1
+keywords = ["spring.datasource.password"]
+
+[[rules]]
+id = "smtp-pass-literal"
+description = "Password SMTP literal (nodemailer auth.pass)"
+regex = '''(?i)\bpass\s*:\s*["']([^"'$\s][^"']{5,})["']'''
+secretGroup = 1
+keywords = ["pass"]
+
+[[rules]]
+id = "env-fallback-secret"
+description = "Secreto/password por defecto como fallback de una variable de entorno"
+regex = '''(?i)process\.env\.[A-Z_]*(SECRET|PASSWORD|PASS|TOKEN|KEY)[A-Z_]*\s*(\|\||\?\?)\s*["']([^"']{4,})["']'''
+secretGroup = 3
+keywords = ["process.env"]
+
+[allowlist]
+description = "Plantillas, dependencias vendorizadas y fixtures de test"
+paths = [
+  '''(^|/)node_modules/''',
+  '''(^|/)package-lock\.json$''',
+  '''\.env\.example$''',
+  '''(^|/)target/''',
+]
+regexes = [
+  '''change-me''',
+  '''test-secret-test-secret''',
+  '''e2e-local-''',
+  '''proconnect-dev''',
+  '''perfroot''',            # password desechable del stack local de perf (pc-perf)
+]

@@ -93,4 +93,7 @@ jobs:
       run_id: ${{ github.run_id }}
       pr_number: ${{ github.event.pull_request.number }}
       head_sha: ${{ github.event.pull_request.head.sha }}
-    secrets: inherit
+    # Solo los secretos que necesita (no `secrets: inherit`).
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

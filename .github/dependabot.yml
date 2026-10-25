@@ -1,0 +1,34 @@
+# Actualizaciones de dependencias (verify-web-security, tarea 1.1). Semanal, agrupando parches/minors.
+version: 2
+updates:
+  - package-ecosystem: maven
+    directory: /backProconnect
+    schedule: { interval: weekly, day: monday }
+    groups:
+      maven-minor-patch: { update-types: [minor, patch] }
+  - package-ecosystem: maven
+    directory: /gateway
+    schedule: { interval: weekly, day: monday }
+    groups:
+      maven-minor-patch: { update-types: [minor, patch] }
+  - package-ecosystem: npm
+    directory: /FrontedProConnect
+    schedule: { interval: weekly, day: monday }
+    groups:
+      npm-minor-patch: { update-types: [minor, patch] }
+  - package-ecosystem: npm
+    directory: /NodeTsPosts
+    schedule: { interval: weekly, day: monday }
+    groups:
+      npm-minor-patch: { update-types: [minor, patch] }
+  - package-ecosystem: npm
+    directory: /e2e
+    schedule: { interval: weekly, day: monday }
+    groups:
+      npm-minor-patch: { update-types: [minor, patch] }
+  - package-ecosystem: docker
+    directories: [/backProconnect, /gateway, /NodeTsPosts, /FrontedProConnect]
+    schedule: { interval: weekly, day: monday }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly, day: monday }

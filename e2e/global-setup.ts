@@ -57,18 +57,18 @@ export default async function globalSetup(_config: FullConfig) {
   }
 
   const { alice, bob } = clients;
-  let post = await alice.findPostByTitle(ids.alice, SEED_POST_TITLE);
+  let post = await alice.findPostByTitle(SEED_POST_TITLE);
   if (!post) {
     const filename = await alice.uploadImage();
-    await alice.createPost({ title: SEED_POST_TITLE, content: 'Post created by the E2E seed', imageUrl: filename }, ids.alice);
-    post = await alice.findPostByTitle(ids.alice, SEED_POST_TITLE);
+    await alice.createPost({ title: SEED_POST_TITLE, content: 'Post created by the E2E seed', imageUrl: filename });
+    post = await alice.findPostByTitle(SEED_POST_TITLE);
     if (!post) throw new Error('seed post was not found in the feed after creating it');
   }
 
-  const asBob = await bob.findPostByTitle(ids.bob, SEED_POST_TITLE);
-  if (asBob && !asBob.userLiked) await bob.like(post.id, ids.bob);
+  const asBob = await bob.findPostByTitle(SEED_POST_TITLE);
+  if (asBob && !asBob.userLiked) await bob.like(post.id);
   if (!post.comments?.some((c) => c.content === SEED_COMMENT)) {
-    await bob.comment(post.id, SEED_COMMENT, ids.bob);
+    await bob.comment(post.id, SEED_COMMENT);
   }
 
   const seed: SeedData = { alice: { id: ids.alice }, bob: { id: ids.bob }, postId: post.id };

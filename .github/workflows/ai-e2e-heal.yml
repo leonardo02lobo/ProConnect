@@ -62,7 +62,9 @@ jobs:
 
       - name: Nothing to heal
         if: steps.before.outcome == 'success'
-        run: echo "::notice::E2E suite is green on ${{ inputs.ref }}; nothing to heal."
+        env:
+          REF: ${{ inputs.ref }}
+        run: echo "::notice::E2E suite is green on $REF; nothing to heal."
 
       - name: Build prompt (shared with local script)
         id: prompt

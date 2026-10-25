@@ -1,0 +1,12 @@
+# Reglas de ZAP baseline (id	ACCIÓN	comentario). FAIL hace fallar el job; WARN solo se reporta; IGNORE se omite.
+# Ausencias de headers críticos: deben hacer fallar (escenario de la spec: quitar la CSP rompe el DAST).
+10038	FAIL	(Content Security Policy Header Not Set)
+10020	FAIL	(Missing Anti-clickjacking Header)
+10010	FAIL	(Cookie No HttpOnly Flag)
+10021	WARN	(X-Content-Type-Options Header Missing; los estáticos de @astrojs/node no pasan por el middleware: riesgo bajo aceptado, SEC-23)
+10011	WARN	(Cookie Without Secure Flag; el stack de CI es http con COOKIE_SECURE=false)
+10035	WARN	(Strict-Transport-Security Header Not Set; HSTS solo con HTTPS/perfil prod)
+# Informativos sin acción.
+10049	IGNORE	(Storable and Cacheable Content; contenido estático con hash)
+10109	IGNORE	(Modern Web Application)
+90004	WARN	(Cross-Origin-Embedder-Policy; require-corp rompería las imágenes del gateway)

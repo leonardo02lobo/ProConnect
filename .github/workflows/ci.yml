@@ -33,6 +33,10 @@ jobs:
           java-version: '17'
           cache: maven
           cache-dependency-path: ${{ matrix.service }}/pom.xml
+      - name: Format and naming (Spotless + Checkstyle)
+        run: |
+          if [ -x ./mvnw ]; then MVN=./mvnw; else MVN=mvn; fi
+          $MVN -B -ntp spotless:check checkstyle:check
       - name: Build and test
         run: |
           if [ -x ./mvnw ]; then MVN=./mvnw; else MVN=mvn; fi
@@ -63,6 +67,12 @@ jobs:
           cache: npm
           cache-dependency-path: ${{ matrix.service }}/package-lock.json
       - run: npm ci --no-audit --no-fund
+
+      - name: Lint and format (ESLint + Prettier)
+        if: matrix.service != 'e2e'
+        run: |
+          npm run lint
+          npm run format:check
 
       - name: Media smoke test (start, upload, serve)
         if: matrix.check == 'media-smoke'

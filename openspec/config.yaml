@@ -4,7 +4,7 @@ context: |
   ProConnect: red social profesional cerrada (estilo LinkedIn). Toda la app requiere login.
   Stack: Astro 5 + React 19 + Tailwind 4 (FrontedProConnect), Spring Boot 3.3 / Java 17 + JPA + MySQL
   (backProconnect, API core), Spring Cloud Gateway (gateway/), Express 5 + multer (NodeTsPosts, media).
-  BackendProConnect (Express legacy) se retira en cleanup-codebase tras migrar los correos de postulación.
+  BackendProConnect (Express legacy) se retiró en cleanup-codebase tras migrar los correos de postulación (tag git legacy-express-backend).
   Roles: USER, COMPANY_ADMIN, ADMIN. Feed global cronológico.
   Cada change se implementa en su propia rama leonardo02lobo/<change> y worktree propio.
   Artefactos y comunicación en español; código e identificadores en inglés.

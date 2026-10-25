@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { apiFetch, mediaUrl } from "../../Service/http";
+import { avatarUrl, mediaUrl } from "../../Service/http";
 import { loadSession } from "../../Service/session";
+import { usersService } from "../../Service/users";
 import type { UserProfileDTO } from "../../types/Dtos";
 import Post from "../Post";
 
@@ -10,48 +11,38 @@ interface HeaderProfileProps {
 }
 
 function HeaderProfile({ initialUser }: HeaderProfileProps) {
-    async function GetData(): Promise<UserProfileDTO | null> {
-        const me = await loadSession()
-        if (!me) {
-            window.location.href = "/login"
-            return null;
-        }
-        const response = await apiFetch(`/api/user/${me.id}/profiles-posts`)
-        if (!response.ok) {
-            return null
-        }
-        const text = await response.text()
-        return text ? JSON.parse(text) : null
-    }
-
-    const [user, setUser] = useState<UserProfileDTO | null>(initialUser ?? null)
+    const [user, setUser] = useState<UserProfileDTO | null>(initialUser ?? null);
 
     useEffect(() => {
         if (initialUser) {
-            return
+            return;
         }
-        let mounted = true
-        GetData().then(result => {
-            if (mounted) setUser(result)
-        })
+        let mounted = true;
+        loadSession()
+            .then((me) => {
+                if (!me) {
+                    window.location.href = "/login";
+                    return null;
+                }
+                return usersService.profile(me.id);
+            })
+            .catch(() => null)
+            .then((profile) => {
+                if (mounted) setUser(profile);
+            });
         return () => {
-            mounted = false
-        }
-
-    }, [])
+            mounted = false;
+        };
+    }, [initialUser]);
     return (
         <div className="flex flex-col justify-center items-center bg-white">
             <header className="relative w-full">
                 <a href={mediaUrl(user?.wallPhotoUrl)} target="_blank">
-                    <img
-                        src={mediaUrl(user?.wallPhotoUrl)}
-                        alt="Portada"
-                        className="w-full h-48 object-cover"
-                    />
+                    <img src={mediaUrl(user?.wallPhotoUrl)} alt="Portada" className="w-full h-48 object-cover" />
                 </a>
                 <a href={mediaUrl(user?.photoUrl)} target="_blank">
                     <img
-                        src={mediaUrl(user?.photoUrl)}
+                        src={avatarUrl(user?.photoUrl)}
                         alt="Foto de perfil"
                         className="w-24 h-24 rounded-full object-cover border-4 border-white absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bottom-0 z-10"
                     />
@@ -60,7 +51,9 @@ function HeaderProfile({ initialUser }: HeaderProfileProps) {
 
             <div className="w-full max-w-4xl px-4 py-6">
                 <div className="text-center mb-4">
-                    <h1 className="text-2xl font-bold text-gray-900" data-testid="profile-name">{user?.name}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900" data-testid="profile-name">
+                        {user?.name}
+                    </h1>
                     <p className="text-gray-600 mt-1">8 amigos • 8 amigos en común</p>
                 </div>
 
@@ -96,28 +89,20 @@ function HeaderProfile({ initialUser }: HeaderProfileProps) {
                             </a>
                             <a href="#" className="text-gray-600 hover:text-blue-600 text-sm">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                    />
                                 </svg>
                             </a>
                         </div>
                     </div>
                 </nav>
                 <div>
-                    {user?.posts.map((post,i) => (
-                        <Post 
-                            key={post.id}
-                            id={post.id}
-                            title={post.title} 
-                            content={post.content} 
-                            imageUrl={post.imageUrl} 
-                            userId={user.id}
-                            name={user.name} 
-                            photoUrl={user.photoUrl}  
-                            totalComentarios={post.totalComentarios}
-                            totalLikes={post.totalLikes}
-                            userLiked={post.userLiked}
-                            comment={post.comments}
-                        />
+                    {user?.posts.map((post) => (
+                        <Post key={post.id} post={post} />
                     ))}
                 </div>
             </div>

@@ -1,8 +1,7 @@
 package Proconnect.backProconnect.specification;
 
-import org.springframework.data.jpa.domain.Specification;
-
 import Proconnect.backProconnect.Entity.WorkStation;
+import org.springframework.data.jpa.domain.Specification;
 
 public class WorkStationSpecification {
 
@@ -11,7 +10,8 @@ public class WorkStationSpecification {
             if (workStation == null || workStation.trim().isEmpty()) {
                 return criteriBuilder.conjunction();
             }
-            return criteriBuilder.like(criteriBuilder.lower(root.get("workStation")),
+            return criteriBuilder.like(
+                    criteriBuilder.lower(root.get("workStation")),
                     "%" + workStation.toLowerCase() + "%");
         };
     }

@@ -17,5 +17,8 @@ export const SESSION_COOKIE = 'pc_session';
 
 /** Login page path. Override with E2E_LOGIN_PATH if the frontend renames it. */
 export const LOGIN_PATH = process.env.E2E_LOGIN_PATH ?? '/login';
-/** Regex matching any of the known login routes (pre/post cleanup naming). */
-export const LOGIN_URL_RE = /\/(login|SignUp|SignIn)(\?|$|\/)/i;
+/** Regex matching the login route. */
+export const LOGIN_URL_RE = /\/login(\?|$|\/)/;
+
+/** Mailpit (SMTP capture of the E2E stack): HTTP API used to assert outgoing mail. */
+export const MAILPIT_URL = (process.env.E2E_MAILPIT_URL ?? 'http://localhost:18025').replace(/\/$/, '');
