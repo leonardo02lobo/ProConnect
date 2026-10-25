@@ -107,15 +107,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             DataIntegrityViolationException e, HttpServletRequest req) {
         log.warn(
                 "Violación de integridad en {}: {}",
-                req.getRequestURI(),
-                e.getMostSpecificCause().getMessage());
+                safe(req.getRequestURI()),
+                safe(e.getMostSpecificCause().getMessage()));
         return respond(
                 HttpStatus.CONFLICT, "El recurso entra en conflicto con datos existentes", req);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> unexpected(Exception e, HttpServletRequest req) {
-        log.error("Error no controlado en {} {}", req.getMethod(), req.getRequestURI(), e);
+        log.error(
+                "Error no controlado en {} {}",
+                safe(req.getMethod()),
+                safe(req.getRequestURI()),
+                e);
         return respond(HttpStatus.INTERNAL_SERVER_ERROR, GENERIC_500, req);
     }
 
@@ -196,6 +200,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return request instanceof NativeWebRequest nwr
                 ? nwr.getNativeRequest(HttpServletRequest.class)
                 : null;
+    }
+
+    /** Evita log injection: el path lo controla el cliente y podría traer CR/LF. */
+    private static String safe(String value) {
+        return value == null ? null : value.replaceAll("[\\r\\n\\t]", "_");
     }
 
     private static String lastNode(String path) {
