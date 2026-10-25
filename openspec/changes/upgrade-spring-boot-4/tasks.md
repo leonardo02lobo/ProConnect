@@ -1,7 +1,7 @@
 ## 1. Preparación
 
-- [ ] 1.1 Mergear en la rama el estado final de perf (fase 2) y de add-role-management; suite completa en verde como punto de partida (anotar el número de tests)
-- [ ] 1.2 Script de snapshot de contratos JSON (feed, perfil, `/api/auth/me`, error 400/404/409 problem+json) y snapshot "antes"
+- [x] 1.1 Mergear en la rama el estado final de perf (fase 2) y de add-role-management; suite completa en verde como punto de partida (anotar el número de tests)
+- [x] 1.2 Script de snapshot de contratos JSON (feed, perfil, `/api/auth/me`, error 400/404/409 problem+json) y snapshot "antes"
 - [ ] 1.3 Comprobar en la fuente oficial la compatibilidad Spring Cloud ↔ Boot 4.1 y decidir el destino del gateway (D1), registrándolo en design.md
 
 ## 2. backProconnect → Spring Boot 4.1.x
