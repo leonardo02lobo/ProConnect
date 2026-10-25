@@ -123,7 +123,7 @@ public class UserService {
                 user.getId(),
                 guard.canSeePrivateDataOf(user.getId()) ? user.getEmail() : null,
                 user.getName(),
-                user.getRole(),
+                user.getRole().name(),
                 user.getUserName(),
                 photos.map(ProfilePhotos::getPhotoUrl).orElse(null),
                 photos.map(ProfilePhotos::getWallPhotoUrl).orElse(null),
@@ -147,7 +147,7 @@ public class UserService {
                 user.getName(),
                 user.getUserName(),
                 includePrivate ? user.getEmail() : null,
-                user.getRole(),
+                user.getRole().name(),
                 photos.map(ProfilePhotos::getPhotoUrl).orElse(null),
                 photos.map(ProfilePhotos::getWallPhotoUrl).orElse(null));
     }

@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import Proconnect.backProconnect.Entity.User;
+import Proconnect.backProconnect.model.Role;
 import Proconnect.backProconnect.repository.CommentsRepository;
 import Proconnect.backProconnect.repository.CompanyRepository;
 import Proconnect.backProconnect.repository.FriendRepository;
@@ -80,7 +81,7 @@ public abstract class SecurityTestSupport {
                 .andExpect(status().isCreated());
         User user = users.findByEmail(name + "@example.com").orElseThrow();
         if (!"USER".equals(role)) {
-            user.setRole(role);
+            user.setRole(Role.valueOf(role));
             users.save(user);
         }
         return user.getId();

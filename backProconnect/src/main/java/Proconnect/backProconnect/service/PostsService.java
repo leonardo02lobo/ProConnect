@@ -10,7 +10,7 @@ import Proconnect.backProconnect.repository.LikeRepository;
 import Proconnect.backProconnect.repository.PostsRepository;
 import Proconnect.backProconnect.repository.projection.FeedRow;
 import Proconnect.backProconnect.security.OwnershipGuard;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -71,7 +71,7 @@ public class PostsService {
                         request.content().trim(),
                         request.title().trim(),
                         blankToNull(request.imageUrl()),
-                        new Date());
+                        Instant.now());
         return toDto(postsRepository.save(post));
     }
 
@@ -141,7 +141,7 @@ public class PostsService {
                 post.getTitle(),
                 post.getContent(),
                 post.getImageUrl(),
-                post.getDate());
+                post.getCreatedAt());
     }
 
     private static long count(Long value) {

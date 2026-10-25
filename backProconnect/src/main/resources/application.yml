@@ -10,6 +10,9 @@ spring:
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      connection-timeout: ${DB_CONNECTION_TIMEOUT_MS:3000}
   # Esquema gestionado SOLO por Flyway (db/migration). En una base creada antes por Hibernate
   # (ddl-auto=update) Flyway la marca como V1 y aplica V2+. Backup previo: docs/db/migrations.md.
   flyway:
@@ -21,8 +24,21 @@ spring:
     hibernate:
       # validate: la app no arranca si una entidad no coincide con el esquema migrado.
       ddl-auto: ${JPA_DDL_AUTO:validate}
+    # show-sql solo en el perfil dev (application-dev.yml); JPA_SHOW_SQL lo fuerza puntualmente.
     show-sql: ${JPA_SHOW_SQL:false}
+    # Sin open-in-view: un acceso lazy fuera de la transacción falla en vez de lanzar N+1 silenciosos.
     open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          # Fechas en UTC (Instant ↔ DATETIME(6)); batch de escrituras.
+          time_zone: UTC
+          batch_size: 50
+        type:
+          preferred_instant_jdbc_type: TIMESTAMP
+        default_batch_fetch_size: 50
+        order_inserts: true
+        order_updates: true
   # SMTP de los correos de postulación. En dev/E2E apunta a Mailpit (localhost:1025, sin auth ni TLS).
   mail:
     host: ${MAIL_HOST:localhost}

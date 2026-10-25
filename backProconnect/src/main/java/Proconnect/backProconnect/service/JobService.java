@@ -6,7 +6,7 @@ import Proconnect.backProconnect.model.JobDto;
 import Proconnect.backProconnect.model.JobRequest;
 import Proconnect.backProconnect.repository.JobRepository;
 import Proconnect.backProconnect.specification.JobSpecification;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -36,7 +36,7 @@ public class JobService {
                         request.title().trim(),
                         request.description().trim(),
                         request.workStation().trim(),
-                        request.date() != null ? request.date() : new Date());
+                        request.date() != null ? request.date() : Instant.now());
         return toDto(jobRepository.save(job));
     }
 
@@ -79,6 +79,6 @@ public class JobService {
                 j.getTitle(),
                 j.getDescription(),
                 j.getWorkStation(),
-                j.getDate());
+                j.getCreatedAt());
     }
 }

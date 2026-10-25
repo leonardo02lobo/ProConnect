@@ -8,6 +8,7 @@ Desde `restructure-models-performance` el esquema de MySQL lo gestiona **solo Fl
 |---|---|---|---|
 | V1 | `V1__baseline.sql` | Esquema que generaba Hibernate tras cleanup-codebase (sin UNIQUE en `user.name`, `postulations.status` DEFAULT `PENDING`) | No |
 | V2 | `V2__constraints_and_indexes.sql` | Auditoría → borra huérfanos y duplicados → quita UNIQUE de `user.name` → UNIQUE, índices y FKs | **Sí** (solo filas inválidas) |
+| V2.1 | `V2_1__types_and_enums.sql` | `date`→`created_at`, `messages.timestamp`→`sent_at` (DATETIME(6) UTC, NOT NULL); normaliza `friends.status`, `user.role`, `postulations.status` + CHECK | No (normaliza valores) |
 
 ## Bases nuevas y existentes
 

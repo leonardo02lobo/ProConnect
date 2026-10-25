@@ -15,9 +15,9 @@ import Proconnect.backProconnect.repository.JobRepository;
 import Proconnect.backProconnect.repository.PostulationRepository;
 import Proconnect.backProconnect.repository.UserRepository;
 import Proconnect.backProconnect.security.OwnershipGuard;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +68,8 @@ public class PostulationService {
         if (postulationRepository.existsByUserIdAndJobId(applicantId, request.jobId())) {
             throw new ConflictException("Ya te postulaste a este empleo");
         }
-        Postulation postulation = new Postulation(null, applicantId, request.jobId(), new Date());
+        Postulation postulation =
+                new Postulation(null, applicantId, request.jobId(), Instant.now());
         return toDto(postulationRepository.save(postulation));
     }
 
@@ -213,6 +214,6 @@ public class PostulationService {
 
     private static PostulationDto toDto(Postulation p) {
         return new PostulationDto(
-                p.getId(), p.getUserId(), p.getJobId(), p.getDate(), p.getStatus());
+                p.getId(), p.getUserId(), p.getJobId(), p.getCreatedAt(), p.getStatus());
     }
 }

@@ -1,6 +1,6 @@
 package Proconnect.backProconnect.model;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 /** Post del feed o de un perfil: autor, contadores, si el viewer dio like y comentarios. */
@@ -11,7 +11,7 @@ public record FeedPostDto(
         String title,
         String content,
         String imageUrl,
-        Date date,
+        Instant date,
         long totalLikes,
         long totalComments,
         boolean userLiked,

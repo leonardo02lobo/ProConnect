@@ -19,7 +19,7 @@ public interface CommentsRepository extends JpaRepository<Comments, Long> {
             value =
                     """
             SELECT
-                com.id AS id, com.post_id AS postId, com.user_id AS userId, com.content AS content, com.date AS date,
+                com.id AS id, com.post_id AS postId, com.user_id AS userId, com.content AS content, com.created_at AS date,
                 us.email AS userEmail, us.name AS userName, us.role AS userRole, us.user_name AS userUserName,
                 prof.photo_url AS photoUrl, prof.wall_photo_url AS wallPhotoUrl
             FROM proconnect.comments AS com
@@ -27,7 +27,7 @@ public interface CommentsRepository extends JpaRepository<Comments, Long> {
             LEFT JOIN proconnect.profile_photos AS prof ON prof.id =
                 (SELECT MAX(p2.id) FROM proconnect.profile_photos p2 WHERE p2.user_id = us.id)
             WHERE com.post_id = :postId
-            ORDER BY com.date ASC, com.id ASC
+            ORDER BY com.created_at ASC, com.id ASC
             """,
             nativeQuery = true)
     List<CommentRow> findWithAuthorByPostId(@Param("postId") Long postId);
@@ -37,7 +37,7 @@ public interface CommentsRepository extends JpaRepository<Comments, Long> {
             value =
                     """
             SELECT
-                com.id AS id, com.post_id AS postId, com.user_id AS userId, com.content AS content, com.date AS date,
+                com.id AS id, com.post_id AS postId, com.user_id AS userId, com.content AS content, com.created_at AS date,
                 us.email AS userEmail, us.name AS userName, us.role AS userRole, us.user_name AS userUserName,
                 prof.photo_url AS photoUrl, prof.wall_photo_url AS wallPhotoUrl
             FROM proconnect.comments AS com

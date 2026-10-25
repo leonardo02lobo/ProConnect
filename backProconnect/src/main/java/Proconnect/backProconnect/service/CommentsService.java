@@ -8,7 +8,7 @@ import Proconnect.backProconnect.repository.CommentsRepository;
 import Proconnect.backProconnect.repository.PostsRepository;
 import Proconnect.backProconnect.repository.projection.CommentRow;
 import Proconnect.backProconnect.security.OwnershipGuard;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +50,8 @@ public class CommentsService {
         assertPostExists(postId);
         Comments saved =
                 commentsRepository.save(
-                        new Comments(null, postId, authorId, request.content().trim(), new Date()));
+                        new Comments(
+                                null, postId, authorId, request.content().trim(), Instant.now()));
         return commentsRepository.findWithAuthorById(saved.getId()).stream()
                 .findFirst()
                 .map(this::toDto)

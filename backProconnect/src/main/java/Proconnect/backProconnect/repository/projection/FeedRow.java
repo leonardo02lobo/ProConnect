@@ -1,6 +1,6 @@
 package Proconnect.backProconnect.repository.projection;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Fila del feed (post + autor + contadores) leída por alias desde la query nativa de {@code
@@ -13,7 +13,7 @@ public interface FeedRow {
 
     String getContent();
 
-    Date getDate();
+    Instant getDate();
 
     String getImageUrl();
 

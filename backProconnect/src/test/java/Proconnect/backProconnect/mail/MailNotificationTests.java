@@ -14,7 +14,7 @@ import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.Cookie;
-import java.util.Date;
+import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -47,8 +47,9 @@ class MailNotificationTests extends SecurityTestSupport {
         createUser("Root", "ADMIN");
         Long companyId = companies.save(new Company(null, "Acme", "d", "l", ownerId)).getId();
         Long jobId =
-                jobs.save(new Job(null, companyId, "Backend Dev", "d", "w", new Date())).getId();
-        postulationId = postulations.save(new Postulation(null, anaId, jobId, new Date())).getId();
+                jobs.save(new Job(null, companyId, "Backend Dev", "d", "w", Instant.now())).getId();
+        postulationId =
+                postulations.save(new Postulation(null, anaId, jobId, Instant.now())).getId();
         owner = login("Carla");
         applicant = login("Ana");
         otherCompany = login("Dave");

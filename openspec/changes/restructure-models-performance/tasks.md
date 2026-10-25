@@ -20,10 +20,10 @@
 
 ## 4. Entidades
 
-- [ ] 4.1 Agregar relaciones `@ManyToOne(fetch = LAZY)` según D3, sin `@OneToMany` en `User`/`Post`
-- [ ] 4.2 Migrar `Date` → `Instant` (`DATETIME(6)`, UTC) en todas las entidades
-- [ ] 4.3 Crear los enums `FriendStatus` y `Role` y la migración de normalización de valores
-- [ ] 4.4 Poner `open-in-view=false`, el batch fetch size y la configuración de Hikari; `show-sql` solo en `dev`
+- [x] 4.1 Agregar relaciones `@ManyToOne(fetch = LAZY)` según D3, sin `@OneToMany` en `User`/`Post`
+- [x] 4.2 Migrar `Date` → `Instant` (`DATETIME(6)`, UTC) en todas las entidades — `V2_1__types_and_enums.sql` renombra `date`→`created_at` (`messages.timestamp`→`sent_at`), NOT NULL; JSON conserva `date`/`timestamp`
+- [x] 4.3 Crear los enums `FriendStatus` y `Role` y la migración de normalización de valores
+- [x] 4.4 Poner `open-in-view=false`, el batch fetch size y la configuración de Hikari; `show-sql` solo en `dev`
 
 ## 5. Media en User y contadores
 

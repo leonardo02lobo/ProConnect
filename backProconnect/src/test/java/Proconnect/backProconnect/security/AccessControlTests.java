@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import Proconnect.backProconnect.Entity.Comments;
 import Proconnect.backProconnect.Entity.Company;
 import Proconnect.backProconnect.Entity.Friend;
+import Proconnect.backProconnect.Entity.FriendStatus;
 import Proconnect.backProconnect.Entity.Job;
 import Proconnect.backProconnect.Entity.Message;
 import Proconnect.backProconnect.Entity.Posts;
@@ -61,7 +62,9 @@ class AccessControlTests extends SecurityTestSupport {
     }
 
     private Long anaPost() {
-        return posts.save(new Posts(null, anaId, "contenido", "titulo", null, new java.util.Date()))
+        return posts.save(
+                        new Posts(
+                                null, anaId, "contenido", "titulo", null, java.time.Instant.now()))
                 .getId();
     }
 
@@ -106,10 +109,10 @@ class AccessControlTests extends SecurityTestSupport {
     void onlyAuthorOrAdminDeletesComment() throws Exception {
         Long postId = anaPost();
         Long c1 =
-                comments.save(new Comments(null, postId, anaId, "hola", new java.util.Date()))
+                comments.save(new Comments(null, postId, anaId, "hola", java.time.Instant.now()))
                         .getId();
         Long c2 =
-                comments.save(new Comments(null, postId, anaId, "otra", new java.util.Date()))
+                comments.save(new Comments(null, postId, anaId, "otra", java.time.Instant.now()))
                         .getId();
         mvc.perform(delete("/api/comments/" + c1).cookie(bob)).andExpect(status().isForbidden());
         assertThat(comments.existsById(c1)).isTrue();
@@ -122,7 +125,9 @@ class AccessControlTests extends SecurityTestSupport {
     void createIgnoresBodyIdSoForeignRowsCannotBeOverwritten() throws Exception {
         Long postId = anaPost();
         Long c1 =
-                comments.save(new Comments(null, postId, anaId, "original", new java.util.Date()))
+                comments.save(
+                                new Comments(
+                                        null, postId, anaId, "original", java.time.Instant.now()))
                         .getId();
         mvc.perform(
                         post("/api/posts/" + postId + "/comments")
@@ -226,7 +231,8 @@ class AccessControlTests extends SecurityTestSupport {
     void postulationsArePrivate() throws Exception {
         Long companyId = companies.save(new Company(null, "ACME", "d", "l", carlaId)).getId();
         Long jobId =
-                jobs.save(new Job(null, companyId, "Dev", "d", "w", new java.util.Date())).getId();
+                jobs.save(new Job(null, companyId, "Dev", "d", "w", java.time.Instant.now()))
+                        .getId();
         mvc.perform(
                         post("/api/postulations")
                                 .cookie(bob)
@@ -420,10 +426,10 @@ class AccessControlTests extends SecurityTestSupport {
         mvc.perform(post("/api/friends/requests/" + request.getId() + "/reject").cookie(carla))
                 .andExpect(status().isForbidden());
         assertThat(friends.findById(request.getId()).orElseThrow().getStatus())
-                .isEqualTo("PENDING");
+                .isEqualTo(FriendStatus.PENDING);
         mvc.perform(post("/api/friends/requests/" + request.getId() + "/accept").cookie(bob))
                 .andExpect(status().isOk());
         assertThat(friends.findById(request.getId()).orElseThrow().getStatus())
-                .isEqualTo("ACCEPTED");
+                .isEqualTo(FriendStatus.ACCEPTED);
     }
 }

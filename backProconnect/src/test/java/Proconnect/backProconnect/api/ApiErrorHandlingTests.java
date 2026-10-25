@@ -102,7 +102,7 @@ class ApiErrorHandlingTests extends SecurityTestSupport {
         Long anaId = createUser("ana", "USER");
         Cookie ana = login("ana");
         Long postId =
-                posts.save(new Posts(null, anaId, "c", "t", null, new java.util.Date())).getId();
+                posts.save(new Posts(null, anaId, "c", "t", null, java.time.Instant.now())).getId();
         mvc.perform(post("/api/posts/" + postId + "/likes").cookie(ana))
                 .andExpect(status().isCreated());
         mvc.perform(post("/api/posts/" + postId + "/likes").cookie(ana))

@@ -129,4 +129,22 @@ class IntegrityIT extends MySqlIntegrationTest {
                                         987654321L))
                 .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
     }
+
+    /** Spec: una amistad con estado fuera de PENDING/ACCEPTED/REJECTED se rechaza (CHECK). */
+    @Test
+    void databaseRejectsInvalidFriendStatusAndRole() throws Exception {
+        Long anaId = createUser("ana", "USER");
+        Long bobId = createUser("bob", "USER");
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                        () ->
+                                jdbc.update(
+                                        "INSERT INTO friends (user_id_follow, user_id_be_followed,"
+                                                + " status) VALUES (?, ?, 'BEST_FRIENDS')",
+                                        anaId,
+                                        bobId))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class);
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                        () -> jdbc.update("UPDATE `user` SET role = 'ROOT' WHERE id = ?", anaId))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class);
+    }
 }

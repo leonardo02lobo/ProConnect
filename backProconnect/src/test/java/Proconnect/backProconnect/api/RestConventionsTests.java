@@ -114,7 +114,7 @@ class RestConventionsTests extends SecurityTestSupport {
         Long postId =
                 posts.save(
                                 new Proconnect.backProconnect.Entity.Posts(
-                                        null, anaId, "c", "t", null, new java.util.Date()))
+                                        null, anaId, "c", "t", null, java.time.Instant.now()))
                         .getId();
 
         mvc.perform(post("/api/posts/" + postId + "/likes").cookie(bob))

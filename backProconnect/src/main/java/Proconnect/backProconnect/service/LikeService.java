@@ -6,7 +6,7 @@ import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.model.LikeDto;
 import Proconnect.backProconnect.repository.LikeRepository;
 import Proconnect.backProconnect.repository.PostsRepository;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +37,7 @@ public class LikeService {
         if (likeRepository.existsByUserIdAndPostId(userId, postId)) {
             throw new ConflictException("Ya diste like a este post");
         }
-        return toDto(likeRepository.save(new Like(null, userId, postId, new Date())));
+        return toDto(likeRepository.save(new Like(null, userId, postId, Instant.now())));
     }
 
     /** Quita el like del usuario de la sesión: 404 si el post no existe o no tenía like. */
@@ -59,6 +59,6 @@ public class LikeService {
     }
 
     private static LikeDto toDto(Like like) {
-        return new LikeDto(like.getId(), like.getUserId(), like.getPostId(), like.getDate());
+        return new LikeDto(like.getId(), like.getUserId(), like.getPostId(), like.getCreatedAt());
     }
 }

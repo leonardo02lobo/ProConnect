@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import Proconnect.backProconnect.Entity.Comments;
 import Proconnect.backProconnect.Entity.Company;
 import Proconnect.backProconnect.Entity.Friend;
+import Proconnect.backProconnect.Entity.FriendStatus;
 import Proconnect.backProconnect.Entity.Job;
 import Proconnect.backProconnect.Entity.Like;
 import Proconnect.backProconnect.Entity.Posts;
@@ -20,7 +21,7 @@ import Proconnect.backProconnect.Entity.ProfilePhotos;
 import Proconnect.backProconnect.security.SecurityTestSupport;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.servlet.http.Cookie;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -36,7 +37,7 @@ import org.springframework.http.MediaType;
 @SuppressWarnings("unchecked")
 class InheritedBugsTests extends SecurityTestSupport {
 
-    private Long savePost(Long userId, String title, Date date) {
+    private Long savePost(Long userId, String title, Instant date) {
         return posts.save(new Posts(null, userId, "contenido", title, null, date)).getId();
     }
 
@@ -94,9 +95,11 @@ class InheritedBugsTests extends SecurityTestSupport {
         Long rejectId = friends.findAll().get(0).getId();
         mvc.perform(post("/api/friends/requests/" + rejectId + "/reject").cookie(ana))
                 .andExpect(status().isOk());
-        assertThat(friends.findById(rejectId).orElseThrow().getStatus()).isEqualTo("REJECTED");
+        assertThat(friends.findById(rejectId).orElseThrow().getStatus())
+                .isEqualTo(FriendStatus.REJECTED);
 
-        Long cancelId = friends.save(new Friend(null, carlaId, bobId, "PENDING")).getId();
+        Long cancelId =
+                friends.save(new Friend(null, carlaId, bobId, FriendStatus.PENDING)).getId();
         mvc.perform(delete("/api/friends/requests/" + cancelId).cookie(bob))
                 .andExpect(status().isForbidden());
         mvc.perform(delete("/api/friends/requests/" + cancelId).cookie(carla))
@@ -115,9 +118,9 @@ class InheritedBugsTests extends SecurityTestSupport {
     void deletingACommentAnswers204() throws Exception {
         Long anaId = createUser("ana", "USER");
         Cookie ana = login("ana");
-        Long postId = savePost(anaId, "t", new Date());
+        Long postId = savePost(anaId, "t", Instant.now());
         Long commentId =
-                comments.save(new Comments(null, postId, anaId, "hola", new Date())).getId();
+                comments.save(new Comments(null, postId, anaId, "hola", Instant.now())).getId();
         mvc.perform(delete("/api/comments/" + commentId).cookie(ana))
                 .andExpect(status().isNoContent());
         assertThat(comments.existsById(commentId)).isFalse();
@@ -132,8 +135,8 @@ class InheritedBugsTests extends SecurityTestSupport {
         createUser("bob", "USER");
         Cookie bob = login("bob");
         Long companyId = companies.save(new Company(null, "ACME", "d", "l", carlaId)).getId();
-        Long job1 = jobs.save(new Job(null, companyId, "Dev", "d", "w", new Date())).getId();
-        Long job2 = jobs.save(new Job(null, companyId, "QA", "d", "w", new Date())).getId();
+        Long job1 = jobs.save(new Job(null, companyId, "Dev", "d", "w", Instant.now())).getId();
+        Long job2 = jobs.save(new Job(null, companyId, "QA", "d", "w", Instant.now())).getId();
         String created =
                 mvc.perform(
                                 post("/api/postulations")
@@ -192,8 +195,8 @@ class InheritedBugsTests extends SecurityTestSupport {
         photos.save(new ProfilePhotos(null, anaId, "old.png", null));
         photos.save(new ProfilePhotos(null, anaId, "new.png", null));
         long now = System.currentTimeMillis();
-        savePost(anaId, "viejo", new Date(now - 60_000));
-        savePost(anaId, "nuevo", new Date(now));
+        savePost(anaId, "viejo", Instant.ofEpochMilli(now - 60_000));
+        savePost(anaId, "nuevo", Instant.ofEpochMilli(now));
         String feed =
                 mvc.perform(get("/api/posts").cookie(ana))
                         .andExpect(status().isOk())
@@ -219,11 +222,10 @@ class InheritedBugsTests extends SecurityTestSupport {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.posts.length()").value(0));
 
-        Long withoutComments = savePost(anaId, "sin comentarios", new Date());
-        Long liked =
-                savePost(anaId, "con like de bob", new Date(System.currentTimeMillis() + 1000));
-        comments.save(new Comments(null, liked, bobId, "bien", new Date()));
-        likes.save(new Like(null, bobId, liked, new Date()));
+        Long withoutComments = savePost(anaId, "sin comentarios", Instant.now());
+        Long liked = savePost(anaId, "con like de bob", Instant.now().plusMillis(1000));
+        comments.save(new Comments(null, liked, bobId, "bien", Instant.now()));
+        likes.save(new Like(null, bobId, liked, Instant.now()));
 
         String asBob =
                 mvc.perform(get("/api/users/" + anaId + "/profile").cookie(bob))

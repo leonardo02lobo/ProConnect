@@ -21,7 +21,7 @@ public interface PostsRepository extends JpaRepository<Posts, Long> {
             value =
                     """
             SELECT
-                pos.id AS id, pos.title AS title, pos.content AS content, pos.date AS date, pos.image_url AS imageUrl,
+                pos.id AS id, pos.title AS title, pos.content AS content, pos.created_at AS date, pos.image_url AS imageUrl,
                 us.id AS userId, us.email AS userEmail, us.name AS userName, us.role AS userRole,
                 us.user_name AS userUserName,
                 prof.photo_url AS photoUrl, prof.wall_photo_url AS wallPhotoUrl,
@@ -33,7 +33,7 @@ public interface PostsRepository extends JpaRepository<Posts, Long> {
             LEFT JOIN proconnect.profile_photos AS prof ON prof.id =
                 (SELECT MAX(p2.id) FROM proconnect.profile_photos p2 WHERE p2.user_id = us.id)
             WHERE (:authorId IS NULL OR pos.user_id = :authorId)
-            ORDER BY pos.date DESC, pos.id DESC
+            ORDER BY pos.created_at DESC, pos.id DESC
             """,
             nativeQuery = true)
     List<FeedRow> findFeed(@Param("viewerId") Long viewerId, @Param("authorId") Long authorId);

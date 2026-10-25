@@ -57,7 +57,7 @@ public class JwtService {
         return Jwts.builder()
                 .id(UUID.randomUUID().toString())
                 .subject(String.valueOf(user.getId()))
-                .claim("role", Role.fromString(user.getRole()).name())
+                .claim("role", user.getRole().name())
                 .claim("name", user.getName())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(ttl)))

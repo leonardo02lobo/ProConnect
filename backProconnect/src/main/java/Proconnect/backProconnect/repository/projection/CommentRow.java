@@ -1,6 +1,6 @@
 package Proconnect.backProconnect.repository.projection;
 
-import java.util.Date;
+import java.time.Instant;
 
 /** Comentario con los datos públicos de su autor (query nativa de {@code CommentsRepository}). */
 public interface CommentRow {
@@ -12,7 +12,7 @@ public interface CommentRow {
 
     String getContent();
 
-    Date getDate();
+    Instant getDate();
 
     String getUserEmail();
 

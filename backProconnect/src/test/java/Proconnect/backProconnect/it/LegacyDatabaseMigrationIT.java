@@ -192,4 +192,22 @@ class LegacyDatabaseMigrationIT {
                                         + " COLUMN_NAME = 'name' AND NON_UNIQUE = 0"))
                 .isZero();
     }
+
+    /** V2.1: enums normalizados (mayúsculas, desconocido → valor seguro) y fechas renombradas. */
+    @Test
+    void normalizesEnumsAndRenamesDateColumns() {
+        assertThat(jdbc.queryForObject("SELECT role FROM `user` WHERE id = 2", String.class))
+                .isEqualTo("COMPANY_ADMIN");
+        assertThat(jdbc.queryForObject("SELECT role FROM `user` WHERE id = 1", String.class))
+                .isEqualTo("USER");
+        assertThat(jdbc.queryForList("SELECT status FROM friends ORDER BY id", String.class))
+                .containsExactly("ACCEPTED", "PENDING");
+        assertThat(
+                        jdbc.queryForObject(
+                                "SELECT DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') FROM posts WHERE"
+                                        + " id = 1",
+                                String.class))
+                .isEqualTo("2025-01-01 10:00");
+        assertThat(count("SELECT COUNT(*) FROM messages WHERE sent_at IS NOT NULL")).isEqualTo(1);
+    }
 }

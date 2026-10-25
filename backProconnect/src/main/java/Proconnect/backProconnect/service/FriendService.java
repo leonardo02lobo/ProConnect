@@ -1,6 +1,7 @@
 package Proconnect.backProconnect.service;
 
 import Proconnect.backProconnect.Entity.Friend;
+import Proconnect.backProconnect.Entity.FriendStatus;
 import Proconnect.backProconnect.exception.ConflictException;
 import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.exception.ValidationException;
@@ -15,9 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class FriendService {
 
-    static final String PENDING = "PENDING";
-    static final String ACCEPTED = "ACCEPTED";
-    static final String REJECTED = "REJECTED";
+    static final FriendStatus PENDING = FriendStatus.PENDING;
+    static final FriendStatus ACCEPTED = FriendStatus.ACCEPTED;
+    static final FriendStatus REJECTED = FriendStatus.REJECTED;
 
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
@@ -127,7 +128,7 @@ public class FriendService {
         friendRepository.deleteAll(accepted);
     }
 
-    private FriendRequestDto resolve(Long requestId, String status) {
+    private FriendRequestDto resolve(Long requestId, FriendStatus status) {
         Friend friend = findOr404(requestId);
         guard.assertOwnerOrAdmin(friend.getUserIdBeFollowed());
         if (!PENDING.equals(friend.getStatus())) {
@@ -148,6 +149,6 @@ public class FriendService {
 
     private static FriendRequestDto toDto(Friend f) {
         return new FriendRequestDto(
-                f.getId(), f.getUserIdFollow(), f.getUserIdBeFollowed(), f.getStatus());
+                f.getId(), f.getUserIdFollow(), f.getUserIdBeFollowed(), f.getStatus().name());
     }
 }

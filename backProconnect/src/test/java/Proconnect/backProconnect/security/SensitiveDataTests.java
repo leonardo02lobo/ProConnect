@@ -24,8 +24,8 @@ class SensitiveDataTests extends SecurityTestSupport {
         createUser("bob", "USER");
         photos.save(new ProfilePhotos(null, anaId, "a.png", null));
         Long postId =
-                posts.save(new Posts(null, anaId, "c", "t", null, new java.util.Date())).getId();
-        comments.save(new Comments(null, postId, anaId, "hola", new java.util.Date()));
+                posts.save(new Posts(null, anaId, "c", "t", null, java.time.Instant.now())).getId();
+        comments.save(new Comments(null, postId, anaId, "hola", java.time.Instant.now()));
         Cookie bob = login("bob");
 
         List<String> urls =

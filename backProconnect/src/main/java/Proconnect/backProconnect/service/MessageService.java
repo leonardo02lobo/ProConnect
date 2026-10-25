@@ -7,7 +7,7 @@ import Proconnect.backProconnect.model.MessageRequest;
 import Proconnect.backProconnect.repository.MessageRepository;
 import Proconnect.backProconnect.repository.UserRepository;
 import Proconnect.backProconnect.security.OwnershipGuard;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +41,7 @@ public class MessageService {
                                 senderId,
                                 request.receiverId(),
                                 request.content().trim(),
-                                new Date()));
+                                Instant.now()));
         return toDto(saved);
     }
 
@@ -67,6 +67,6 @@ public class MessageService {
 
     private static MessageDto toDto(Message m) {
         return new MessageDto(
-                m.getId(), m.getSenderId(), m.getReceiverId(), m.getContent(), m.getTimestamp());
+                m.getId(), m.getSenderId(), m.getReceiverId(), m.getContent(), m.getSentAt());
     }
 }

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import Proconnect.backProconnect.Entity.User;
 import Proconnect.backProconnect.configuration.AdminBootstrap;
+import Proconnect.backProconnect.model.Role;
 import Proconnect.backProconnect.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,14 +41,14 @@ class AdminBootstrapTests {
     void createsTheAdminOnceAndNeverOverwrites() {
         run("root@example.com", "first-password");
         User admin = users.findByEmail("root@example.com").orElseThrow();
-        assertThat(admin.getRole()).isEqualTo("ADMIN");
+        assertThat(admin.getRole()).isEqualTo(Role.ADMIN);
         assertThat(encoder.matches("first-password", admin.getPassword())).isTrue();
 
-        admin.setRole("USER");
+        admin.setRole(Role.USER);
         users.save(admin);
         run("root@example.com", "second-password");
         User again = users.findByEmail("root@example.com").orElseThrow();
-        assertThat(again.getRole()).isEqualTo("USER");
+        assertThat(again.getRole()).isEqualTo(Role.USER);
         assertThat(encoder.matches("first-password", again.getPassword())).isTrue();
     }
 
