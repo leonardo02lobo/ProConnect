@@ -1,0 +1,6 @@
+# Commits de solo formato que git blame debe saltarse:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+# (GitHub lo aplica automáticamente.)
+
+# cleanup-codebase: Spotless (google-java-format AOSP) + Prettier en todo el repo
+27e07e57b2dd00e245188255cd7b2a85c80160ed
