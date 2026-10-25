@@ -62,6 +62,14 @@ La premisa de la tabla D1 ("4.1 necesita 2026.0") era incorrecta: Spring Cloud *
 ### D4. Java 17 frente a 21
 - Se mantiene el **target 17** para no ampliar el alcance. Las imágenes Docker de runtime pueden pasar a JRE 21 LTS si todo pasa igual. Si genera algún problema se queda en 17; se decide durante la implementación y se documenta.
 
+### Notas de implementación (2026-10-25)
+- **D2**: rewrite-spring 6.37.1 no tiene receta OSS `UpgradeSpringBoot_4_1`; se usó `UpgradeSpringBoot_4_0` (dry-run revisado y aplicado) y después el parent se subió a mano a 4.1.2. Se descartó un cambio de la receta (`HttpStatus` → `HttpStatusCode` en `GlobalExceptionHandler.respond`, no compilaba) y se aceptó el resto: starters modulares, `@NativeQuery`, Testcontainers 2, `tools.jackson` en `ProblemResponses`, anotaciones jspecify e imports de `@AutoConfigureMockMvc`/`@AutoConfigureWebTestClient`.
+- **Jackson 3 / jjwt**: jjwt 0.13.0 sigue serializando con Jackson 2 (`jjwt-jackson`); Boot 4 gestiona `jackson-2-bom` en paralelo a Jackson 3, así que el token no cambia (`LegacyTokenCompatibilityTests` con un token emitido por jjwt 0.12.6 y prueba en vivo en el stack). Los contratos JSON tienen la misma forma (`docs/upgrade/contracts-boot{3,4}.json`, `e2e/scripts/contract-snapshot.mjs --diff`).
+- **Retry**: spring-retry se sustituye por el `RetryTemplate` del core de Spring Framework 7 (programático, para conservar el log por intento): 3 intentos, backoff exponencial, solo `MailException`.
+- **Security 7 / Hibernate 7**: `SecurityConfig` ya usaba el DSL lambda; sin cambios. Queries nativas, proyecciones e `Instant` pasan los IT con `ddl-auto=validate` sobre MySQL 8.4.
+- **Plugins**: Spotless 2.44.5 / google-java-format 1.25.2 y Checkstyle 10.26.1 se mantienen (compatibles con JDK 17; Checkstyle ≥ 11 exige JDK 21 y otro formatter reformatearía todo el código). compiler/surefire/failsafe y Lombok (1.18.48) salen del parent 4.1.2.
+- **D4**: bytecode target 17; las imágenes de runtime pasan a `eclipse-temurin:21-jre-alpine` (E2E, ZAP y contratos verdes con JRE 21).
+
 ## Risks / Trade-offs
 
 - [Jackson 3 cambia la serialización de fechas o nulls y rompe el frontend] → Snapshot de contratos JSON antes y después, más los E2E.
