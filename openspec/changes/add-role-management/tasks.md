@@ -30,6 +30,6 @@
 
 ## 5. Integración y entrega
 
-- [ ] 5.1 Spotless, Checkstyle, ESLint y Prettier verdes; `make ci-local` y `make lint-workflows`
+- [x] 5.1 Spotless, Checkstyle, ESLint y Prettier verdes; `make ci-local` y `make lint-workflows`
 - [ ] 5.2 Push y PR draft apilado sobre `leonardo02lobo/cleanup-codebase`; verificar los checks en GitHub
-- [ ] 5.3 Dejar nota en BOARD para la integración con perf (migración Flyway de `role_changes`, conteo de queries con `RoleResolver`)
+- [x] 5.3 Dejar nota en BOARD para la integración con perf (migración Flyway de `role_changes`, conteo de queries con `RoleResolver`)
