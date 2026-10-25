@@ -67,15 +67,16 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthDto auth, HttpServletRequest request) {
         String email = auth == null ? null : auth.getEmail();
+        String password = auth == null ? null : auth.getPassword();
         String ip = ipResolver.resolve(request);
         // Cuenta bloqueada tras fallos repetidos: 429 aunque el password sea correcto.
         rateLimiter.assertNotLocked(email);
-        Optional<User> user = auth == null ? Optional.empty()
-                : authService.authenticate(email, auth.getPassword());
+        // authenticate() trata nulos/vacíos como credenciales inválidas: siempre se invoca.
+        Optional<User> user = authService.authenticate(email, password);
         if (user.isEmpty()) {
             int failures = rateLimiter.recordFailure(email);
-            // Nunca se registra el password; el email se sanea para evitar inyección en logs.
-            log.warn("Login fallido email={} ip={} fallos={}", sanitize(email), ip, failures);
+            // Nunca se registra el password; email e IP se sanean para evitar inyección en logs.
+            log.warn("Login fallido email={} ip={} fallos={}", sanitize(email), sanitize(ip), failures);
             // Mensaje genérico: no revela si el email existe.
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(error(HttpStatus.UNAUTHORIZED, "Credenciales inválidas"));
@@ -111,7 +112,7 @@ public class AuthController {
         if (value == null) {
             return "-";
         }
-        String clean = value.replaceAll("[\r\n\t]", "_");
+        String clean = value.replace('\r', '_').replace('\n', '_').replace('\t', '_');
         return clean.length() > 120 ? clean.substring(0, 120) : clean;
     }
 

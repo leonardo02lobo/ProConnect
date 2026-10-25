@@ -60,6 +60,12 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<!-- verify-web-security: spring-cloud-starter trae bcprov 1.80.2 (GHSA-9pwp-9qqc-pr26, GHSA-qp49-qgx5-5m26) -->
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcprov-jdk18on</artifactId>
+				<version>1.85.2</version>
+			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>

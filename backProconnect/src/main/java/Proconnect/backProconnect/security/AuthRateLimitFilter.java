@@ -15,6 +15,9 @@ import jakarta.servlet.http.HttpServletResponse;
 /** Límite por IP en POST /api/auth/login y /api/auth/register: 429 + Retry-After al superarlo. */
 public class AuthRateLimitFilter extends OncePerRequestFilter {
 
+    private static final String BODY = "{\"status\":429,\"error\":\"Too Many Requests\","
+            + "\"message\":\"Demasiados intentos. Inténtalo más tarde.\"}";
+
     private final AuthRateLimiter limiter;
     private final ClientIpResolver ipResolver;
 
@@ -40,8 +43,7 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
             response.setHeader("Retry-After", String.valueOf(e.getRetryAfterSeconds()));
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
-            response.getWriter().write("{\"status\":429,\"error\":\"Too Many Requests\",\"message\":\""
-                    + e.getMessage() + "\"}");
+            response.getWriter().write(BODY);
             return;
         }
         chain.doFilter(request, response);

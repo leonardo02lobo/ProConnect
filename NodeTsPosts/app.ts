@@ -5,6 +5,10 @@ import fs from 'node:fs/promises'
 import { randomUUID } from 'node:crypto'
 import { fileTypeFromBuffer } from 'file-type'
 import sharp from 'sharp'
+import { rateLimit } from 'express-rate-limit'
+
+/** Subidas por cliente y minuto (UPLOAD_RATE_LIMIT_PER_MINUTE, 30 por defecto). */
+export const UPLOADS_PER_MINUTE = Number(process.env.UPLOAD_RATE_LIMIT_PER_MINUTE ?? 30)
 
 /** Tamaño máximo por archivo (5 MB). */
 export const MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -40,6 +44,16 @@ class HttpError extends Error {
 export function createApp(uploadDir: string) {
     const app = express()
     app.disable('x-powered-by')
+    // Detrás del gateway (red privada): req.ip sale de X-Forwarded-For solo si el salto es loopback/privado.
+    app.set('trust proxy', 'loopback, linklocal, uniquelocal')
+
+    const uploadLimiter = rateLimit({
+        windowMs: 60_000,
+        limit: UPLOADS_PER_MINUTE,
+        standardHeaders: 'draft-7',
+        legacyHeaders: false,
+        message: { status: 429, message: 'Demasiadas subidas. Inténtalo más tarde.' },
+    })
 
     const upload = multer({
         storage: multer.memoryStorage(),
@@ -50,7 +64,7 @@ export function createApp(uploadDir: string) {
         res.send({ status: 'UP' })
     })
 
-    app.post('/subirImagen', upload.single('miArchivo'), async (req: Request, res: Response, next: NextFunction) => {
+    app.post('/subirImagen', uploadLimiter, upload.single('miArchivo'), async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.file) {
                 throw new HttpError(400, 'Falta el archivo (campo miArchivo)')

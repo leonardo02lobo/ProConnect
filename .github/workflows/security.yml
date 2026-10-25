@@ -137,7 +137,9 @@ jobs:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
         run: |
           if [ -z "$NVD_API_KEY" ]; then
-            echo "::warning::Sin secret NVD_API_KEY la actualización de la NVD es muy lenta. Añádelo en Settings → Secrets."
+            # Sin API key la NVD rechaza/limita las descargas desde los runners de GitHub (reintentos sin fin).
+            echo "::error title=NVD_API_KEY::Falta el secret NVD_API_KEY (gratuito: https://nvd.nist.gov/developers/request-an-api-key). Añádelo en Settings → Secrets and variables → Actions."
+            if [ "$BLOCKING" = "true" ]; then exit 1; else exit 0; fi
           fi
           fail=7; [ "$BLOCKING" = "true" ] || fail=11
           ./mvnw -B -ntp org.owasp:dependency-check-maven:12.2.2:check \
