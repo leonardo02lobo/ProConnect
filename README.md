@@ -54,7 +54,17 @@ export DB_URL=jdbc:mysql://localhost:3306/proconnect DB_USER=proconnect DB_PASSW
 
 Abre `http://localhost:4321` usando `localhost`, no `127.0.0.1`, para que la cookie de sesión se comparta entre `:4321` y `:8080`.
 
-Los correos de postulación salen por SMTP (`MAIL_HOST`, `MAIL_PORT`; por defecto Mailpit en `localhost:1025`). El primer ADMIN se crea con `BOOTSTRAP_ADMIN_EMAIL` y `BOOTSTRAP_ADMIN_PASSWORD` (ver `backProconnect/.env.example`). Las rutas de la API están en [`docs/api-routes.md`](docs/api-routes.md), y los errores son `application/problem+json` con `traceId`.
+Los correos de postulación salen por SMTP (`MAIL_HOST`, `MAIL_PORT`; por defecto Mailpit en `localhost:1025`). Las rutas de la API están en [`docs/api-routes.md`](docs/api-routes.md), y los errores son `application/problem+json` con `traceId`.
+
+### Roles y primer ADMIN
+
+Los roles son `USER` (el registro siempre lo asigna), `COMPANY_ADMIN` (crea empresas y empleos y resuelve postulaciones) y `ADMIN`. Un ADMIN asigna roles desde `/admin/users` (o `PUT /api/admin/users/{id}/role`). Un ADMIN no puede quitarse su propio rol y siempre queda al menos uno. Cada cambio queda auditado en la tabla `role_changes` y se aplica a las sesiones abiertas en la siguiente petición.
+
+El primer ADMIN se crea al arrancar la API con `BOOTSTRAP_ADMIN_EMAIL` y uno de estos dos (ver `backProconnect/.env.example`):
+- `BOOTSTRAP_ADMIN_PASSWORD`;
+- `BOOTSTRAP_ADMIN_PASSWORD_FILE`, una ruta a un archivo, por ejemplo un Docker secret (`/run/secrets/admin_password`). Recomendado, porque el password no queda en el entorno del proceso.
+
+Definir los dos es un error de arranque. El password debe tener al menos 12 caracteres y 3 de 4 clases (minúsculas, mayúsculas, dígitos, símbolos). `BOOTSTRAP_ADMIN_USERNAME` es opcional: si falta, se deriva del email, con sufijo numérico si ya existe. El bootstrap nunca modifica un usuario existente. **Retira las variables `BOOTSTRAP_ADMIN_*` (y el secret) después del primer arranque**: el ADMIN ya existe y los demás se promueven desde la UI.
 
 Calidad (la CI la exige): `mvn spotless:apply` / `mvn spotless:check checkstyle:check` en `backProconnect/` y `gateway/`, y `npm run lint`, `npm run format` / `npm run format:check` en `FrontedProConnect/` y `NodeTsPosts/`. El commit de formato masivo está en `.git-blame-ignore-revs` (`git config blame.ignoreRevsFile .git-blame-ignore-revs`).
 

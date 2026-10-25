@@ -9,11 +9,11 @@
 
 ## 2. AdminBootstrap
 
-- [ ] 2.1 Soportar `BOOTSTRAP_ADMIN_PASSWORD_FILE` (con error si también está `BOOTSTRAP_ADMIN_PASSWORD`)
-- [ ] 2.2 `BOOTSTRAP_ADMIN_USERNAME` explícito y sufijo numérico en el userName derivado
-- [ ] 2.3 Política del password del bootstrap (≥ 12 caracteres, 3 de 4 clases) sin mostrarlo en el log
-- [ ] 2.4 Actualizar `.env.example`, `application.yml`, `docker-compose.e2e.yml` (password válido) y la sección del README sobre retirar las variables tras el primer arranque
-- [ ] 2.5 Tests: password desde archivo, configuración ambigua, password débil, colisión de userName derivado y explícito
+- [x] 2.1 Soportar `BOOTSTRAP_ADMIN_PASSWORD_FILE` (con error si también está `BOOTSTRAP_ADMIN_PASSWORD`)
+- [x] 2.2 `BOOTSTRAP_ADMIN_USERNAME` explícito y sufijo numérico en el userName derivado
+- [x] 2.3 Política del password del bootstrap (≥ 12 caracteres, 3 de 4 clases) sin mostrarlo en el log
+- [x] 2.4 Actualizar `.env.example`, `application.yml`, `docker-compose.e2e.yml` (password válido) y la sección del README sobre retirar las variables tras el primer arranque
+- [x] 2.5 Tests: password desde archivo, configuración ambigua, password débil, colisión de userName derivado y explícito
 
 ## 3. Frontend
 
