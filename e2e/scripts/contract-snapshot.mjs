@@ -10,6 +10,7 @@
 // "datetime:<format>" (so a change in the date serialization is a diff), arrays by the shape of
 // their elements and problem+json bodies keep the status, title and content type. Each request
 // uses fresh users, so the snapshot is independent of the data already in the stack.
+import { randomBytes } from 'node:crypto';
 import fs from 'node:fs';
 
 const API = (process.env.E2E_API_URL ?? 'http://localhost:18080').replace(/\/$/, '');
@@ -86,7 +87,7 @@ class Client {
 }
 
 async function main() {
-  const suffix = `${Date.now().toString(36)}${Math.floor(Math.random() * 1e4)}`;
+  const suffix = randomBytes(6).toString('hex');
   const snap = {};
   // `only` keeps just the list items created by this run (lists also return other data in the stack).
   const record = (name, r, expected, only) => {
