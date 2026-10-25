@@ -38,7 +38,7 @@ jobs:
         if: env.HAS_CLAUDE_AUTH != 'true'
         run: echo "::notice::ANTHROPIC_API_KEY / CLAUDE_CODE_OAUTH_TOKEN not configured — skipping AI triage."
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         if: env.HAS_CLAUDE_AUTH == 'true'
         with:
           ref: ${{ inputs.head_sha }}
@@ -46,14 +46,14 @@ jobs:
 
       - name: Download e2e artifacts of the failed run
         if: env.HAS_CLAUDE_AUTH == 'true'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: e2e-report
           path: e2e
           run-id: ${{ inputs.run_id }}
           github-token: ${{ github.token }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         if: env.HAS_CLAUDE_AUTH == 'true'
         with:
           node-version: '22'
@@ -71,7 +71,7 @@ jobs:
 
       - name: Claude triage
         if: env.HAS_CLAUDE_AUTH == 'true'
-        uses: anthropics/claude-code-action@v1
+        uses: anthropics/claude-code-action@925afb53776cf1a2b738c6bdbed37b4d4000ef13 # v1.0.262
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -97,7 +97,7 @@ jobs:
 
       - name: Keep the diagnosis as artifact
         if: env.HAS_CLAUDE_AUTH == 'true' && always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ai-triage
           path: e2e/ai-triage.md

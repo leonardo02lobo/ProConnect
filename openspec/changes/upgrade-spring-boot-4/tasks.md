@@ -31,10 +31,10 @@
 
 - [x] 5.1 Dependency-Check: eliminar las supresiones de SEC-24 obsoletas; 0 hallazgos ≥ 7 sin justificar
 - [x] 5.2 Actualizar `docs/security/audit-*.md` (SEC-24 resuelto por migración)
-- [ ] 5.3 Fijar por SHA (con comentario de versión) todas las `uses:` de `.github/workflows/*`
-- [ ] 5.4 `cooldown` en todas las entradas de `.github/dependabot.yml`
-- [ ] 5.5 Workflow semanal `eol-check.yml` (falla a menos de 60 días del fin de soporte OSS de la línea de Boot usada)
-- [ ] 5.6 Semgrep sin alertas `mutable-action-tag` ni `missing-cooldown`
+- [x] 5.3 Fijar por SHA (con comentario de versión) todas las `uses:` de `.github/workflows/*`
+- [x] 5.4 `cooldown` en todas las entradas de `.github/dependabot.yml`
+- [x] 5.5 Workflow semanal `eol-check.yml` (falla a menos de 60 días del fin de soporte OSS de la línea de Boot usada)
+- [x] 5.6 Semgrep sin alertas `mutable-action-tag` ni `missing-cooldown`
 
 ## 6. Entrega
 

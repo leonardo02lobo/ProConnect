@@ -21,9 +21,9 @@ jobs:
       CI: 'true'
       COMPOSE: docker compose
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '22'
           cache: npm
@@ -37,13 +37,13 @@ jobs:
           echo "E2E_JWT_SECRET=$jwt" >> "$GITHUB_ENV"
           echo "E2E_DB_PASSWORD=$db" >> "$GITHUB_ENV"
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
         if: ${{ !env.ACT }}
 
       # Layer cache in the GitHub Actions cache (one scope per image).
       - name: Build images (buildx bake + GHA cache)
         if: ${{ !env.ACT }}
-        uses: docker/bake-action@v6
+        uses: docker/bake-action@5be5f02ff8819ecd3092ea6b2e6261c31774f2b4 # v6.10.0
         with:
           source: .
           files: docker-compose.e2e.yml
@@ -69,7 +69,7 @@ jobs:
 
       - name: Upload Playwright report, traces, videos and logs
         if: ${{ always() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: e2e-report
           path: |
