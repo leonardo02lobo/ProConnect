@@ -1,6 +1,6 @@
 ## 1. Línea base
 
-- [ ] 1.1 Agregar Testcontainers MySQL y `datasource-proxy` a los tests, y crear el helper `QueryCounter` — PENDIENTE, diferida a fase 2: toca `backProconnect/pom.xml`, que está modificando `fix-critical-risks`. Mientras tanto el conteo se hace por `performance_schema` (`perf/bench/count-queries.mjs`)
+- [x] 1.1 Agregar Testcontainers MySQL y `datasource-proxy` a los tests, y crear el helper `QueryCounter` — fase 2: `it/MySqlIntegrationTest` (MySQL 8.4 por Testcontainers o `IT_DB_URL`, Flyway + `validate`), `it/QueryCounter` (DML como `count-queries.mjs`); los `*IT` corren con failsafe en `mvn verify`
 - [x] 1.2 Implementar el generador de dataset en el perfil `perf` (Datafaker, semilla fija, `JdbcTemplate.batchUpdate`) — implementado fuera de la app para no tocar su código: `perf/seed/seed.mjs` (Node + @faker-js/faker con semilla fija, inserts por lotes con mysql2)
 - [x] 1.3 Escribir el script de benchmark (k6 u oha) para feed, perfil, comentarios de un post y like
 - [x] 1.4 Ejecutar la medición sobre el código actual y guardar `docs/perf/<fecha>-baseline.md` (queries, p50, p95)
@@ -8,15 +8,15 @@
 
 ## 2. Flyway
 
-- [ ] 2.1 Agregar `flyway-core` y `flyway-mysql`, y configurar `baselineOnMigrate`
-- [ ] 2.2 Generar `V1__baseline.sql` desde el esquema actual
-- [ ] 2.3 Cambiar a `ddl-auto=validate` y verificar el arranque contra una base vacía y una existente
+- [x] 2.1 Agregar `flyway-core` y `flyway-mysql`, y configurar `baselineOnMigrate`
+- [x] 2.2 Generar `V1__baseline.sql` desde el esquema actual
+- [x] 2.3 Cambiar a `ddl-auto=validate` y verificar el arranque contra una base vacía y una existente
 
 ## 3. Integridad e índices
 
-- [ ] 3.1 `V2__constraints_and_indexes.sql`: auditar y limpiar duplicados y huérfanos, y crear FKs (CASCADE/RESTRICT según el diseño), `UNIQUE` e índices
+- [x] 3.1 `V2__constraints_and_indexes.sql`: auditar y limpiar duplicados y huérfanos, y crear FKs (CASCADE/RESTRICT según el diseño), `UNIQUE` e índices
 - [ ] 3.2 Probar la migración V2 sobre una copia con el dataset de referencia, con backup previo documentado
-- [ ] 3.3 Test: un doble like concurrente produce un solo registro y un 409
+- [x] 3.3 Test: un doble like concurrente produce un solo registro y un 409
 
 ## 4. Entidades
 

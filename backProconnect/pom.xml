@@ -41,6 +41,7 @@
 		<mysql.version>26.10.0</mysql.version>
 		<bucket4j.version>8.10.1</bucket4j.version>
 		<greenmail.version>2.1.3</greenmail.version>
+		<datasource-proxy.version>1.11.1</datasource-proxy.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -80,6 +81,15 @@
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>runtime</scope>
+		</dependency>
+		<!-- Esquema versionado (restructure-models-performance): migraciones en src/main/resources/db/migration -->
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-mysql</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -144,6 +154,23 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- Tests de integración (*IT, failsafe) contra MySQL real: Flyway + validate y conteo de sentencias -->
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>mysql</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.ttddyy</groupId>
+			<artifactId>datasource-proxy</artifactId>
+			<version>${datasource-proxy.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -214,6 +241,11 @@
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
+			</plugin>
+			<!-- *IT: MySQL (Testcontainers o IT_DB_URL) en la fase integration-test de verify; -DskipITs para omitirlos. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
