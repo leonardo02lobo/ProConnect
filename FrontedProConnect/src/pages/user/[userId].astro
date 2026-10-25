@@ -1,17 +1,29 @@
 ---
-import Main from "../../layouts/Main.astro"
+import Main from "../../layouts/Main.astro";
+import HeaderProfile from "../../components/profile/HeaderProfile";
+import { ssrFetch } from "../../Service/server";
+import type { UserProfileDTO } from "../../types/Dtos";
 
-const {userId} = Astro.params
+const { userId } = Astro.params;
 
-export async function getStaticPaths(){
-    const response = await fetch("http://localhost:8080/api/user")
-    const data = await response.json()
-
-    return data.map((row:any) => ({
-        params: { userId: row.id }
-    }));
+// SSR: se reenvía la cookie de sesión del navegador al backend.
+const response = await ssrFetch(Astro, `/api/users/${encodeURIComponent(userId ?? "")}/profile`);
+if (response.status === 401) {
+    return Astro.redirect("/login");
+}
+const text = response.ok ? await response.text() : "";
+const profile: UserProfileDTO | null = text ? JSON.parse(text) : null;
+if (!profile) {
+    Astro.response.status = 404;
 }
 ---
-<Main>
-    Hola usuario
+
+<Main title={profile?.name ?? "Usuario"}>
+    {
+        profile ? (
+            <HeaderProfile client:load initialUser={profile} />
+        ) : (
+            <p class="text-center p-6">Usuario no encontrado</p>
+        )
+    }
 </Main>

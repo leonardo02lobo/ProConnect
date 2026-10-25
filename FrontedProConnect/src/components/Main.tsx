@@ -1,59 +1,39 @@
-import { useEffect, useState } from "react";
-import type { PostDTO } from "../types/Dtos";
-import { PostsApi } from "../Service/PostApi";
+import { useCallback, useEffect, useState } from "react";
+import type { FeedPostDTO } from "../types/Dtos";
+import { postsService } from "../Service/posts";
 import Post from "./Post";
 import AddPost from "./profile/AddPost";
 
-function RMain() {
-    const [posts, setPosts] = useState<PostDTO[]>([])
+function Main() {
+    const [posts, setPosts] = useState<FeedPostDTO[]>([]);
+    const [error, setError] = useState<string | null>(null);
+
+    const loadFeed = useCallback(async () => {
+        try {
+            setPosts(await postsService.feed());
+            setError(null);
+        } catch {
+            setError("No se pudo cargar el feed");
+        }
+    }, []);
 
     useEffect(() => {
-        const fetchPosts = async () => {
-            try {
-                const response = await PostsApi.Posts();
-                if (!response.ok) {
-                    let errorBody: unknown;
-                    try {
-                        errorBody = await response.json();
-                    } catch {
-                        errorBody = await response.text();
-                    }
-                    throw new Error(`HTTP ${response.status}: ${JSON.stringify(errorBody)}`);
-                }
-                const posts: PostDTO[] = await response.json();
-                setPosts(posts);
-            } catch (error) {
-                console.error("Error al obtener posts:", error);
-                setPosts([]);
-                window.location.href = "/SignUp"
-            }
-        };
-        fetchPosts();
-    }, [])
+        void loadFeed();
+    }, [loadFeed]);
 
     return (
         <section className="flex flex-col justify-center items-center">
-            <AddPost />
-            {
-                posts.map(post => (
-                    <Post
-                        key={post.id}
-                        id={post.id}
-                        title={post.title}
-                        content={post.content}
-                        imageUrl={post.imageUrl}
-                        userId={post.user?.id ?? 0}
-                        name={post.user?.name ?? ""}
-                        photoUrl={post.user?.profilePhotosDto.photoUrl ?? ""}
-                        totalLikes={post.totalLikes}
-                        totalComentarios={post.totalComentarios}
-                        userLiked={post.userLiked}
-                        comment={post.comments}
-                    />
-                ))
-            }
+            <AddPost onCreated={loadFeed} />
+            {error && (
+                <p role="alert" data-testid="feed-error" className="text-red-600 my-4">
+                    {error}
+                </p>
+            )}
+            {posts.map((post) => (
+                <Post key={post.id} post={post} />
+            ))}
         </section>
     );
 }
 
-export default RMain
+export default Main;

@@ -1,95 +1,77 @@
 package Proconnect.backProconnect.controller;
 
+import Proconnect.backProconnect.model.FriendRequestDto;
+import Proconnect.backProconnect.model.UserProfileDto;
+import Proconnect.backProconnect.model.UserPublicDto;
+import Proconnect.backProconnect.model.UserUpdateRequest;
+import Proconnect.backProconnect.security.CurrentUser;
+import Proconnect.backProconnect.service.FriendService;
+import Proconnect.backProconnect.service.UserService;
+import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import Proconnect.backProconnect.model.UserDto;
-import Proconnect.backProconnect.model.UserProfileDTO;
-import Proconnect.backProconnect.service.UserService;
-import jakarta.validation.Valid;
-
+/** Usuarios. El alta es POST /api/auth/register. */
 @RestController
-@RequestMapping("/api/user")
-@CrossOrigin(origins = "*")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
+    private final FriendService friendService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, FriendService friendService) {
         this.userService = userService;
+        this.friendService = friendService;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> AddUser(@RequestBody @Valid UserDto user) {
-        Object createdUser = userService.AddUser(user);
-        if (createdUser != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User could not be created.");
-        }
-    }
-
+    /** Todos los usuarios, o los que coinciden con {@code q} (nombre o userName). */
     @GetMapping
-    public ResponseEntity<?> GetAllUser() {
-        Object users = userService.GetAllUsers();
-        if (users != null) {
-            return ResponseEntity.ok().body(users);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No users found.");
-        }
+    public List<UserPublicDto> list(@RequestParam(name = "q", required = false) String query) {
+        return userService.listUsers(Optional.ofNullable(query));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> UpdateUserById(@PathVariable Long id, @RequestBody @Valid UserDto newUser) {
-        Object updatedUser = userService.UpdateUserById(id, newUser);
-        if (updatedUser != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-        }
+    @GetMapping("/{id}")
+    public UserPublicDto get(@PathVariable Long id) {
+        return userService.getUser(id);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> DeleteUserById(@PathVariable Long id) {
-        boolean deleted = userService.DeleteUserById(id);
-        if (deleted) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-        }
+    @PutMapping("/{id}")
+    public UserPublicDto update(
+            @PathVariable Long id, @RequestBody @Valid UserUpdateRequest request) {
+        return userService.updateUser(id, request);
     }
 
-    @GetMapping("/search/{id}")
-    public ResponseEntity<?> GetUserById(@PathVariable Long id) {
-        Object user = userService.GetUserById(id);
-        if (user != null) {
-            return ResponseEntity.ok().body(user);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-        }
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        userService.deleteUser(id);
     }
 
-    @GetMapping("/search/name/{name}")
-    public ResponseEntity<?> SearchByNameOrUsername(@PathVariable String name) {
-        Object users = userService.SearchByNameOrUsername(name);
-        if (users != null) {
-            return ResponseEntity.ok().body(users);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No users found.");
-        }
+    /** Perfil con sus posts; {@code userLiked} es del usuario de la sesión. */
+    @GetMapping("/{id}/profile")
+    public UserProfileDto profile(@PathVariable Long id) {
+        return userService.getProfile(id, Optional.of(CurrentUser.id()));
     }
 
-    @GetMapping("/{userId}/profiles-posts")
-    public UserProfileDTO getUserProfilesAndPosts(@PathVariable Long userId) {
-        return userService.findUsersWithProfilesAndPosts(userId);
+    /** Amistades aceptadas del usuario. */
+    @GetMapping("/{id}/friends")
+    public List<FriendRequestDto> friends(@PathVariable Long id) {
+        return friendService.friendsOf(id);
+    }
+
+    /** Relación entre el usuario de la sesión y {id} (404 si no hay ninguna). */
+    @GetMapping("/{id}/friendship")
+    public FriendRequestDto friendship(@PathVariable Long id) {
+        return friendService.relationBetween(CurrentUser.id(), id);
     }
 }

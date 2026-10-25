@@ -1,0 +1,53 @@
+spring:
+  # SMTP de prueba: GreenMail en los tests de correo (MailNotificationTests); en el resto nadie escucha.
+  mail:
+    host: localhost
+    port: 3025
+    properties:
+      mail:
+        smtp:
+          connectiontimeout: 2000
+          timeout: 2000
+          writetimeout: 2000
+  datasource:
+    url: jdbc:h2:mem:proconnect;MODE=MySQL;NON_KEYWORDS=USER,VALUE;DB_CLOSE_DELAY=-1;INIT=CREATE SCHEMA IF NOT EXISTS proconnect
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        # Las queries nativas usan el schema literal "proconnect."
+        default_schema: proconnect
+
+proconnect:
+  mail:
+    from: no-reply@proconnect.test
+    retry:
+      max-attempts: 3
+      delay-ms: 50
+      multiplier: 2
+  jwt:
+    secret: test-secret-test-secret-test-secret-123
+    ttl: PT1H
+  cookie:
+    name: pc_session
+    secure: false
+  cors:
+    origins: http://localhost:4321
+  # Límites altos en la suite general; RateLimitTests usa los valores reales en su propio contexto.
+  ratelimit:
+    auth-per-minute: 100000
+    max-failures: 100000
+
+management:
+  health:
+    mail:
+      enabled: false
+
+logging:
+  pattern:
+    level: "%5p [%X{traceId:-}]"

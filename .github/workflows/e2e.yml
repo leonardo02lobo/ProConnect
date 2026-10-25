@@ -1,0 +1,99 @@
+name: e2e
+
+on:
+  pull_request:          # every PR, whatever its base branch (stacked PRs included)
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: 'true'
+      COMPOSE: docker compose
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+
+      # Ephemeral test credentials, generated inside the job (never stored in YAML or secrets).
+      - name: Generate test secrets
+        run: |
+          jwt=$(openssl rand -hex 32); db=$(openssl rand -hex 16)
+          echo "::add-mask::$jwt"; echo "::add-mask::$db"
+          echo "E2E_JWT_SECRET=$jwt" >> "$GITHUB_ENV"
+          echo "E2E_DB_PASSWORD=$db" >> "$GITHUB_ENV"
+
+      - uses: docker/setup-buildx-action@v3
+        if: ${{ !env.ACT }}
+
+      # Layer cache in the GitHub Actions cache (one scope per image).
+      - name: Build images (buildx bake + GHA cache)
+        if: ${{ !env.ACT }}
+        uses: docker/bake-action@v6
+        with:
+          source: .
+          files: docker-compose.e2e.yml
+          load: true
+          set: |
+            api.cache-from=type=gha,scope=e2e-api
+            api.cache-to=type=gha,scope=e2e-api,mode=max
+            gateway.cache-from=type=gha,scope=e2e-gateway
+            gateway.cache-to=type=gha,scope=e2e-gateway,mode=max
+            media.cache-from=type=gha,scope=e2e-media
+            media.cache-to=type=gha,scope=e2e-media,mode=max
+            web.cache-from=type=gha,scope=e2e-web
+            web.cache-to=type=gha,scope=e2e-web,mode=max
+
+      - name: Build images (act / no cache)
+        if: ${{ env.ACT }}
+        run: docker compose -p pc-e2e -f docker-compose.e2e.yml build
+
+      - name: Run E2E (stack + Playwright)
+        env:
+          E2E_NO_BUILD: '1'
+        run: ./e2e/scripts/run-e2e.sh
+
+      - name: Upload Playwright report, traces, videos and logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report
+          path: |
+            e2e/playwright-report/
+            e2e/test-results/
+            e2e/artifacts/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # AI triage of the failure (comment on the PR). Lives in a reusable workflow so it can
+  # also be dispatched by hand for an older run.
+  triage:
+    needs: e2e
+    if: ${{ failure() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+    permissions:
+      contents: read
+      pull-requests: write
+      actions: read
+    uses: ./.github/workflows/ai-e2e-triage.yml
+    with:
+      run_id: ${{ github.run_id }}
+      pr_number: ${{ github.event.pull_request.number }}
+      head_sha: ${{ github.event.pull_request.head.sha }}
+    # Solo los secretos que necesita (no `secrets: inherit`).
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

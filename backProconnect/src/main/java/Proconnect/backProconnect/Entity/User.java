@@ -1,5 +1,6 @@
 package Proconnect.backProconnect.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,40 +13,32 @@ import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "User")
-public class User{
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Name is mandatory")
-    @NotNull(message = "Name cannot be null")
-    @Column(unique = true, nullable = false)
+    @NotBlank(message = "Name is mandatory") @NotNull(message = "Name cannot be null")
+    // Sin UNIQUE: dos personas pueden llamarse igual (el identificador público es userName).
+    // Las BD existentes conservan el índice hasta la migración Flyway de
+    // restructure-models-performance.
+    @Column(nullable = false)
     private String name;
 
-    @NotBlank(message = "Username is mandatory")
-    @NotNull(message = "Username cannot be null")
-    @Column(unique = true,nullable = false)
+    @NotBlank(message = "Username is mandatory") @NotNull(message = "Username cannot be null") @Column(unique = true, nullable = false)
     private String userName;
 
-    @NotBlank(message = "Email is mandatory")
-    @NotNull(message = "Email cannot be null")
-    @Column(unique = true,nullable = false)
+    @NotBlank(message = "Email is mandatory") @NotNull(message = "Email cannot be null") @Column(unique = true, nullable = false)
     private String email;
 
-    @NotBlank(message = "Password is mandatory")
-    @NotNull(message = "Password cannot be null")
-    @Size(min = 7, max = 100, message = "Password be in range 7 at 100 characters long")
-    @Column(nullable = false, length = 100)
+    @JsonIgnore
+    @NotBlank(message = "Password is mandatory") @NotNull(message = "Password cannot be null") @Size(min = 7, max = 100, message = "Password be in range 7 at 100 characters long") @Column(nullable = false, length = 100)
     private String password;
 
-    @NotBlank(message = "Role is mandatory")
-    @NotNull(message = "Role cannot be null")
-    private String role;
+    @NotBlank(message = "Role is mandatory") @NotNull(message = "Role cannot be null") private String role;
 
-    
-    public User() {
-    }
+    public User() {}
 
     public User(Long id, String name, String userName, String email, String password, String role) {
         this.id = id;
@@ -80,6 +73,7 @@ public class User{
         this.email = email;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }

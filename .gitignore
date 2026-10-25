@@ -1,0 +1,23 @@
+# Dependencias y builds
+node_modules/
+dist/
+target/
+.astro/
+
+# Entorno / secretos (usar los .env.example como plantilla)
+.env
+.env.*
+!.env.example
+
+# Archivos subidos por usuarios (servicio de media)
+NodeTsPosts/upload/*
+!NodeTsPosts/upload/.gitkeep
+
+# Varios
+.DS_Store
+*.log
+
+# act local artifact server (make ci-local-e2e)
+.act-artifacts/
+security/dast/out/
+*.sarif

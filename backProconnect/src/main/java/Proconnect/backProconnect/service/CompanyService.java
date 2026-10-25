@@ -1,81 +1,89 @@
 package Proconnect.backProconnect.service;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.stereotype.Service;
-
 import Proconnect.backProconnect.Entity.Company;
+import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.model.CompanyDto;
+import Proconnect.backProconnect.model.CompanyRequest;
+import Proconnect.backProconnect.model.Role;
 import Proconnect.backProconnect.repository.CompanyRepository;
+import Proconnect.backProconnect.security.OwnershipGuard;
+import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CompanyService {
-    
+
     private final CompanyRepository companyRepository;
+    private final OwnershipGuard guard;
 
-    public CompanyService(CompanyRepository companyRepository){
+    public CompanyService(CompanyRepository companyRepository, OwnershipGuard guard) {
         this.companyRepository = companyRepository;
+        this.guard = guard;
     }
 
-    public String AddCompany(CompanyDto company){
-        try {
-            if(company == null){
-                return "Company cannot be null";
-            }
-            Company companyEntity = new Company(company.getId(), company.getName(), company.getDescription(), company.getLocation(), company.getUserId());
-            companyRepository.save(companyEntity);
-            return "Company add successufly";
-        } catch (Exception e) {
-            return "Error: "+e.getMessage();
+    /**
+     * Solo COMPANY_ADMIN o ADMIN crean empresas (403); el creador (sesión) queda como propietario.
+     */
+    @Transactional
+    public CompanyDto create(Long ownerId, CompanyRequest request) {
+        guard.requireAnyRole(Role.COMPANY_ADMIN, Role.ADMIN);
+        Company company =
+                new Company(
+                        null,
+                        request.name().trim(),
+                        request.description().trim(),
+                        request.location().trim(),
+                        ownerId);
+        return toDto(companyRepository.save(company));
+    }
+
+    @Transactional(readOnly = true)
+    public List<CompanyDto> list() {
+        return companyRepository.findAll().stream().map(CompanyService::toDto).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public CompanyDto get(Long id) {
+        return toDto(findOr404(id));
+    }
+
+    /** Solo el propietario o un ADMIN (403); 404 si no existe. El propietario no cambia. */
+    @Transactional
+    public CompanyDto update(Long id, CompanyRequest request) {
+        Company company = findOr404(id);
+        guard.assertOwnerOrAdmin(company.getUserId());
+        company.setName(request.name().trim());
+        company.setDescription(request.description().trim());
+        company.setLocation(request.location().trim());
+        return toDto(companyRepository.save(company));
+    }
+
+    /** Solo el propietario o un ADMIN (403); 404 si no existe. */
+    @Transactional
+    public void delete(Long id) {
+        Company company = findOr404(id);
+        guard.assertOwnerOrAdmin(company.getUserId());
+        companyRepository.delete(company);
+    }
+
+    /** Empresa existente o 404. */
+    public Company findOr404(Long id) {
+        if (id == null || id <= 0) {
+            throw new NotFoundException("Empresa no encontrada");
         }
+        return companyRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException("Empresa no encontrada"));
     }
 
-    public List<Company> GetAllCompany(){
-        return companyRepository.findAll();
+    /** 403 si el actor no es el propietario de la empresa ni ADMIN (404 si no existe). */
+    public void assertCanManage(Long companyId) {
+        guard.assertOwnerOrAdmin(findOr404(companyId).getUserId());
     }
 
-    public String EditCompanyById(Long Id,CompanyDto newCompany){
-        try {
-            if(Id == null || Id <= 0){
-                return "Id cannot be null or zero";
-            }
-            Optional<Company> companyOpt = companyRepository.findById(Id);
-            if(!companyOpt.isPresent()){
-                return "Company does not exists";
-            }
-            Company company = companyOpt.get();
-            company.setDescription(newCompany.getDescription());
-            company.setLocation(newCompany.getLocation());
-            company.setName(newCompany.getName());
-            companyRepository.save(company);
-            return "Company Edit Successufly";
-        } catch (Exception e) {
-            return "Error: "+e.getMessage();
-        }
-    }
-
-    public String DeleteCompanyById(Long Id){
-        try {
-            if(Id == null || Id <= 0){
-                return "Id cannot be null or zero";
-            }
-            companyRepository.deleteById(Id);
-            return "Company Delete successufly";
-        } catch (Exception e) {
-            return "Error: "+e.getMessage();
-        }
-    }
-
-    public Company FindCompanyById(Long Id){
-        try {
-            if(Id == null || Id <= 0){
-                return null;
-            }
-            Optional<Company> companyOpt = companyRepository.findById(Id);
-            return companyOpt.orElse(null);
-        } catch (Exception e) {
-            return null;
-        }
+    static CompanyDto toDto(Company c) {
+        return new CompanyDto(
+                c.getId(), c.getName(), c.getDescription(), c.getLocation(), c.getUserId());
     }
 }

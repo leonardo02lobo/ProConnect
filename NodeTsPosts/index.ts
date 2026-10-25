@@ -1,34 +1,13 @@
-import express from 'express'
-import multer from 'multer'
-import path from 'path'
-import cors from 'cors';
+import path from 'node:path'
+import fs from 'node:fs'
+import { createApp } from './app.ts'
 
-const app = express();
+// Configuración por entorno (ver .env.example)
+const PORT = Number(process.env.PORT ?? 3001)
+const UPLOAD_DIR = path.resolve(process.env.UPLOAD_DIR ?? 'upload')
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'upload/')
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
-        const fileExtension = path.extname(file.originalname)
-        cb(null, file.fieldname + "-" + uniqueSuffix + fileExtension)
-    },
-});
+fs.mkdirSync(UPLOAD_DIR, { recursive: true })
 
-const upload = multer({ storage })
-
-
-app.post('/subirImagen', upload.single('miArchivo'), (req, res) => {
-    console.log(req.file);
-    res.send({
-        messsage: 'Archivo subido exitosamente',
-        data: req.file
-    });
-});
-
-app.use('/uploads', express.static('upload'));
-
-app.listen(3000, () => {
-    console.log("http://localhost:3000");
+createApp(UPLOAD_DIR).listen(PORT, () => {
+  console.log(`media service on http://localhost:${PORT}`)
 })

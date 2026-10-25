@@ -1,51 +1,71 @@
+// Tipos alineados con los DTOs del backend (backProconnect/model).
+
+/** Usuario público (UserPublicDto). Nunca incluye password. */
+export interface UserDTO {
+    id: number;
+    /** Solo presente para el propio usuario o un ADMIN. */
+    email?: string;
+    name: string;
+    role: "USER" | "COMPANY_ADMIN" | "ADMIN" | string;
+    userName: string;
+    photoUrl: string | null;
+    wallPhotoUrl: string | null;
+}
+
+/** Post sin agregados (PostDto). */
 export interface PostDTO {
     id: number;
+    userId: number;
     title: string;
     content: string;
-    user?: UserDTO;
+    imageUrl: string | null;
     date: string;
-    imageUrl: string;
+}
+
+/** Post del feed o de un perfil (FeedPostDto). */
+export interface FeedPostDTO extends PostDTO {
+    user: UserDTO;
     totalLikes: number;
-    totalComentarios: number;
-    userLiked?: boolean;
-    comments: CommentsDTO[];
+    totalComments: number;
+    userLiked: boolean;
+    comments: CommentDTO[];
 }
 
-
-export interface UserProfileDTO {
-    id: number;
-    email: string;
-    name: string;
-    password: string;
-    role: string;
-    userName: string;
-    photoUrl: string;
-    wallPhotoUrl: string;
-    posts: PostDTO[];
-}
-
-export interface CommentsDTO {
+export interface CommentDTO {
     id: number;
     postId: number;
     userId: number;
     content: string;
-    date: Date;
-    user: UserDTO;
+    date: string;
+    user: UserDTO | null;
 }
 
-export interface UserDTO {
+export interface LikeDTO {
     id: number;
-    email: string;
+    userId: number;
+    postId: number;
+    date: string;
+}
+
+export interface UserProfileDTO {
+    id: number;
+    /** Solo presente para el propio usuario o un ADMIN. */
+    email?: string;
     name: string;
-    password: string;
     role: string;
     userName: string;
-    profilePhotosDto: ProfilePhotoDto;
+    photoUrl: string | null;
+    wallPhotoUrl: string | null;
+    posts: FeedPostDTO[];
 }
 
-export interface ProfilePhotoDto {
-    Id: number;
-    userId: number;
-    photoUrl: string;
-    wallPhotoUrl: string;
+/** Error de la API (application/problem+json, RFC 7807). */
+export interface ProblemDetail {
+    type?: string;
+    title?: string;
+    status: number;
+    detail?: string;
+    instance?: string;
+    traceId?: string;
+    errors?: Array<{ field: string; message: string }>;
 }

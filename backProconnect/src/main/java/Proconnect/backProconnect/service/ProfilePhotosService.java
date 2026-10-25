@@ -1,80 +1,75 @@
 package Proconnect.backProconnect.service;
 
-import java.util.Optional;
-
-import org.springframework.stereotype.Service;
-
 import Proconnect.backProconnect.Entity.ProfilePhotos;
+import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.model.ProfilePhotosDto;
+import Proconnect.backProconnect.model.ProfilePhotosRequest;
 import Proconnect.backProconnect.repository.ProfilePhotosRepository;
+import Proconnect.backProconnect.security.OwnershipGuard;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProfilePhotosService {
-    
+
     private final ProfilePhotosRepository profilePhotosRepository;
+    private final OwnershipGuard guard;
 
-    public ProfilePhotosService(ProfilePhotosRepository profilePhotosRepository) {
+    public ProfilePhotosService(
+            ProfilePhotosRepository profilePhotosRepository, OwnershipGuard guard) {
         this.profilePhotosRepository = profilePhotosRepository;
+        this.guard = guard;
     }
 
-    public String AddProfilePhoto(ProfilePhotosDto profilePhotosDto){
-        try {
-            if(profilePhotosDto == null){
-                return "Photos cannot be null";
-            }
-            ProfilePhotos profilePhotos = new ProfilePhotos(profilePhotosDto.getId(), profilePhotosDto.getUserId(), profilePhotosDto.getPhotoUrl(), profilePhotosDto.getWallPhotoUrl());
-            profilePhotosRepository.save(profilePhotos);
-            return "Photos Add successufly";
-        } catch (Exception e) {
-            return "Error: "+e.getMessage();
-        }
+    /** Resultado de crear-o-reemplazar: {@code created} distingue 201 de 200. */
+    public record Upsert(ProfilePhotosDto photos, boolean created) {}
+
+    /**
+     * Crea o reemplaza las fotos del usuario de la sesión. Nunca se reutiliza un id del body (evita
+     * sobrescribir la fila de otro usuario).
+     */
+    @Transactional
+    public Upsert upsertOwn(Long userId, ProfilePhotosRequest request) {
+        var existing = profilePhotosRepository.findFirstByUserIdOrderByIdDesc(userId);
+        ProfilePhotos photos =
+                existing.orElseGet(() -> new ProfilePhotos(null, userId, null, null));
+        photos.setPhotoUrl(request.photoUrl());
+        photos.setWallPhotoUrl(request.wallPhotoUrl());
+        return new Upsert(toDto(profilePhotosRepository.save(photos)), existing.isEmpty());
     }
 
-    public ProfilePhotos GetPhotoById(Long Id){
-        try {
-            if(Long.valueOf(Id) == null || Id == 0){
-                return null;
-            }
-            Optional<ProfilePhotos> profile =  profilePhotosRepository.findById(Id);
-            return profile.orElse(null);
-        } catch (Exception e) {
-            return null;
-        }
+    @Transactional(readOnly = true)
+    public ProfilePhotosDto get(Long id) {
+        return toDto(findOr404(id));
     }
 
-    public boolean UpdatePhotoUrlById(Long id, String newPhotoUrl) {
-        try {
-            if (id == null || id == 0) {
-                return false;
-            }
-            Optional<ProfilePhotos> profileOpt = profilePhotosRepository.findById(id);
-            if (!profileOpt.isPresent()) {
-                return false;
-            }
-            ProfilePhotos profile = profileOpt.get();
-            profile.setPhotoUrl(newPhotoUrl);
-            profilePhotosRepository.save(profile); 
-            return true;
-        } catch (Exception e) {
-            return false;
+    /**
+     * Actualización parcial (null = sin cambio). Solo el propietario o un ADMIN (403); 404 si no
+     * existe.
+     */
+    @Transactional
+    public ProfilePhotosDto update(Long id, ProfilePhotosRequest request) {
+        ProfilePhotos photos = findOr404(id);
+        guard.assertOwnerOrAdmin(photos.getUserId());
+        if (request.photoUrl() != null) {
+            photos.setPhotoUrl(request.photoUrl());
         }
+        if (request.wallPhotoUrl() != null) {
+            photos.setWallPhotoUrl(request.wallPhotoUrl());
+        }
+        return toDto(profilePhotosRepository.save(photos));
     }
 
-    public boolean UpdateWallPhotoUrlById(Long id, String newWallPhotoUrl) {
-        try {
-            if (id == null || id == 0) {
-                return false;
-            }
-            Optional<ProfilePhotos> profileOpt = profilePhotosRepository.findById(id);
-            if (!profileOpt.isPresent()) {
-                return false;
-            }
-            ProfilePhotos profile = profileOpt.get();
-            profile.setWallPhotoUrl(newWallPhotoUrl);
-            profilePhotosRepository.save(profile); 
-            return true;
-        } catch (Exception e) {
-            return false;
+    private ProfilePhotos findOr404(Long id) {
+        if (id == null || id <= 0) {
+            throw new NotFoundException("Fotos no encontradas");
         }
+        return profilePhotosRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException("Fotos no encontradas"));
+    }
+
+    private static ProfilePhotosDto toDto(ProfilePhotos p) {
+        return new ProfilePhotosDto(p.getId(), p.getUserId(), p.getPhotoUrl(), p.getWallPhotoUrl());
     }
 }

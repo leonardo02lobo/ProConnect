@@ -1,0 +1,14 @@
+¡Felicidades! Has sido seleccionado para el puesto
+
+Hola {nombre},
+
+¡Nos da mucho gusto informarte que has sido seleccionado para el puesto de {puesto} en {empresa}!
+
+Quedamos impresionados con tu perfil, tus habilidades y tu entusiasmo demostrada durante el proceso de selección. Estamos convencidos de que serás un gran aporte para nuestro equipo.
+
+En breve, nos pondremos en contacto contigo para darte más detalles sobre tu incorporación y los pasos a seguir.
+
+¡Bienvenido a bordo!
+
+Atentamente,
+{empresa}

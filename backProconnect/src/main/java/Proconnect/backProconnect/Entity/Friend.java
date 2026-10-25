@@ -16,15 +16,14 @@ public class Friend {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "User ID Follow cannot be null")
-    private Long userIdFollow;
+    @NotNull(message = "User ID Follow cannot be null") private Long userIdFollow;
 
-    @NotNull(message = "User ID Be Followed cannot be null")
-    private Long userIdBeFollowed;
+    @NotNull(message = "User ID Be Followed cannot be null") private Long userIdBeFollowed;
 
-    @NotBlank(message = "Status is mandatory")
-    @NotNull(message = "Status cannot be null")
-    private String status;
+    @NotBlank(message = "Status is mandatory") @NotNull(message = "Status cannot be null") private String status;
+
+    /** Requerido por JPA para materializar la entidad. */
+    public Friend() {}
 
     public Friend(Long id, Long userIdFollow, Long userIdBeFollowed, String status) {
         this.id = id;
@@ -64,5 +63,4 @@ public class Friend {
     public void setStatus(String status) {
         this.status = status;
     }
-
 }

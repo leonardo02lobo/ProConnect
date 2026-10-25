@@ -11,40 +11,36 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(name = "Company")
 public class Company {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
-    @NotBlank(message = "Name is mandatory")
-    @NotNull(message = "Name cannot be null")
-    private String name;
+    @NotBlank(message = "Name is mandatory") @NotNull(message = "Name cannot be null") private String name;
 
-    @NotBlank(message = "Description is mandatory")
-    @NotNull(message = "Description cannot be null")
-    private String description;
+    @NotBlank(message = "Description is mandatory") @NotNull(message = "Description cannot be null") private String description;
 
-    @NotBlank(message = "Location is mandatory")
-    @NotNull(message = "Location cannot be null")
-    private String location;
-    
-    @NotNull(message = "User ID cannot be null")
-    private Long userId;
+    @NotBlank(message = "Location is mandatory") @NotNull(message = "Location cannot be null") private String location;
+
+    @NotNull(message = "User ID cannot be null") private Long userId;
+
+    /** Requerido por JPA para materializar la entidad. */
+    public Company() {}
 
     public Company(Long id, String name, String description, String location, Long userId) {
-        Id = id;
+        this.id = id;
         this.name = name;
         this.description = description;
         this.location = location;
-        this.userId = userId;   
+        this.userId = userId;
     }
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getName() {
@@ -78,5 +74,4 @@ public class Company {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-    
 }

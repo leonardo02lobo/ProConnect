@@ -1,0 +1,15 @@
+# Hallazgos históricos de gitleaks ya triados (verify-web-security, auditoría SEC-20).
+# Siguen en el historial (no se reescribe) y su ÚNICA mitigación es la rotación: ver
+# "Checklist de rotación de credenciales" en README.md. No añadir aquí secretos nuevos sin triage.
+#
+# Password MySQL antigua en application.properties (rotación: README → MySQL)
+69134df2699ec53ada6531d06eadbaa6bd55d046:backProconnect/src/main/resources/application.properties:spring-datasource-password:4
+# App password de Gmail del backend legacy (rotación: README → Gmail)
+204e45cf6bec220b1be17a61029d9e822acaa123:BackendProConnect/src/settings/configurateEmail.ts:smtp-pass-literal:9
+# Password MySQL por defecto del backend legacy (rotación: README → MySQL)
+869810488a99c23e9ab4ec38b6c6cd3ee6018344:BackendProConnect/src/models/database.ts:env-fallback-secret:6
+# Secreto JWT por defecto del backend legacy (rotación: README → JWT legacy; no reutilizar)
+a5b81309eee0f7b2b774da4670f530c108bcc6fe:BackendProConnect/src/middleware/middleware.ts:env-fallback-secret:11
+869810488a99c23e9ab4ec38b6c6cd3ee6018344:BackendProConnect/src/middleware/middleware.ts:env-fallback-secret:11
+869810488a99c23e9ab4ec38b6c6cd3ee6018344:BackendProConnect/src/models/User.ts:env-fallback-secret:60
+869810488a99c23e9ab4ec38b6c6cd3ee6018344:BackendProConnect/src/models/User.ts:env-fallback-secret:99

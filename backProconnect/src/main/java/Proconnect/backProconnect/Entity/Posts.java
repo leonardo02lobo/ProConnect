@@ -1,7 +1,5 @@
 package Proconnect.backProconnect.Entity;
 
-import java.util.Date;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
 @Table(name = "Posts")
@@ -16,29 +15,22 @@ public class Posts {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
-    @NotNull(message = "User ID cannot be null")
-    private Long userId;
+    @NotNull(message = "User ID cannot be null") private Long userId;
 
-    @NotBlank(message = "Content is mandatory")
-    @NotNull(message = "Content cannot be null")
-    private String content;
+    @NotBlank(message = "Content is mandatory") @NotNull(message = "Content cannot be null") private String content;
 
-    @NotBlank(message = "Title is mandatory")
-    @NotNull(message = "Title cannot be null")
-    private String title;
+    @NotBlank(message = "Title is mandatory") @NotNull(message = "Title cannot be null") private String title;
 
     private String imageUrl;
 
     private Date date;
 
-    public Posts(){
-        
-    }
+    public Posts() {}
 
     public Posts(Long id, Long userId, String content, String title, String imageUrl, Date date) {
-        Id = id;
+        this.id = id;
         this.userId = userId;
         this.content = content;
         this.title = title;
@@ -47,11 +39,11 @@ public class Posts {
     }
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public Long getUserId() {
@@ -93,5 +85,4 @@ public class Posts {
     public void setDate(Date date) {
         this.date = date;
     }
-
 }

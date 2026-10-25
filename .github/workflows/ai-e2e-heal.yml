@@ -1,0 +1,132 @@
+name: ai-e2e-heal
+
+# Manual: run the Playwright healer (Claude Code + Playwright test MCP) over the failing
+# E2E tests of a branch and open a SEPARATE draft PR with the fixes for human review.
+# Same prompt as local `e2e/scripts/ai-heal.sh` (e2e/prompts/heal.md + build-prompt.sh).
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch to heal
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-e2e-heal-${{ inputs.ref }}
+  cancel-in-progress: false
+
+jobs:
+  heal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write        # push the ai-heal/* branch (never the source branch)
+      pull-requests: write   # open the draft PR
+    env:
+      CI: 'true'
+      COMPOSE: docker compose
+      HAS_CLAUDE_AUTH: ${{ secrets.ANTHROPIC_API_KEY != '' || secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+    steps:
+      - name: Require Claude credentials
+        if: env.HAS_CLAUDE_AUTH != 'true'
+        run: |
+          echo "::error::Configure ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN to use ai-e2e-heal."
+          exit 1
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+
+      - name: Generate test secrets
+        run: |
+          jwt=$(openssl rand -hex 32); db=$(openssl rand -hex 16)
+          echo "::add-mask::$jwt"; echo "::add-mask::$db"
+          echo "E2E_JWT_SECRET=$jwt" >> "$GITHUB_ENV"
+          echo "E2E_DB_PASSWORD=$db" >> "$GITHUB_ENV"
+
+      - name: Run E2E to collect failures (stack stays up)
+        id: before
+        continue-on-error: true
+        env:
+          E2E_KEEP_STACK: '1'
+        run: ./e2e/scripts/run-e2e.sh
+
+      - name: Nothing to heal
+        if: steps.before.outcome == 'success'
+        env:
+          REF: ${{ inputs.ref }}
+        run: echo "::notice::E2E suite is green on $REF; nothing to heal."
+
+      - name: Build prompt (shared with local script)
+        id: prompt
+        if: steps.before.outcome == 'failure'
+        run: |
+          {
+            echo 'text<<__PROMPT_EOF__'
+            ./e2e/scripts/build-prompt.sh heal e2e/test-results e2e/artifacts e2e/ai-heal.md
+            echo '__PROMPT_EOF__'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Claude healer
+        if: steps.before.outcome == 'failure'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
+          prompt: ${{ steps.prompt.outputs.text }}
+          claude_args: >-
+            --max-turns 60
+            --mcp-config e2e/mcp.heal.json
+            --allowedTools "Read,Glob,Grep,LS,Edit(e2e/tests/**),Edit(e2e/fixtures/**),Edit(FrontedProConnect/src/**),Edit(e2e/ai-heal.md),Bash(npx --prefix e2e playwright test:*),Bash(ls:*),Bash(grep:*),Bash(cat:*),Bash(git diff:*),Bash(git status:*),mcp__playwright-test"
+            --disallowedTools "WebFetch,WebSearch,Bash(git push:*),Bash(git commit:*),Bash(git reset:*),Bash(git checkout:*)"
+
+      - name: Guardrails (no skip/fixme/only, no removed expects/specs)
+        if: steps.before.outcome == 'failure'
+        run: ./e2e/scripts/check-guardrails.sh
+
+      - name: Re-run the suite with the fixes
+        id: after
+        if: steps.before.outcome == 'failure'
+        continue-on-error: true
+        env:
+          E2E_SKIP_UP: '1'
+        run: |
+          ./e2e/scripts/run-e2e.sh 2>&1 | tail -n 60 | tee e2e/artifacts/after.txt
+
+      - name: Open draft PR with the fixes (never auto-merged)
+        if: steps.before.outcome == 'failure'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: ai-heal/${{ inputs.ref }}-${{ github.run_id }}
+          base: ${{ inputs.ref }}
+          draft: true
+          title: "test(e2e): AI healing for ${{ inputs.ref }}"
+          commit-message: "test(e2e): heal broken E2E tests (AI, needs review)"
+          add-paths: |
+            e2e/tests/**
+            e2e/fixtures/**
+            FrontedProConnect/src/**
+          body-path: e2e/ai-heal.md
+          labels: ai-heal
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-heal
+          path: |
+            e2e/ai-heal.md
+            e2e/playwright-report/
+            e2e/test-results/
+            e2e/artifacts/
+          if-no-files-found: ignore

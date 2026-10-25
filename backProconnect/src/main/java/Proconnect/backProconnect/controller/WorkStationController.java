@@ -1,8 +1,15 @@
 package Proconnect.backProconnect.controller;
 
+import Proconnect.backProconnect.model.WorkStationDto;
+import Proconnect.backProconnect.model.WorkStationRequest;
+import Proconnect.backProconnect.security.CurrentUser;
+import Proconnect.backProconnect.service.WorkStationService;
+import jakarta.validation.Valid;
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,74 +17,46 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import Proconnect.backProconnect.model.WorkStationDto;
-import Proconnect.backProconnect.service.WorkStationService;
-import jakarta.validation.Valid;
-
 @RestController
-@RequestMapping("/api/workstation")
-@CrossOrigin(origins = "*")
+@RequestMapping("/api/workstations")
 public class WorkStationController {
-    
+
     private final WorkStationService workStationService;
 
-    public WorkStationController(WorkStationService workStationService){
+    public WorkStationController(WorkStationService workStationService) {
         this.workStationService = workStationService;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> AddWorkStation(@RequestBody @Valid WorkStationDto workStation){
-        var result = workStationService.AddWorkStation(workStation);
-        if (result != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(result);
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo crear la estación de trabajo.");
-    }
-
     @GetMapping
-    public ResponseEntity<?> GetAllWorkStation(){
-        var result = workStationService.GetAllWorkStation();
-        if (result != null && !result.isEmpty()) {
-            return ResponseEntity.ok().body(result);
-        }
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No hay estaciones de trabajo.");
+    public List<WorkStationDto> list(@RequestParam(name = "q", required = false) String query) {
+        return workStationService.list(Optional.ofNullable(query));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> UpdateWorkStationById(@PathVariable Long id, @RequestBody @Valid WorkStationDto workStation){
-        var result = workStationService.UpdateWorkStationById(id, workStation);
-        if (result != null) {
-            return ResponseEntity.ok().body(result);
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Estación de trabajo no encontrada.");
+    @GetMapping("/{id}")
+    public WorkStationDto get(@PathVariable Long id) {
+        return workStationService.get(id);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> DeleteWorkStation(@PathVariable Long id){
-        boolean deleted = workStationService.DeleteWorkStation(id);
-        if (deleted) {
-            return ResponseEntity.ok().body("Estación de trabajo eliminada correctamente.");
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Estación de trabajo no encontrada.");
+    @PostMapping
+    public ResponseEntity<WorkStationDto> create(@RequestBody @Valid WorkStationRequest request) {
+        WorkStationDto created = workStationService.create(CurrentUser.id(), request);
+        return ResponseEntity.created(URI.create("/api/workstations/" + created.id()))
+                .body(created);
     }
 
-    @GetMapping("/search/{id}")
-    public ResponseEntity<?> GetWorkStationById(@PathVariable Long id){
-        var result = workStationService.GetWorkStationById(id);
-        if (result != null) {
-            return ResponseEntity.ok().body(result);
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Estación de trabajo no encontrada.");
+    @PutMapping("/{id}")
+    public WorkStationDto update(
+            @PathVariable Long id, @RequestBody @Valid WorkStationRequest request) {
+        return workStationService.update(id, request);
     }
 
-    @GetMapping("/search/workStation/{workStation}")
-    public ResponseEntity<?> SearchByWorkStation(@PathVariable String workStation){
-        var result = workStationService.SearchByWorkStation(workStation);
-        if (result != null && !result.isEmpty()) {
-            return ResponseEntity.ok().body(result);
-        }
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No se encontraron estaciones de trabajo.");
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        workStationService.delete(id);
     }
 }

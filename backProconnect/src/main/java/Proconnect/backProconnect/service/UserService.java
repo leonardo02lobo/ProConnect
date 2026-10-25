@@ -1,24 +1,21 @@
 package Proconnect.backProconnect.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import Proconnect.backProconnect.Entity.ProfilePhotos;
 import Proconnect.backProconnect.Entity.User;
-import Proconnect.backProconnect.model.CommentsDto;
-import Proconnect.backProconnect.model.PostsDto;
-import Proconnect.backProconnect.model.ProfilePhotosDto;
-import Proconnect.backProconnect.model.UserDto;
-import Proconnect.backProconnect.model.UserProfileDTO;
+import Proconnect.backProconnect.exception.ConflictException;
+import Proconnect.backProconnect.exception.NotFoundException;
+import Proconnect.backProconnect.model.UserProfileDto;
+import Proconnect.backProconnect.model.UserPublicDto;
+import Proconnect.backProconnect.model.UserUpdateRequest;
 import Proconnect.backProconnect.repository.ProfilePhotosRepository;
 import Proconnect.backProconnect.repository.UserRepository;
+import Proconnect.backProconnect.security.OwnershipGuard;
 import Proconnect.backProconnect.specification.UserSpecification;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
@@ -26,184 +23,132 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ProfilePhotosRepository profilePhotosRepository;
+    private final PostsService postsService;
+    private final OwnershipGuard guard;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ProfilePhotosRepository profilePhotosRepository) {
+    public UserService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            ProfilePhotosRepository profilePhotosRepository,
+            PostsService postsService,
+            OwnershipGuard guard) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.profilePhotosRepository = profilePhotosRepository;
+        this.postsService = postsService;
+        this.guard = guard;
     }
 
-    public boolean AddUser(UserDto user) {
-        try {
-            if (user == null) {
-                return false;
-            }
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            User userEntity = new User(user.getId(), user.getName(), user.getUserName(), user.getEmail(),
-                    user.getPassword(), user.getRole());
-            userRepository.save(userEntity);
-            return true;
-        } catch (Exception e) {
-            return false;
+    /** Vista pública: el email solo se incluye si el actor es el propio usuario o un ADMIN. */
+    public UserPublicDto toPublic(User user) {
+        return toPublic(user, guard.canSeePrivateDataOf(user.getId()));
+    }
+
+    /** Vista del propio usuario (login, registro, /me): incluye su email. */
+    public UserPublicDto toSelf(User user) {
+        return toPublic(user, true);
+    }
+
+    /** /me: vacío si el usuario del token ya no existe. */
+    @Transactional(readOnly = true)
+    public Optional<UserPublicDto> findSelf(Long id) {
+        return id == null ? Optional.empty() : userRepository.findById(id).map(this::toSelf);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserPublicDto> listUsers(Optional<String> query) {
+        List<User> users =
+                query.filter(q -> !q.isBlank())
+                        .map(q -> userRepository.findAll(UserSpecification.hasNameLike(q.trim())))
+                        .orElseGet(userRepository::findAll);
+        return users.stream().map(this::toPublic).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public UserPublicDto getUser(Long id) {
+        return toPublic(findOr404(id));
+    }
+
+    /**
+     * Solo el propio usuario o un ADMIN (403); 404 si no existe; 409 si email/userName son de otro
+     * usuario.
+     */
+    @Transactional
+    public UserPublicDto updateUser(Long id, UserUpdateRequest request) {
+        User user = findOr404(id);
+        guard.assertOwnerOrAdmin(user.getId());
+        String email = request.email().trim();
+        String userName = request.userName().trim();
+        userRepository
+                .findByEmail(email)
+                .filter(other -> !other.getId().equals(id))
+                .ifPresent(
+                        other -> {
+                            throw new ConflictException("El email ya está registrado");
+                        });
+        userRepository
+                .findByUserName(userName)
+                .filter(other -> !other.getId().equals(id))
+                .ifPresent(
+                        other -> {
+                            throw new ConflictException("El userName ya está registrado");
+                        });
+        // El id y el rol no se cambian desde aquí; el password se guarda siempre hasheado.
+        user.setName(request.name().trim());
+        user.setEmail(email);
+        user.setUserName(userName);
+        if (request.password() != null && !request.password().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.password()));
         }
+        return toPublic(userRepository.save(user));
     }
 
-    public List<User> GetAllUsers() {
-        return userRepository.findAll();
+    /** Solo el propio usuario o un ADMIN (403); 404 si no existe. */
+    @Transactional
+    public void deleteUser(Long id) {
+        User user = findOr404(id);
+        guard.assertOwnerOrAdmin(user.getId());
+        userRepository.delete(user);
     }
 
-    public String UpdateUserById(Long Id, UserDto newUser) {
-        try {
-            if (Long.valueOf(Id) == null) {
-                return "Id cannot be null";
-            }
-            if (!userRepository.existsById(Id)) {
-                return "User with Id " + Id + " does not exist";
-            }
-            User existingUser = userRepository.findById(Id).orElse(null);
-            if (existingUser == null) {
-                return "User with Id " + Id + " does not exist";
-            }
-            existingUser.setId(newUser.getId());
-            existingUser.setName(newUser.getName());
-            existingUser.setEmail(newUser.getEmail());
-            existingUser.setPassword(newUser.getPassword());
-            existingUser.setRole(newUser.getRole());
-            existingUser.setUserName(newUser.getUserName());
-            userRepository.save(existingUser);
-            return "User with Id " + Id + " updated successfully";
-        } catch (Exception e) {
-            return "Error: " + e.getMessage();
+    /**
+     * Perfil con sus posts; {@code userLiked} de cada post es del viewer (el usuario de la sesión).
+     */
+    @Transactional(readOnly = true)
+    public UserProfileDto getProfile(Long id, Optional<Long> viewerId) {
+        User user = findOr404(id);
+        Optional<ProfilePhotos> photos =
+                profilePhotosRepository.findFirstByUserIdOrderByIdDesc(user.getId());
+        return new UserProfileDto(
+                user.getId(),
+                guard.canSeePrivateDataOf(user.getId()) ? user.getEmail() : null,
+                user.getName(),
+                user.getRole(),
+                user.getUserName(),
+                photos.map(ProfilePhotos::getPhotoUrl).orElse(null),
+                photos.map(ProfilePhotos::getWallPhotoUrl).orElse(null),
+                postsService.getPostsByAuthor(user.getId(), viewerId));
+    }
+
+    User findOr404(Long id) {
+        if (id == null || id <= 0) {
+            throw new NotFoundException("Usuario no encontrado");
         }
+        return userRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
     }
 
-    public boolean DeleteUserById(Long Id) {
-        try {
-            if (Long.valueOf(Id) == null) {
-                return false;
-            }
-            if (!userRepository.existsById(Id)) {
-                return false;
-            }
-            userRepository.deleteById(Id);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public User GetUserById(Long Id) {
-        try {
-            if (Long.valueOf(Id) == null) {
-                return null;
-            }
-            Optional<User> user = userRepository.findById(Id);
-
-            return user.orElse(null);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public List<User> SearchByNameOrUsername(String name) {
-        return userRepository.findAll(UserSpecification.hasNameLike(name));
-    }
-
-    public UserDto findUserByUserName(String username) {
-        Optional<User> userOptional = userRepository.findByUserName(username);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            return new UserDto(user.getId(), user.getName(), user.getUserName(), user.getEmail(), user.getPassword(),
-                    user.getRole(),null);
-        }
-        return null;
-    }
-
-    public boolean authUser(String email, String password) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-
-        if (!userOptional.isPresent()) {
-            return false;
-        }
-        User user = userOptional.get();
-        return passwordEncoder.matches(password, user.getPassword());
-    }
-
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    public UserProfileDTO findUsersWithProfilesAndPosts(Long userId) {
-        List<Object[]> results = userRepository.findUsersWithProfilesAndPosts(userId);
-        if (results.isEmpty())
-            return null;
-
-        Object[] first = results.get(0);
-
-        Map<Long, PostsDto> postsMap = new HashMap<>();
-        Map<Long, List<CommentsDto>> commentsMap = new HashMap<>();
-
-        for (Object[] row : results) {
-            Long postId = ((Number) row[7]).longValue();
-
-            if (postId != null && !postsMap.containsKey(postId)) {
-                PostsDto post = new PostsDto(
-                        postId,
-                        ((Number) row[0]).longValue(), 
-                        (String) row[9], 
-                        (String) row[8], 
-                        (String) row[11], 
-                        (java.util.Date) row[10], 
-                        ((Number) row[16]).longValue(),
-                        ((Number) row[17]).longValue(), 
-                        ((Number) row[18]).longValue() > 0,
-                        new ArrayList<>() 
-                );
-                postsMap.put(postId, post);
-                commentsMap.put(postId, new ArrayList<>());
-            }
-
-            Long userIdComment = ((Number)row[15]).longValue();
-            Optional<User> userComment = userRepository.findById(userIdComment);
-            Optional<ProfilePhotos> profileOptional = profilePhotosRepository.findByUserId(userIdComment);
-            UserDto userCommenDto = null;
-            ProfilePhotosDto profilePhotosDto = null;
-
-            if(profileOptional.isPresent()){
-                ProfilePhotos profilePhotos = profileOptional.get();
-                profilePhotosDto = new ProfilePhotosDto(profilePhotos.getId(), profilePhotos.getUserId(), profilePhotos.getPhotoUrl(), profilePhotos.getWallPhotoUrl());
-            }
-
-            if(userComment.isPresent()){
-                User user = userComment.get();
-                userCommenDto = new UserDto(userIdComment, user.getName(), user.getUserName(), user.getEmail(), user.getPassword(), user.getRole(),profilePhotosDto);
-            }
-            if (row[14] != null) { 
-                CommentsDto comment = new CommentsDto(
-                        ((Number) row[14]).longValue(), 
-                        postId, 
-                        ((Number) row[15]).longValue(), 
-                        (String) row[12], 
-                        (java.util.Date) row[13], 
-                        userCommenDto
-                );
-                commentsMap.get(postId).add(comment);
-            }
-        }
-
-        for (Map.Entry<Long, PostsDto> entry : postsMap.entrySet()) {
-            entry.getValue().setComments(commentsMap.get(entry.getKey()));
-        }
-
-        return new UserProfileDTO(
-                ((Number) first[0]).longValue(),
-                (String) first[1],
-                (String) first[2],
-                (String) first[4],
-                (String) first[3],
-                (String) first[5], 
-                (String) first[6], 
-                new ArrayList<>(postsMap.values()) 
-        );
+    private UserPublicDto toPublic(User user, boolean includePrivate) {
+        Optional<ProfilePhotos> photos =
+                profilePhotosRepository.findFirstByUserIdOrderByIdDesc(user.getId());
+        return new UserPublicDto(
+                user.getId(),
+                user.getName(),
+                user.getUserName(),
+                includePrivate ? user.getEmail() : null,
+                user.getRole(),
+                photos.map(ProfilePhotos::getPhotoUrl).orElse(null),
+                photos.map(ProfilePhotos::getWallPhotoUrl).orElse(null));
     }
 }
