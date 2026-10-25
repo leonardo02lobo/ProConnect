@@ -31,7 +31,7 @@
 		<spotless.version>2.44.5</spotless.version>
 		<google-java-format.version>1.25.2</google-java-format.version>
 		<maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
-		<checkstyle.version>10.26.1</checkstyle.version>
+		<checkstyle.version>14.3.0</checkstyle.version>
 		<jjwt.version>0.13.0</jjwt.version>
 		<!-- upgrade-spring-boot-4: Tomcat 11, Netty 4.2 y Jackson 3 salen del BOM de Spring Boot 4.1 (sin overrides).
 		     Solo se fijan versiones más nuevas que las del BOM por seguridad:
