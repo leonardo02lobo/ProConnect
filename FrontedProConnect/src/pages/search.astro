@@ -2,7 +2,7 @@
 import Main from "../layouts/Main.astro";
 import { ssrFetch } from "../Service/server";
 import { avatarUrl } from "../Service/http";
-import type { UserDTO } from "../types/Dtos";
+import type { PageResponse, UserDTO } from "../types/Dtos";
 
 const query = (Astro.url.searchParams.get("q") ?? "").trim();
 
@@ -13,7 +13,7 @@ if (query) {
     if (response.status === 401) {
         return Astro.redirect("/login");
     }
-    users = response.ok ? ((await response.json()) as UserDTO[]) : [];
+    users = response.ok ? ((await response.json()) as PageResponse<UserDTO>).items : [];
 }
 ---
 
@@ -31,7 +31,7 @@ if (query) {
                     class="flex items-center gap-3 bg-white rounded-xl shadow p-3 hover:shadow-md"
                 >
                     <img
-                        src={avatarUrl(user.photoUrl)}
+                        src={avatarUrl(user.avatarUrl)}
                         alt={`Foto de ${user.name}`}
                         class="w-10 h-10 rounded-full object-cover"
                     />

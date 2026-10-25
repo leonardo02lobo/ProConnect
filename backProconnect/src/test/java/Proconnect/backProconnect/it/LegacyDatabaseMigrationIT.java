@@ -192,4 +192,66 @@ class LegacyDatabaseMigrationIT {
                                         + " COLUMN_NAME = 'name' AND NON_UNIQUE = 0"))
                 .isZero();
     }
+
+    /** V2.1: enums normalizados (mayúsculas, desconocido → valor seguro) y fechas renombradas. */
+    @Test
+    void normalizesEnumsAndRenamesDateColumns() {
+        assertThat(jdbc.queryForObject("SELECT role FROM `user` WHERE id = 2", String.class))
+                .isEqualTo("COMPANY_ADMIN");
+        assertThat(jdbc.queryForObject("SELECT role FROM `user` WHERE id = 1", String.class))
+                .isEqualTo("USER");
+        assertThat(jdbc.queryForList("SELECT status FROM friends ORDER BY id", String.class))
+                .containsExactly("ACCEPTED", "PENDING");
+        assertThat(
+                        jdbc.queryForObject(
+                                "SELECT DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') FROM posts WHERE"
+                                        + " id = 1",
+                                String.class))
+                .isEqualTo("2025-01-01 10:00");
+        assertThat(count("SELECT COUNT(*) FROM messages WHERE sent_at IS NOT NULL")).isEqualTo(1);
+    }
+
+    /** V3: avatar/portada copiados desde la fila más reciente de profile_photos. */
+    @Test
+    void copiesProfilePhotosIntoUserColumns() {
+        Map<String, Object> ana =
+                jdbc.queryForMap("SELECT avatar_url, cover_url FROM `user` WHERE id = 1");
+        assertThat(ana).containsEntry("avatar_url", "new.png").containsEntry("cover_url", "w.png");
+    }
+
+    /** V4: contadores iguales a los COUNT(*) reales tras el backfill. */
+    @Test
+    void backfillsConsistentCounters() {
+        assertThat(
+                        count(
+                                "SELECT COUNT(*) FROM posts p WHERE p.like_count <> (SELECT"
+                                        + " COUNT(*) FROM likes l WHERE l.post_id = p.id) OR"
+                                        + " p.comment_count <> (SELECT COUNT(*) FROM comments c"
+                                        + " WHERE c.post_id = p.id)"))
+                .isZero();
+        assertThat(jdbc.queryForObject("SELECT like_count FROM posts WHERE id = 1", Integer.class))
+                .isEqualTo(1);
+        assertThat(
+                        jdbc.queryForObject(
+                                "SELECT affected_rows FROM migration_audit WHERE check_name ="
+                                        + " 'counter_mismatch_after_backfill'",
+                                Long.class))
+                .isZero();
+    }
+
+    /** V5 (contract): profile_photos desaparece tras copiar sus datos a user (V3). */
+    @Test
+    void dropsProfilePhotosAfterCopyingThem() {
+        assertThat(
+                        count(
+                                "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA"
+                                        + " = DATABASE() AND TABLE_NAME = 'profile_photos'"))
+                .isZero();
+        assertThat(
+                        jdbc.queryForObject(
+                                "SELECT affected_rows FROM migration_audit WHERE check_name ="
+                                        + " 'profile_photos_dropped'",
+                                Long.class))
+                .isEqualTo(1L);
+    }
 }

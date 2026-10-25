@@ -3,6 +3,7 @@
 // se calculan por SQL para que el criterio quede documentado y sea reutilizable
 // tras el refactor (fase 2).
 import mysql from 'mysql2/promise';
+import { PERF_PASSWORD } from '../dataset.mjs';
 
 export const dbConfig = {
   host: process.env.DB_HOST ?? '127.0.0.1',
@@ -90,7 +91,7 @@ export async function resolveTargets(conn) {
 
 // Toda la API exige sesión desde fix-critical-risks: login con un usuario sembrado
 // (password común del dataset) y devuelve la cabecera Cookie con pc_session.
-export const PERF_PASSWORD = process.env.PERF_PASSWORD ?? 'PerfPass#2026';
+export { PERF_PASSWORD };
 export async function login(api, email) {
   const res = await fetch(`${api}/api/auth/login`, {
     method: 'POST',

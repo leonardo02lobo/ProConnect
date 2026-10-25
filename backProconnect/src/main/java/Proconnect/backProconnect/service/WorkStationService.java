@@ -2,13 +2,14 @@ package Proconnect.backProconnect.service;
 
 import Proconnect.backProconnect.Entity.WorkStation;
 import Proconnect.backProconnect.exception.NotFoundException;
+import Proconnect.backProconnect.model.PageResponse;
 import Proconnect.backProconnect.model.WorkStationDto;
 import Proconnect.backProconnect.model.WorkStationRequest;
 import Proconnect.backProconnect.repository.WorkStationRepository;
 import Proconnect.backProconnect.security.OwnershipGuard;
-import Proconnect.backProconnect.specification.WorkStationSpecification;
-import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,16 +32,16 @@ public class WorkStationService {
     }
 
     @Transactional(readOnly = true)
-    public List<WorkStationDto> list(Optional<String> query) {
-        List<WorkStation> result =
+    public PageResponse<WorkStationDto> list(Optional<String> query, Integer page, Integer size) {
+        Pageable pageable = Paging.page(page, size);
+        Slice<WorkStation> result =
                 query.filter(q -> !q.isBlank())
                         .map(
                                 q ->
-                                        workStationRepository.findAll(
-                                                WorkStationSpecification.hasWorkStationLike(
-                                                        q.trim())))
-                        .orElseGet(workStationRepository::findAll);
-        return result.stream().map(WorkStationService::toDto).toList();
+                                        workStationRepository.search(
+                                                UserService.likePattern(q), pageable))
+                        .orElseGet(() -> workStationRepository.findAllBy(pageable));
+        return PageResponse.of(result, WorkStationService::toDto);
     }
 
     @Transactional(readOnly = true)

@@ -1,12 +1,12 @@
 package Proconnect.backProconnect.controller;
 
+import Proconnect.backProconnect.model.PageResponse;
 import Proconnect.backProconnect.model.PostulationDto;
 import Proconnect.backProconnect.model.PostulationRequest;
 import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.PostulationService;
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,8 +39,10 @@ public class PostulationController {
 
     /** Las propias y las recibidas en empleos de mis empresas (ADMIN: todas). */
     @GetMapping
-    public List<PostulationDto> list() {
-        return postulationService.listVisible();
+    public PageResponse<PostulationDto> list(
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "size", required = false) Integer size) {
+        return postulationService.listVisible(page, size);
     }
 
     @GetMapping("/{id}")

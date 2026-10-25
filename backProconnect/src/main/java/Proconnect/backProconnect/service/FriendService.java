@@ -1,10 +1,12 @@
 package Proconnect.backProconnect.service;
 
 import Proconnect.backProconnect.Entity.Friend;
+import Proconnect.backProconnect.Entity.FriendStatus;
 import Proconnect.backProconnect.exception.ConflictException;
 import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.exception.ValidationException;
 import Proconnect.backProconnect.model.FriendRequestDto;
+import Proconnect.backProconnect.model.PageResponse;
 import Proconnect.backProconnect.repository.FriendRepository;
 import Proconnect.backProconnect.repository.UserRepository;
 import Proconnect.backProconnect.security.OwnershipGuard;
@@ -15,9 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class FriendService {
 
-    static final String PENDING = "PENDING";
-    static final String ACCEPTED = "ACCEPTED";
-    static final String REJECTED = "REJECTED";
+    static final FriendStatus PENDING = FriendStatus.PENDING;
+    static final FriendStatus ACCEPTED = FriendStatus.ACCEPTED;
+    static final FriendStatus REJECTED = FriendStatus.REJECTED;
 
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
@@ -55,12 +57,12 @@ public class FriendService {
 
     /** Solicitudes pendientes recibidas por el usuario. */
     @Transactional(readOnly = true)
-    public List<FriendRequestDto> pendingReceivedBy(Long userId) {
-        return friendRepository
-                .findByUserIdBeFollowedAndStatusOrderByIdAsc(userId, PENDING)
-                .stream()
-                .map(FriendService::toDto)
-                .toList();
+    public PageResponse<FriendRequestDto> pendingReceivedBy(
+            Long userId, Integer page, Integer size) {
+        return PageResponse.of(
+                friendRepository.findByUserIdBeFollowedAndStatus(
+                        userId, PENDING, Paging.page(page, size)),
+                FriendService::toDto);
     }
 
     /**
@@ -93,13 +95,14 @@ public class FriendService {
 
     /** Amistades aceptadas del usuario. */
     @Transactional(readOnly = true)
-    public List<FriendRequestDto> friendsOf(Long userId) {
+    public PageResponse<FriendRequestDto> friendsOf(Long userId, Integer page, Integer size) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Usuario no encontrado");
         }
-        return friendRepository.findByParticipantAndStatus(userId, ACCEPTED).stream()
-                .map(FriendService::toDto)
-                .toList();
+        return PageResponse.of(
+                friendRepository.findByParticipantAndStatus(
+                        userId, ACCEPTED, Paging.page(page, size)),
+                FriendService::toDto);
     }
 
     /**
@@ -127,7 +130,7 @@ public class FriendService {
         friendRepository.deleteAll(accepted);
     }
 
-    private FriendRequestDto resolve(Long requestId, String status) {
+    private FriendRequestDto resolve(Long requestId, FriendStatus status) {
         Friend friend = findOr404(requestId);
         guard.assertOwnerOrAdmin(friend.getUserIdBeFollowed());
         if (!PENDING.equals(friend.getStatus())) {
@@ -148,6 +151,6 @@ public class FriendService {
 
     private static FriendRequestDto toDto(Friend f) {
         return new FriendRequestDto(
-                f.getId(), f.getUserIdFollow(), f.getUserIdBeFollowed(), f.getStatus());
+                f.getId(), f.getUserIdFollow(), f.getUserIdBeFollowed(), f.getStatus().name());
     }
 }

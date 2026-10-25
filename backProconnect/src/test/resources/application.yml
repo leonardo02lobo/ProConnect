@@ -26,6 +26,10 @@ spring:
       hibernate:
         # Las queries nativas usan el schema literal "proconnect."
         default_schema: proconnect
+        jdbc:
+          time_zone: UTC
+        type:
+          preferred_instant_jdbc_type: TIMESTAMP
 
 proconnect:
   mail:

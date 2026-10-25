@@ -63,12 +63,7 @@ public class AdminBootstrap implements ApplicationRunner {
                 email.substring(0, email.indexOf('@') > 0 ? email.indexOf('@') : email.length());
         users.save(
                 new User(
-                        null,
-                        name,
-                        userName,
-                        email,
-                        passwordEncoder.encode(password),
-                        Role.ADMIN.name()));
+                        null, name, userName, email, passwordEncoder.encode(password), Role.ADMIN));
         log.info("Usuario ADMIN inicial creado ({})", userName);
     }
 }

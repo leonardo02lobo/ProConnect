@@ -4,10 +4,10 @@ import Proconnect.backProconnect.Entity.Company;
 import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.model.CompanyDto;
 import Proconnect.backProconnect.model.CompanyRequest;
+import Proconnect.backProconnect.model.PageResponse;
 import Proconnect.backProconnect.model.Role;
 import Proconnect.backProconnect.repository.CompanyRepository;
 import Proconnect.backProconnect.security.OwnershipGuard;
-import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,8 +39,9 @@ public class CompanyService {
     }
 
     @Transactional(readOnly = true)
-    public List<CompanyDto> list() {
-        return companyRepository.findAll().stream().map(CompanyService::toDto).toList();
+    public PageResponse<CompanyDto> list(Integer page, Integer size) {
+        return PageResponse.of(
+                companyRepository.findAllBy(Paging.page(page, size)), CompanyService::toDto);
     }
 
     @Transactional(readOnly = true)

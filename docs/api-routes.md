@@ -45,9 +45,9 @@ migrado en el mismo change).
 | `DELETE /api/user/delete/{id}` | `DELETE /api/users/{id}` | 204 |
 | `POST /api/user/create` | — (eliminada) | duplicaba `POST /api/auth/register` |
 | `GET /api/user/{userId}/profiles-posts` | `GET /api/users/{id}/profile` | 404 si no existe; `userLiked` del viewer |
-| `POST /api/profilePhoto/create` | `POST /api/profile-photos` | crea (201) o reemplaza (200) las del usuario de la sesión |
-| `GET /api/profilePhoto/{id}` | `GET /api/profile-photos/{id}` | antes roto (`@PathVariable`) |
-| `POST /api/profilePhoto/updateProfilePhoto` · `POST /api/profilePhoto/updateWallPhoto` (id en body) | `PUT /api/profile-photos/{id}` | parcial: los campos `null` no cambian |
+| `POST /api/profilePhoto/create` | `PUT /api/users/{id}/media` | restructure-models-performance (V3): avatar/portada son columnas de `user`; antes `POST /api/profile-photos` |
+| `GET /api/profilePhoto/{id}` | `GET /api/users/{id}` (`avatarUrl`, `coverUrl`) | antes `GET /api/profile-photos/{id}` |
+| `POST /api/profilePhoto/updateProfilePhoto` · `POST /api/profilePhoto/updateWallPhoto` (id en body) | `PUT /api/users/{id}/media` | parcial: los campos `null` no cambian |
 | `POST /api/friend/create?userIdBeFollowed=` | `POST /api/friends/requests` | body `{userId}`; 201; 400 a uno mismo; 409 si ya hay solicitud o amistad |
 | `GET /api/friend/pending/{userId}` | `GET /api/friends/requests` | recibidas por la sesión; ahora incluyen el `id` (antes no) |
 | `PUT /api/friend/accept/{x}` | `POST /api/friends/requests/{id}/accept` | solo el destinatario; 409 si ya resuelta |
@@ -98,3 +98,33 @@ migrado en el mismo change).
 | `POST /api/workstation/create` | `POST /api/workstations` | 201 |
 | `PUT /api/workstation/update/{id}` | `PUT /api/workstations/{id}` | 200 + recurso |
 | `DELETE /api/workstation/delete/{id}` | `DELETE /api/workstations/{id}` | 204 |
+
+## Paginación y forma de las respuestas (restructure-models-performance)
+
+**BREAKING** (frontend y E2E migrados en el mismo change). Dos formas de paginar:
+
+- **Por cursor** (listas cronológicas que crecen por arriba; estable ante inserciones):
+  `?limit=` (20 por defecto, máx. 50) y `?cursor=` = `nextCursor` de la página anterior (opaco; inválido → 400).
+  Respuesta `{ "items": [...], "nextCursor": "…" | null }`.
+  | Ruta | Orden | Notas |
+  |---|---|---|
+  | `GET /api/posts` | más nuevo primero | 3 sentencias SQL por página |
+  | `GET /api/users/{id}/posts` | más nuevo primero | páginas siguientes del perfil |
+  | `GET /api/posts/{postId}/comments` | más antiguo primero | 1 sentencia por página |
+- **Por página** (listados): `?page=` (0-based) y `?size=` (20 por defecto, máx. 100).
+  Respuesta `{ "items": [...], "page": 0, "size": 20, "hasNext": true }` (sin `COUNT(*)` de la tabla).
+  Aplica a `GET /api/users[?q=]`, `/api/companies`, `/api/jobs[?q=]`, `/api/jobs/{id}/postulations`,
+  `/api/workstations[?q=]`, `/api/messages`, `/api/friends/requests`, `/api/users/{id}/friends`, `/api/postulations`,
+  `/api/posts/{postId}/likes`.
+
+Cambios de campos:
+
+| Recurso | Antes | Después |
+|---|---|---|
+| Post del feed/perfil | `totalLikes`, `totalComments`, `comments[]` (todos) | `likeCount`, `commentCount` (contadores denormalizados), `commentsPreview[]` (los 3 más recientes, en orden cronológico) |
+| Usuario público (`/me`, autores, búsqueda, perfil) | `photoUrl`, `wallPhotoUrl` | `avatarUrl`, `coverUrl` |
+| Perfil `GET /api/users/{id}/profile` | `posts[]` (todos) | `posts[]` (primera página, 20) + `nextCursor` |
+| Fotos | `/api/profile-photos[/{id}]` | `PUT /api/users/{id}/media` `{avatarUrl?, coverUrl?}`: parcial (`null` = sin cambio, `""` = borrar); propietario o ADMIN (403) |
+
+Like y comentario mantienen sus rutas; un doble like (también concurrente) responde 409 y no altera `likeCount`.
+

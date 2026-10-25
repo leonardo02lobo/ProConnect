@@ -5,16 +5,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import Proconnect.backProconnect.Entity.Comments;
 import Proconnect.backProconnect.Entity.Company;
 import Proconnect.backProconnect.Entity.Friend;
+import Proconnect.backProconnect.Entity.FriendStatus;
 import Proconnect.backProconnect.Entity.Job;
 import Proconnect.backProconnect.Entity.Message;
 import Proconnect.backProconnect.Entity.Posts;
 import Proconnect.backProconnect.Entity.Postulation;
-import Proconnect.backProconnect.Entity.ProfilePhotos;
+import Proconnect.backProconnect.Entity.User;
 import Proconnect.backProconnect.Entity.WorkStation;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,7 +63,9 @@ class AccessControlTests extends SecurityTestSupport {
     }
 
     private Long anaPost() {
-        return posts.save(new Posts(null, anaId, "contenido", "titulo", null, new java.util.Date()))
+        return posts.save(
+                        new Posts(
+                                null, anaId, "contenido", "titulo", null, java.time.Instant.now()))
                 .getId();
     }
 
@@ -106,10 +110,10 @@ class AccessControlTests extends SecurityTestSupport {
     void onlyAuthorOrAdminDeletesComment() throws Exception {
         Long postId = anaPost();
         Long c1 =
-                comments.save(new Comments(null, postId, anaId, "hola", new java.util.Date()))
+                comments.save(new Comments(null, postId, anaId, "hola", java.time.Instant.now()))
                         .getId();
         Long c2 =
-                comments.save(new Comments(null, postId, anaId, "otra", new java.util.Date()))
+                comments.save(new Comments(null, postId, anaId, "otra", java.time.Instant.now()))
                         .getId();
         mvc.perform(delete("/api/comments/" + c1).cookie(bob)).andExpect(status().isForbidden());
         assertThat(comments.existsById(c1)).isTrue();
@@ -122,7 +126,9 @@ class AccessControlTests extends SecurityTestSupport {
     void createIgnoresBodyIdSoForeignRowsCannotBeOverwritten() throws Exception {
         Long postId = anaPost();
         Long c1 =
-                comments.save(new Comments(null, postId, anaId, "original", new java.util.Date()))
+                comments.save(
+                                new Comments(
+                                        null, postId, anaId, "original", java.time.Instant.now()))
                         .getId();
         mvc.perform(
                         post("/api/posts/" + postId + "/comments")
@@ -226,7 +232,8 @@ class AccessControlTests extends SecurityTestSupport {
     void postulationsArePrivate() throws Exception {
         Long companyId = companies.save(new Company(null, "ACME", "d", "l", carlaId)).getId();
         Long jobId =
-                jobs.save(new Job(null, companyId, "Dev", "d", "w", new java.util.Date())).getId();
+                jobs.save(new Job(null, companyId, "Dev", "d", "w", java.time.Instant.now()))
+                        .getId();
         mvc.perform(
                         post("/api/postulations")
                                 .cookie(bob)
@@ -261,7 +268,7 @@ class AccessControlTests extends SecurityTestSupport {
                         .andReturn()
                         .getResponse()
                         .getContentAsString();
-        assertThat(anaList).isEqualTo("[]");
+        assertThat(anaList).contains("\"items\":[]");
         String carlaList =
                 mvc.perform(get("/api/postulations").cookie(carla))
                         .andExpect(status().isOk())
@@ -357,29 +364,38 @@ class AccessControlTests extends SecurityTestSupport {
 
     @Test
     void onlyOwnerChangesProfilePhotos() throws Exception {
-        Long photoId = photos.save(new ProfilePhotos(null, anaId, "a.png", "w.png")).getId();
+        setMedia(anaId, "a.png", "w.png");
         mvc.perform(
-                        put("/api/profile-photos/" + photoId)
+                        put("/api/users/" + anaId + "/media")
                                 .cookie(bob)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"photoUrl\":\"evil.png\"}"))
+                                .content("{\"avatarUrl\":\"evil.png\"}"))
                 .andExpect(status().isForbidden());
         mvc.perform(
-                        put("/api/profile-photos/" + photoId)
+                        put("/api/users/" + anaId + "/media")
                                 .cookie(bob)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"wallPhotoUrl\":\"evil.png\"}"))
+                                .content("{\"coverUrl\":\"evil.png\"}"))
                 .andExpect(status().isForbidden());
-        ProfilePhotos p = photos.findById(photoId).orElseThrow();
-        assertThat(p.getPhotoUrl()).isEqualTo("a.png");
-        assertThat(p.getWallPhotoUrl()).isEqualTo("w.png");
+        User stored = users.findById(anaId).orElseThrow();
+        assertThat(stored.getAvatarUrl()).isEqualTo("a.png");
+        assertThat(stored.getCoverUrl()).isEqualTo("w.png");
         mvc.perform(
-                        put("/api/profile-photos/" + photoId)
+                        put("/api/users/" + anaId + "/media")
                                 .cookie(ana)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"photoUrl\":\"b.png\"}"))
+                                .content("{\"avatarUrl\":\"b.png\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.avatarUrl").value("b.png"))
+                .andExpect(jsonPath("$.coverUrl").value("w.png"));
+        mvc.perform(
+                        put("/api/users/" + anaId + "/media")
+                                .cookie(admin)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"coverUrl\":\"\"}"))
                 .andExpect(status().isOk());
-        mvc.perform(get("/api/profile-photos/" + photoId).cookie(bob)).andExpect(status().isOk());
+        assertThat(users.findById(anaId).orElseThrow().getCoverUrl()).isNull();
+        mvc.perform(get("/api/users/" + anaId).cookie(bob)).andExpect(status().isOk());
     }
 
     @Test
@@ -420,10 +436,10 @@ class AccessControlTests extends SecurityTestSupport {
         mvc.perform(post("/api/friends/requests/" + request.getId() + "/reject").cookie(carla))
                 .andExpect(status().isForbidden());
         assertThat(friends.findById(request.getId()).orElseThrow().getStatus())
-                .isEqualTo("PENDING");
+                .isEqualTo(FriendStatus.PENDING);
         mvc.perform(post("/api/friends/requests/" + request.getId() + "/accept").cookie(bob))
                 .andExpect(status().isOk());
         assertThat(friends.findById(request.getId()).orElseThrow().getStatus())
-                .isEqualTo("ACCEPTED");
+                .isEqualTo(FriendStatus.ACCEPTED);
     }
 }

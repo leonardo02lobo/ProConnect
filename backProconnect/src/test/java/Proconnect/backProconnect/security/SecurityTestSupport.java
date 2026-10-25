@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import Proconnect.backProconnect.Entity.User;
+import Proconnect.backProconnect.model.Role;
 import Proconnect.backProconnect.repository.CommentsRepository;
 import Proconnect.backProconnect.repository.CompanyRepository;
 import Proconnect.backProconnect.repository.FriendRepository;
@@ -12,7 +13,6 @@ import Proconnect.backProconnect.repository.LikeRepository;
 import Proconnect.backProconnect.repository.MessageRepository;
 import Proconnect.backProconnect.repository.PostsRepository;
 import Proconnect.backProconnect.repository.PostulationRepository;
-import Proconnect.backProconnect.repository.ProfilePhotosRepository;
 import Proconnect.backProconnect.repository.UserRepository;
 import Proconnect.backProconnect.repository.WorkStationRepository;
 import jakarta.servlet.http.Cookie;
@@ -40,7 +40,6 @@ public abstract class SecurityTestSupport {
     @Autowired protected PostulationRepository postulations;
     @Autowired protected MessageRepository messages;
     @Autowired protected FriendRepository friends;
-    @Autowired protected ProfilePhotosRepository photos;
     @Autowired protected WorkStationRepository workStations;
 
     @BeforeEach
@@ -53,7 +52,6 @@ public abstract class SecurityTestSupport {
         likes.deleteAll();
         comments.deleteAll();
         posts.deleteAll();
-        photos.deleteAll();
         workStations.deleteAll();
         users.deleteAll();
     }
@@ -80,7 +78,7 @@ public abstract class SecurityTestSupport {
                 .andExpect(status().isCreated());
         User user = users.findByEmail(name + "@example.com").orElseThrow();
         if (!"USER".equals(role)) {
-            user.setRole(role);
+            user.setRole(Role.valueOf(role));
             users.save(user);
         }
         return user.getId();
@@ -97,6 +95,14 @@ public abstract class SecurityTestSupport {
 
     public static String stripCorrelation(String problemJson) {
         return problemJson.replaceAll(",?\\s*\"(traceId|instance)\"\\s*:\\s*\"[^\"]*\"", "");
+    }
+
+    /** Avatar/portada de un usuario directamente en la BD (columnas de user desde V3). */
+    protected void setMedia(Long userId, String avatarUrl, String coverUrl) {
+        User user = users.findById(userId).orElseThrow();
+        user.setAvatarUrl(avatarUrl);
+        user.setCoverUrl(coverUrl);
+        users.save(user);
     }
 
     protected Cookie login(String name) throws Exception {

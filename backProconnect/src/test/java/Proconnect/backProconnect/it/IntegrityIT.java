@@ -29,7 +29,10 @@ class IntegrityIT extends MySqlIntegrationTest {
         return posts.save(new Posts(null, authorId, "contenido", "titulo", null, null)).getId();
     }
 
-    /** Tarea 3.3: dos likes simultáneos del mismo usuario → un solo registro, un 201 y un 409. */
+    /**
+     * Tarea 3.3: dos likes simultáneos del mismo usuario → un solo registro, un 201, un 409 y
+     * like_count incrementado una sola vez.
+     */
     @Test
     void concurrentDoubleLikePersistsOneRowAndReturns409() throws Exception {
         Long anaId = createUser("ana", "USER");
@@ -66,6 +69,13 @@ class IntegrityIT extends MySqlIntegrationTest {
             assertThat(
                             jdbc.queryForObject(
                                     "SELECT COUNT(*) FROM likes WHERE post_id = ?",
+                                    Integer.class,
+                                    target))
+                    .isEqualTo(1);
+            // El contador se incrementó una sola vez (el 409 revierte su transacción).
+            assertThat(
+                            jdbc.queryForObject(
+                                    "SELECT like_count FROM posts WHERE id = ?",
                                     Integer.class,
                                     target))
                     .isEqualTo(1);
@@ -128,5 +138,23 @@ class IntegrityIT extends MySqlIntegrationTest {
                                         anaId,
                                         987654321L))
                 .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+    }
+
+    /** Spec: una amistad con estado fuera de PENDING/ACCEPTED/REJECTED se rechaza (CHECK). */
+    @Test
+    void databaseRejectsInvalidFriendStatusAndRole() throws Exception {
+        Long anaId = createUser("ana", "USER");
+        Long bobId = createUser("bob", "USER");
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                        () ->
+                                jdbc.update(
+                                        "INSERT INTO friends (user_id_follow, user_id_be_followed,"
+                                                + " status) VALUES (?, ?, 'BEST_FRIENDS')",
+                                        anaId,
+                                        bobId))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class);
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                        () -> jdbc.update("UPDATE `user` SET role = 'ROOT' WHERE id = ?", anaId))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class);
     }
 }

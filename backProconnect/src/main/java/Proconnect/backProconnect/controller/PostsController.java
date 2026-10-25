@@ -2,8 +2,10 @@ package Proconnect.backProconnect.controller;
 
 import Proconnect.backProconnect.model.CommentDto;
 import Proconnect.backProconnect.model.CommentRequest;
+import Proconnect.backProconnect.model.CursorPage;
 import Proconnect.backProconnect.model.FeedPostDto;
 import Proconnect.backProconnect.model.LikeDto;
+import Proconnect.backProconnect.model.PageResponse;
 import Proconnect.backProconnect.model.PostDto;
 import Proconnect.backProconnect.model.PostRequest;
 import Proconnect.backProconnect.security.CurrentUser;
@@ -12,8 +14,6 @@ import Proconnect.backProconnect.service.LikeService;
 import Proconnect.backProconnect.service.PostsService;
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -42,10 +43,16 @@ public class PostsController {
         this.commentsService = commentsService;
     }
 
-    /** Feed (más nuevo primero). {@code userLiked} es del usuario de la sesión. */
+    /**
+     * Feed global (más nuevo primero) paginado por cursor: {@code ?limit=} (20 por defecto, máx.
+     * 50) y {@code ?cursor=} con el {@code nextCursor} de la página anterior. {@code userLiked} es
+     * del usuario de la sesión.
+     */
     @GetMapping
-    public List<FeedPostDto> feed() {
-        return postsService.getFeed(Optional.of(CurrentUser.id()));
+    public CursorPage<FeedPostDto> feed(
+            @RequestParam(name = "cursor", required = false) String cursor,
+            @RequestParam(name = "limit", required = false) Integer limit) {
+        return postsService.getFeed(CurrentUser.id(), cursor, limit);
     }
 
     @GetMapping("/{id}")
@@ -73,8 +80,11 @@ public class PostsController {
     // ---- Likes ----
 
     @GetMapping("/{postId}/likes")
-    public List<LikeDto> likes(@PathVariable Long postId) {
-        return likeService.listByPost(postId);
+    public PageResponse<LikeDto> likes(
+            @PathVariable Long postId,
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "size", required = false) Integer size) {
+        return likeService.listByPost(postId, page, size);
     }
 
     /** Like del usuario de la sesión (sin body): 201, 409 si ya existía. */
@@ -93,9 +103,13 @@ public class PostsController {
 
     // ---- Comentarios ----
 
+    /** Comentarios del post (más antiguo primero) paginados por cursor ({@code limit} máx. 50). */
     @GetMapping("/{postId}/comments")
-    public List<CommentDto> comments(@PathVariable Long postId) {
-        return commentsService.listByPost(postId);
+    public CursorPage<CommentDto> comments(
+            @PathVariable Long postId,
+            @RequestParam(name = "cursor", required = false) String cursor,
+            @RequestParam(name = "limit", required = false) Integer limit) {
+        return commentsService.listByPost(postId, cursor, limit);
     }
 
     @PostMapping("/{postId}/comments")

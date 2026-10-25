@@ -5,8 +5,20 @@ calientes de `backProconnect` sobre un dataset sintético determinista. Se usan 
 (fase 1, sobre el código actual) y se reutilizan tal cual al final del change para la comparación.
 
 Nada de esto modifica código de la app: la API se compila desde `backProconnect/` tal como está en
-el commit, la configuración se sobrescribe por variables de entorno de Spring y el conteo de
-sentencias se hace desde MySQL (`performance_schema`), sin instrumentar la aplicación.
+el commit, la configuración se sobrescribe por variables de entorno y el conteo de sentencias se hace
+desde MySQL (`performance_schema`), sin instrumentar la aplicación.
+
+Mediciones guardadas (`results/<label>-*`, informes en `docs/perf/`):
+
+| Label | Código | Notas |
+|---|---|---|
+| `baseline` | `03a4ba7` (rutas antiguas, sin auth) | fase 1, `docs/perf/2026-10-24-baseline.md` |
+| `pre` | `4163ca1` (tras risks/security/cleanup, sin índices) | rutas REST + login; mismo dataset |
+| `after-v2` | `2f79dbe` (mismo código + Flyway V1/V2: solo índices/FKs) | V2 aplicada sobre la base `pre` existente |
+| `after` | fase 2 completa (V2.1–V5, feed en 3 queries, paginación) | `docs/perf/2026-10-25-after.md` |
+
+Desde la fase 2 toda la API exige sesión: `count-queries.mjs` y k6 hacen login (`/api/auth/login`) con los
+usuarios sembrados (`PerfPass#2026`) y envían la cookie `pc_session`; el compose sube el rate limit de login.
 
 ```
 perf/
@@ -20,7 +32,7 @@ perf/
 │   ├── count-queries.mjs     # sentencias SQL / tiempo BD / tamaño por petición (performance_schema)
 │   ├── k6/hot-endpoints.js   # benchmark de latencia k6
 │   ├── run-k6.sh             # ejecuta k6 en Docker dentro de la red del stack
-│   ├── explain.sql / .sh     # EXPLAIN y EXPLAIN ANALYZE de las queries nativas
+│   ├── explain.sh            # EXPLAIN/EXPLAIN ANALYZE: explain.sql (fase 1), explain-pre.sql, explain-after.sql
 │   ├── run-all.sh            # medición completa
 │   └── report.mjs            # tabla Markdown (y comparación entre dos labels)
 └── results/                  # JSON / txt de cada medición (versionados)
@@ -35,20 +47,20 @@ perf/
 ## Reproducir la medición (comandos exactos, desde la raíz del repo)
 
 ```bash
-# 1. Levantar el stack (compila la API actual en Docker; la primera vez tarda ~2 min)
-docker-compose -p pc-perf -f perf/docker-compose.perf.yml up -d --build
-
-# 2. Esperar a que la API arranque: Hibernate (ddl-auto=update) crea el esquema
-until curl -s -o /dev/null http://127.0.0.1:28080/api/posts; do sleep 2; done
+# 1. Levantar el stack (compila la API actual en Docker; la primera vez tarda ~2 min).
+#    --wait espera al healthcheck: Flyway crea/migra el esquema al arrancar la API.
+PERF_API_TAG=after docker-compose -p pc-perf -f perf/docker-compose.perf.yml up -d --build --wait
 
 # 3. Dependencias Node y dataset de referencia (semilla fija; vacía y re-siembra las tablas)
 (cd perf && npm ci && node seed/seed.mjs | tee results/<label>-seed.json)
 
 # 4. Medición completa (~50 min con el código actual: cada petición de feed tarda ~4 min)
-perf/bench/run-all.sh <label>          # p. ej. baseline | after
+perf/bench/run-all.sh <label>          # p. ej. after (EXPLAIN_SQL=explain-after.sql)
+#   pre-fase-2 (feed sin paginar, minutos por petición):
+#   FEED_ENDPOINTS=feed FEED_LOAD_VUS=3 EXPLAIN_SQL=explain-pre.sql perf/bench/run-all.sh pre
 
 # 5. Tabla resumen / comparación
-node perf/bench/report.mjs after --compare baseline
+node perf/bench/report.mjs after --compare baseline   # mapea las rutas antiguas de la línea base
 
 # 6. Bajar el stack y liberar recursos
 docker-compose -p pc-perf -f perf/docker-compose.perf.yml down -v
@@ -80,9 +92,10 @@ node perf/seed/seed.mjs --checksum-only                       # conteos + checks
   fecha fija (nunca desde `now`). El script imprime conteos y un checksum por tabla
   (`BIT_XOR(CRC32(fila))`), independiente del orden físico: dos ejecuciones sobre bases vacías dan
   el mismo JSON (ver `results/baseline-seed*.json`).
-- El script **no crea tablas**: siembra el esquema que genera la versión bajo prueba (arrancar la
-  API antes). Si en fase 2 cambian columnas (Flyway, `avatar_url`, contadores…), hay que ajustar
-  los `INSERT` de `seed.mjs` manteniendo la misma secuencia de `faker` para conservar el dataset.
+- El script **no crea tablas**: siembra el esquema de la versión bajo prueba (arrancar la API antes).
+  Detecta las columnas (`date`/`created_at`, `profile_photos` o `user.avatar_url/cover_url`, contadores
+  `like_count/comment_count`, que recalcula) sin cambiar la secuencia de `faker`: el dataset lógico es
+  idéntico y los checksums de `user`, `posts`, `likes`, `comments` y `friends` coinciden con la línea base.
 - Variables: `DB_HOST` `DB_PORT` `DB_USER` `DB_PASSWORD` `DB_NAME` `PERF_SEED`.
 
 ## Cómo se mide

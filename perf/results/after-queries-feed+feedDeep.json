@@ -1,0 +1,217 @@
+{
+  "label": "after",
+  "api": "http://127.0.0.1:28080",
+  "measuredAt": "2026-10-25T16:11:05.858Z",
+  "repeat": 10,
+  "warmup": 5,
+  "targets": {
+    "viewerId": 1,
+    "viewerEmail": "perf.user1@proconnect.test",
+    "feedDeepOffset": 5000,
+    "feedDeepCursor": "MTc0OTMyMjU1MjAyODAwMDo1MDAw",
+    "profileUserId": 3,
+    "profileUserPosts": 10,
+    "profileUserCommentRows": 26,
+    "usersWithProfile500": 376,
+    "commentsPostId": 354,
+    "commentsPostCount": 12,
+    "likePostId": 9999,
+    "likeUserId": 1
+  },
+  "results": [
+    {
+      "key": "feed",
+      "endpoint": "GET /api/posts (feed, 1.ª página)",
+      "url": "/api/posts?limit=20",
+      "status": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "statementsDml": 3,
+      "statementsTotal": 8,
+      "statementsStable": true,
+      "warmLatencyMs": {
+        "min": 5.698253,
+        "p50": 6.312135,
+        "max": 7.999569,
+        "samples": [
+          7.7,
+          6.7,
+          8,
+          6.5,
+          5.7,
+          5.7,
+          6.1,
+          6.3,
+          6.3,
+          6.1
+        ]
+      },
+      "dbTimeMs": 1,
+      "rowsExamined": 173,
+      "responseBytes": 26772,
+      "events": {
+        "select": 3,
+        "set_option": 4,
+        "commit": 1
+      },
+      "topDigests": [
+        {
+          "query": "SET `autocommit` = ?",
+          "count": 2,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SELECT `t` . `id` AS `id` , `t` . `post_id` AS `postId` , `t` . `user_id` AS `userId` , `t` . `content` AS `content` , `t` . `created_at` AS `createdAt` , `t` .",
+          "count": 1,
+          "ms": 0.8,
+          "rowsExamined": 131,
+          "rowsSent": 54
+        },
+        {
+          "query": "SELECT `p1_0` . `id` , `p1_0` . `title` , `p1_0` . `content` , `p1_0` . `image_url` , `p1_0` . `created_at` , `p1_0` . `like_count` , `p1_0` . `comment_count` ,",
+          "count": 1,
+          "ms": 0.3,
+          "rowsExamined": 42,
+          "rowsSent": 21
+        },
+        {
+          "query": "SELECT `l1_0` . `post_id` FROM `likes` `l1_0` WHERE `l1_0` . `user_id` = ? AND `l1_0` . `post_id` IN (...)",
+          "count": 1,
+          "ms": 0.2,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SET SESSION TRANSACTION READ ONLY",
+          "count": 1,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "COMMIT",
+          "count": 1,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SET SESSION TRANSACTION READ WRITE",
+          "count": 1,
+          "ms": 0,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        }
+      ],
+      "responseSample": "{\"items\":[{\"id\":10000,\"userId\":674,\"user\":{\"id\":674,\"name\":\"Bo Runolfsdottir\",\"userName\":\"bo.runolfsdottir.674\",\"role\":\"USER\",\"avatarUrl\":\"/upload/uploads/avata"
+    },
+    {
+      "key": "feedDeep",
+      "endpoint": "GET /api/posts?cursor (feed, página tras 5000 posts)",
+      "url": "/api/posts?limit=20&cursor=MTc0OTMyMjU1MjAyODAwMDo1MDAw",
+      "status": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "statementsDml": 3,
+      "statementsTotal": 8,
+      "statementsStable": true,
+      "warmLatencyMs": {
+        "min": 5.163532,
+        "p50": 5.633069,
+        "max": 6.088959,
+        "samples": [
+          5.7,
+          6,
+          5.7,
+          6.1,
+          5.6,
+          6.1,
+          5.6,
+          5.4,
+          5.4,
+          5.2
+        ]
+      },
+      "dbTimeMs": 1,
+      "rowsExamined": 139,
+      "responseBytes": 23584,
+      "events": {
+        "select": 3,
+        "set_option": 4,
+        "commit": 1
+      },
+      "topDigests": [
+        {
+          "query": "SET `autocommit` = ?",
+          "count": 2,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SELECT `t` . `id` AS `id` , `t` . `post_id` AS `postId` , `t` . `user_id` AS `userId` , `t` . `content` AS `content` , `t` . `created_at` AS `createdAt` , `t` .",
+          "count": 1,
+          "ms": 0.6,
+          "rowsExamined": 97,
+          "rowsSent": 45
+        },
+        {
+          "query": "SELECT `p1_0` . `id` , `p1_0` . `title` , `p1_0` . `content` , `p1_0` . `image_url` , `p1_0` . `created_at` , `p1_0` . `like_count` , `p1_0` . `comment_count` ,",
+          "count": 1,
+          "ms": 0.4,
+          "rowsExamined": 42,
+          "rowsSent": 21
+        },
+        {
+          "query": "SELECT `l1_0` . `post_id` FROM `likes` `l1_0` WHERE `l1_0` . `user_id` = ? AND `l1_0` . `post_id` IN (...)",
+          "count": 1,
+          "ms": 0.2,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SET SESSION TRANSACTION READ ONLY",
+          "count": 1,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "COMMIT",
+          "count": 1,
+          "ms": 0,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SET SESSION TRANSACTION READ WRITE",
+          "count": 1,
+          "ms": 0,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        }
+      ],
+      "responseSample": "{\"items\":[{\"id\":4999,\"userId\":363,\"user\":{\"id\":363,\"name\":\"Myrtie Swift\",\"userName\":\"myrtie.swift.363\",\"role\":\"USER\",\"avatarUrl\":\"/upload/uploads/avatar-363.jpg"
+    }
+  ]
+}

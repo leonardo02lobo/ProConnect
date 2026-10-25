@@ -61,7 +61,7 @@ public class AuthService {
                         userName,
                         email,
                         passwordEncoder.encode(request.password()),
-                        Role.USER.name());
+                        Role.USER);
         try {
             return userRepository.saveAndFlush(user);
         } catch (DataIntegrityViolationException e) {

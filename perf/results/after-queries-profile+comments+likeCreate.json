@@ -1,0 +1,364 @@
+{
+  "label": "after",
+  "api": "http://127.0.0.1:28080",
+  "measuredAt": "2026-10-25T16:06:46.091Z",
+  "repeat": 10,
+  "warmup": 5,
+  "targets": {
+    "viewerId": 1,
+    "viewerEmail": "perf.user1@proconnect.test",
+    "feedDeepOffset": 5000,
+    "feedDeepCursor": "MTc0OTMyMjU1MjAyODAwMDo1MDAw",
+    "profileUserId": 3,
+    "profileUserPosts": 10,
+    "profileUserCommentRows": 26,
+    "usersWithProfile500": 376,
+    "commentsPostId": 354,
+    "commentsPostCount": 12,
+    "likePostId": 9999,
+    "likeUserId": 1
+  },
+  "results": [
+    {
+      "key": "profile",
+      "endpoint": "GET /api/users/{id}/profile (perfil)",
+      "url": "/api/users/3/profile",
+      "status": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "statementsDml": 4,
+      "statementsTotal": 9,
+      "statementsStable": true,
+      "warmLatencyMs": {
+        "min": 19.082552,
+        "p50": 20.687639,
+        "max": 27.072444,
+        "samples": [
+          23.9,
+          27.1,
+          24.9,
+          22.7,
+          20.9,
+          19.8,
+          19.1,
+          19.5,
+          20.1,
+          20.7
+        ]
+      },
+      "dbTimeMs": 3,
+      "rowsExamined": 61,
+      "responseBytes": 12771,
+      "events": {
+        "select": 4,
+        "set_option": 4,
+        "commit": 1
+      },
+      "topDigests": [
+        {
+          "query": "SET `autocommit` = ?",
+          "count": 2,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SELECT `t` . `id` AS `id` , `t` . `post_id` AS `postId` , `t` . `user_id` AS `userId` , `t` . `content` AS `content` , `t` . `created_at` AS `createdAt` , `t` .",
+          "count": 1,
+          "ms": 1,
+          "rowsExamined": 50,
+          "rowsSent": 24
+        },
+        {
+          "query": "SELECT `p1_0` . `id` , `p1_0` . `title` , `p1_0` . `content` , `p1_0` . `image_url` , `p1_0` . `created_at` , `p1_0` . `like_count` , `p1_0` . `comment_count` ,",
+          "count": 1,
+          "ms": 0.5,
+          "rowsExamined": 10,
+          "rowsSent": 10
+        },
+        {
+          "query": "SELECT `l1_0` . `post_id` FROM `likes` `l1_0` WHERE `l1_0` . `user_id` = ? AND `l1_0` . `post_id` IN (...)",
+          "count": 1,
+          "ms": 0.4,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SELECT `u1_0` . `id` , `u1_0` . `avatar_url` , `u1_0` . `cover_url` , `u1_0` . `email` , `u1_0` . `name` , `u1_0` . `password` , `u1_0` . `role` , `u1_0` . `use",
+          "count": 1,
+          "ms": 0.3,
+          "rowsExamined": 1,
+          "rowsSent": 1
+        },
+        {
+          "query": "COMMIT",
+          "count": 1,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SET SESSION TRANSACTION READ ONLY",
+          "count": 1,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SET SESSION TRANSACTION READ WRITE",
+          "count": 1,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        }
+      ],
+      "responseSample": "{\"id\":3,\"name\":\"Orpha Osinski\",\"role\":\"USER\",\"userName\":\"orpha.osinski.3\",\"avatarUrl\":\"/upload/uploads/avatar-3.jpg\",\"coverUrl\":\"/upload/uploads/wall-3.jpg\",\"po"
+    },
+    {
+      "key": "comments",
+      "endpoint": "GET /api/posts/{postId}/comments (comentarios)",
+      "url": "/api/posts/354/comments",
+      "status": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "statementsDml": 1,
+      "statementsTotal": 6,
+      "statementsStable": true,
+      "warmLatencyMs": {
+        "min": 8.658128,
+        "p50": 9.661789,
+        "max": 19.063887,
+        "samples": [
+          19.1,
+          13.9,
+          9.7,
+          13.8,
+          11.6,
+          9.5,
+          11.6,
+          9.5,
+          8.7,
+          8.8
+        ]
+      },
+      "dbTimeMs": 1,
+      "rowsExamined": 24,
+      "responseBytes": 3836,
+      "events": {
+        "select": 1,
+        "set_option": 4,
+        "commit": 1
+      },
+      "topDigests": [
+        {
+          "query": "SET `autocommit` = ?",
+          "count": 2,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SELECT `c1_0` . `id` , `c1_0` . `post_id` , `c1_0` . `user_id` , `c1_0` . `content` , `c1_0` . `created_at` , `a1_0` . `name` , `a1_0` . `user_name` , `a1_0` . ",
+          "count": 1,
+          "ms": 0.3,
+          "rowsExamined": 24,
+          "rowsSent": 12
+        },
+        {
+          "query": "SET SESSION TRANSACTION READ ONLY",
+          "count": 1,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "COMMIT",
+          "count": 1,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SET SESSION TRANSACTION READ WRITE",
+          "count": 1,
+          "ms": 0,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        }
+      ],
+      "responseSample": "{\"items\":[{\"id\":24826,\"postId\":354,\"userId\":586,\"content\":\"Arx utique decipio verto carcer collum tabesco consequatur.\",\"date\":\"2025-01-12T18:04:40.660Z\",\"user\""
+    },
+    {
+      "key": "likeCreate",
+      "endpoint": "POST /api/posts/{postId}/likes",
+      "url": "/api/posts/9999/likes",
+      "status": [
+        201,
+        201,
+        201,
+        201,
+        201,
+        201,
+        201,
+        201,
+        201,
+        201
+      ],
+      "statementsDml": 2,
+      "statementsTotal": 5,
+      "statementsStable": true,
+      "warmLatencyMs": {
+        "min": 10.482646,
+        "p50": 11.293687,
+        "max": 31.962929,
+        "samples": [
+          11.6,
+          17.4,
+          11.7,
+          10.5,
+          12.8,
+          11.3,
+          32,
+          10.9,
+          10.7,
+          11.3
+        ]
+      },
+      "dbTimeMs": 2,
+      "rowsExamined": 1,
+      "responseBytes": 77,
+      "events": {
+        "update": 1,
+        "insert": 1,
+        "set_option": 2,
+        "commit": 1
+      },
+      "topDigests": [
+        {
+          "query": "SET `autocommit` = ?",
+          "count": 2,
+          "ms": 0.2,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "COMMIT",
+          "count": 1,
+          "ms": 1.4,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "UPDATE `posts` `p1_0` SET `like_count` = ( `p1_0` . `like_count` + ? ) WHERE `p1_0` . `id` = ?",
+          "count": 1,
+          "ms": 0.5,
+          "rowsExamined": 1,
+          "rowsSent": 0
+        },
+        {
+          "query": "INSERT INTO `likes` ( `created_at` , `post_id` , `user_id` ) VALUES (...)",
+          "count": 1,
+          "ms": 0.2,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        }
+      ],
+      "responseSample": "{\"id\":50015,\"userId\":1,\"postId\":9999,\"date\":\"2026-10-25T16:06:46.066060157Z\"}"
+    },
+    {
+      "key": "likeDelete",
+      "endpoint": "DELETE /api/posts/{postId}/likes",
+      "url": "/api/posts/9999/likes",
+      "status": [
+        204,
+        204,
+        204,
+        204,
+        204,
+        204,
+        204,
+        204,
+        204,
+        204
+      ],
+      "statementsDml": 1,
+      "statementsTotal": 5,
+      "statementsStable": true,
+      "warmLatencyMs": {
+        "min": 9.410405,
+        "p50": 10.330554,
+        "max": 13.104709,
+        "samples": [
+          10.1,
+          10.6,
+          10.7,
+          11.6,
+          10.1,
+          11.2,
+          9.7,
+          13.1,
+          9.4,
+          10.3
+        ]
+      },
+      "dbTimeMs": 2,
+      "rowsExamined": 2,
+      "responseBytes": 0,
+      "events": {
+        "update": 1,
+        "set_option": 2,
+        "commit": 1,
+        "delete_multi": 1
+      },
+      "topDigests": [
+        {
+          "query": "SET `autocommit` = ?",
+          "count": 2,
+          "ms": 0.2,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "COMMIT",
+          "count": 1,
+          "ms": 0.9,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "UPDATE `posts` `p1_0` SET `like_count` = ( `p1_0` . `like_count` + ? ) WHERE `p1_0` . `id` = ?",
+          "count": 1,
+          "ms": 0.3,
+          "rowsExamined": 1,
+          "rowsSent": 0
+        },
+        {
+          "query": "DELETE `l1_0` FROM `likes` `l1_0` WHERE `l1_0` . `user_id` = ? AND `l1_0` . `post_id` = ?",
+          "count": 1,
+          "ms": 0.3,
+          "rowsExamined": 1,
+          "rowsSent": 0
+        }
+      ],
+      "responseSample": ""
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import Proconnect.backProconnect.Entity.Posts;
 import Proconnect.backProconnect.Entity.User;
+import Proconnect.backProconnect.model.Role;
 import Proconnect.backProconnect.repository.LikeRepository;
 import Proconnect.backProconnect.repository.PostsRepository;
 import Proconnect.backProconnect.repository.UserRepository;
@@ -93,7 +94,7 @@ class AuthFlowTests {
                 .doesNotContain("password")
                 .contains("\"role\":\"USER\"");
         User saved = userRepository.findByEmail("ana@example.com").orElseThrow();
-        assertThat(saved.getRole()).isEqualTo("USER");
+        assertThat(saved.getRole()).isEqualTo(Role.USER);
         assertThat(saved.getPassword()).startsWith("$2").isNotEqualTo("password123");
     }
 

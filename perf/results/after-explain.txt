@@ -1,0 +1,279 @@
+-- targets: viewer=1 profile_user=3 post=354
+*************************** 1. row ***************************
+section: ==== Q1 feed, 1.ª página (feedFirstPage) — EXPLAIN + EXPLAIN ANALYZE
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: p
+   partitions: NULL
+         type: index
+possible_keys: idx_posts_author_feed
+          key: idx_posts_feed
+      key_len: 16
+          ref: NULL
+         rows: 21
+     filtered: 100.00
+        Extra: Backward index scan
+*************************** 2. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: u
+   partitions: NULL
+         type: eq_ref
+possible_keys: PRIMARY
+          key: PRIMARY
+      key_len: 8
+          ref: proconnect.p.user_id
+         rows: 1
+     filtered: 100.00
+        Extra: NULL
+*************************** 1. row ***************************
+EXPLAIN: -> Limit: 21 row(s)  (cost=2505 rows=21) (actual time=0.0314..0.0921 rows=21 loops=1)
+    -> Nested loop inner join  (cost=2505 rows=21) (actual time=0.0262..0.086 rows=21 loops=1)
+        -> Index scan on p using idx_posts_feed (reverse)  (cost=0.0888 rows=21) (actual time=0.0136..0.0384 rows=21 loops=1)
+        -> Single-row index lookup on u using PRIMARY (id=p.user_id)  (cost=0.25 rows=1) (actual time=0.00181..0.00184 rows=1 loops=21)
+
+*************************** 1. row ***************************
+section: ==== Q1 feed, página profunda con cursor (feedAfter, predicado con OR) — EXPLAIN + ANALYZE
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: p
+   partitions: NULL
+         type: range
+possible_keys: PRIMARY,idx_posts_feed,idx_posts_author_feed
+          key: idx_posts_feed
+      key_len: 16
+          ref: NULL
+         rows: 5000
+     filtered: 100.00
+        Extra: Using index condition; Backward index scan
+*************************** 2. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: u
+   partitions: NULL
+         type: eq_ref
+possible_keys: PRIMARY
+          key: PRIMARY
+      key_len: 8
+          ref: proconnect.p.user_id
+         rows: 1
+     filtered: 100.00
+        Extra: NULL
+*************************** 1. row ***************************
+EXPLAIN: -> Limit: 21 row(s)  (cost=2791 rows=21) (actual time=0.0835..0.118 rows=21 loops=1)
+    -> Nested loop inner join  (cost=2791 rows=5000) (actual time=0.0829..0.117 rows=21 loops=1)
+        -> Index range scan on p using idx_posts_feed over (created_at < '2025-06-07 18:55:52.028000') OR (created_at = '2025-06-07 18:55:52.028000' AND id < 5000) (reverse), with index condition: ((p.created_at < <cache>((@deep_ts))) or ((p.created_at = <cache>((@deep_ts))) and (p.id < <cache>((@deep_id)))))  (cost=1041 rows=5000) (actual time=0.0758..0.0792 rows=21 loops=1)
+        -> Single-row index lookup on u using PRIMARY (id=p.user_id)  (cost=0.25 rows=1) (actual time=0.00159..0.00161 rows=1 loops=21)
+
+*************************** 1. row ***************************
+section: ==== Q1 alternativa descartada: comparación de tuplas — EXPLAIN ANALYZE
+*************************** 1. row ***************************
+EXPLAIN: -> Limit: 21 row(s)  (cost=2505 rows=21) (actual time=5.88..5.94 rows=21 loops=1)
+    -> Nested loop inner join  (cost=2505 rows=21) (actual time=5.88..5.94 rows=21 loops=1)
+        -> Filter: ((p.created_at,p.id) < (<cache>((@deep_ts)),<cache>((@deep_id))))  (cost=0.0888 rows=21) (actual time=5.87..5.9 rows=21 loops=1)
+            -> Index scan on p using idx_posts_feed (reverse)  (cost=0.0888 rows=21) (actual time=0.0105..5.06 rows=5022 loops=1)
+        -> Single-row covering index lookup on u using PRIMARY (id=p.user_id)  (cost=0.25 rows=1) (actual time=0.00158..0.0016 rows=1 loops=21)
+
+*************************** 1. row ***************************
+section: ==== Q2 likes del viewer en la página (likedAmong) — EXPLAIN ANALYZE
+*************************** 1. row ***************************
+EXPLAIN: -> Filter: ((l.user_id = 1) and (l.post_id in (10000,9999,9998,9997,9996,9995,9994,9993,9992,9991,9990,9989,9988,9987,9986,9985,9984,9983,9982,9981)))  (cost=4.27 rows=20) (actual time=0.0215..0.0215 rows=0 loops=1)
+    -> Covering index range scan on l using uk_likes_user_post over (user_id = 1 AND post_id = 9981) OR (user_id = 1 AND post_id = 9982) OR (18 more)  (cost=4.27 rows=20) (actual time=0.0208..0.0208 rows=0 loops=1)
+
+*************************** 1. row ***************************
+section: ==== Q3 preview de 3 comentarios por post con ROW_NUMBER (latestPerPost), página profunda — EXPLAIN ANALYZE
+*************************** 1. row ***************************
+EXPLAIN: -> Sort: t.post_id, t.created_at, t.id  (cost=2.6..2.6 rows=0) (actual time=1.43..1.43 rows=45 loops=1)
+    -> Filter: (t.rn <= 3)  (cost=2.5..2.5 rows=0) (actual time=0.361..1.42 rows=45 loops=1)
+        -> Table scan on t  (cost=2.5..2.5 rows=0) (actual time=0.356..0.363 rows=52 loops=1)
+            -> Materialize  (cost=0..0 rows=0) (actual time=0.354..0.354 rows=52 loops=1)
+                -> Window aggregate: row_number() OVER (PARTITION BY c.post_id ORDER BY c.created_at desc,c.id desc )   (actual time=0.286..0.317 rows=52 loops=1)
+                    -> Sort: c.post_id, c.created_at DESC, c.id DESC  (actual time=0.283..0.287 rows=52 loops=1)
+                        -> Stream results  (cost=48.2 rows=54) (actual time=0.0334..0.262 rows=52 loops=1)
+                            -> Nested loop inner join  (cost=48.2 rows=54) (actual time=0.0276..0.228 rows=52 loops=1)
+                                -> Index range scan on c using idx_comments_post_feed over (post_id = 4980) OR (post_id = 4981) OR (18 more), with index condition: (c.post_id in (4999,4998,4997,4996,4995,4994,4993,4992,4991,4990,4989,4988,4987,4986,4985,4984,4983,4982,4981,4980))  (cost=29.3 rows=54) (actual time=0.02..0.142 rows=52 loops=1)
+                                -> Single-row index lookup on u using PRIMARY (id=c.user_id)  (cost=0.252 rows=1) (actual time=0.0015..0.00153 rows=1 loops=52)
+
+*************************** 1. row ***************************
+section: ==== Perfil: posts del autor (byAuthorFirstPage) — EXPLAIN ANALYZE
+*************************** 1. row ***************************
+EXPLAIN: -> Limit: 21 row(s)  (cost=3.5 rows=10) (actual time=0.0272..0.0528 rows=10 loops=1)
+    -> Index lookup on p using idx_posts_author_feed (user_id=(@profile_user)) (reverse)  (cost=3.5 rows=10) (actual time=0.026..0.0512 rows=10 loops=1)
+
+*************************** 1. row ***************************
+section: ==== Comentarios paginados de un post (pageFirst) — EXPLAIN ANALYZE
+*************************** 1. row ***************************
+EXPLAIN: -> Limit: 21 row(s)  (cost=8.4 rows=12) (actual time=0.0213..0.0597 rows=12 loops=1)
+    -> Nested loop inner join  (cost=8.4 rows=12) (actual time=0.0207..0.0584 rows=12 loops=1)
+        -> Index lookup on c using idx_comments_post_feed (post_id=(@post))  (cost=4.2 rows=12) (actual time=0.0154..0.0313 rows=12 loops=1)
+        -> Single-row index lookup on u using PRIMARY (id=c.user_id)  (cost=0.258 rows=1) (actual time=0.00205..0.00207 rows=1 loops=12)
+
+*************************** 1. row ***************************
+section: ==== Like: contador + insert (UPDATE posts por PK) — EXPLAIN
+*************************** 1. row ***************************
+           id: 1
+  select_type: UPDATE
+        table: posts
+   partitions: NULL
+         type: range
+possible_keys: PRIMARY
+          key: PRIMARY
+      key_len: 8
+          ref: const
+         rows: 1
+     filtered: 100.00
+        Extra: Using where
+*************************** 1. row ***************************
+section: ==== Índices existentes
+*************************** 1. row ***************************
+TABLE_NAME: comments
+INDEX_NAME: idx_comments_post_feed
+      cols: post_id,created_at,id
+NON_UNIQUE: 1
+*************************** 2. row ***************************
+TABLE_NAME: comments
+INDEX_NAME: idx_comments_user
+      cols: user_id
+NON_UNIQUE: 1
+*************************** 3. row ***************************
+TABLE_NAME: comments
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 4. row ***************************
+TABLE_NAME: company
+INDEX_NAME: idx_company_user
+      cols: user_id
+NON_UNIQUE: 1
+*************************** 5. row ***************************
+TABLE_NAME: company
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 6. row ***************************
+TABLE_NAME: flyway_schema_history
+INDEX_NAME: flyway_schema_history_s_idx
+      cols: success
+NON_UNIQUE: 1
+*************************** 7. row ***************************
+TABLE_NAME: flyway_schema_history
+INDEX_NAME: PRIMARY
+      cols: installed_rank
+NON_UNIQUE: 0
+*************************** 8. row ***************************
+TABLE_NAME: friends
+INDEX_NAME: idx_friends_followed_status
+      cols: user_id_be_followed,status
+NON_UNIQUE: 1
+*************************** 9. row ***************************
+TABLE_NAME: friends
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 10. row ***************************
+TABLE_NAME: friends
+INDEX_NAME: uk_friends_pair
+      cols: user_id_follow,user_id_be_followed
+NON_UNIQUE: 0
+*************************** 11. row ***************************
+TABLE_NAME: jobs
+INDEX_NAME: idx_jobs_company
+      cols: company_id
+NON_UNIQUE: 1
+*************************** 12. row ***************************
+TABLE_NAME: jobs
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 13. row ***************************
+TABLE_NAME: likes
+INDEX_NAME: idx_likes_post
+      cols: post_id
+NON_UNIQUE: 1
+*************************** 14. row ***************************
+TABLE_NAME: likes
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 15. row ***************************
+TABLE_NAME: likes
+INDEX_NAME: uk_likes_user_post
+      cols: user_id,post_id
+NON_UNIQUE: 0
+*************************** 16. row ***************************
+TABLE_NAME: messages
+INDEX_NAME: idx_messages_receiver_sent
+      cols: receiver_id,sent_at
+NON_UNIQUE: 1
+*************************** 17. row ***************************
+TABLE_NAME: messages
+INDEX_NAME: idx_messages_sender_sent
+      cols: sender_id,sent_at
+NON_UNIQUE: 1
+*************************** 18. row ***************************
+TABLE_NAME: messages
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 19. row ***************************
+TABLE_NAME: migration_audit
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 20. row ***************************
+TABLE_NAME: posts
+INDEX_NAME: idx_posts_author_feed
+      cols: user_id,created_at,id
+NON_UNIQUE: 1
+*************************** 21. row ***************************
+TABLE_NAME: posts
+INDEX_NAME: idx_posts_feed
+      cols: created_at,id
+NON_UNIQUE: 1
+*************************** 22. row ***************************
+TABLE_NAME: posts
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 23. row ***************************
+TABLE_NAME: postulations
+INDEX_NAME: idx_postulations_job_status
+      cols: job_id,status
+NON_UNIQUE: 1
+*************************** 24. row ***************************
+TABLE_NAME: postulations
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 25. row ***************************
+TABLE_NAME: postulations
+INDEX_NAME: uk_postulations_user_job
+      cols: user_id,job_id
+NON_UNIQUE: 0
+*************************** 26. row ***************************
+TABLE_NAME: user
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 27. row ***************************
+TABLE_NAME: user
+INDEX_NAME: UKlqjrcobrh9jc8wpcar64q1bfh
+      cols: user_name
+NON_UNIQUE: 0
+*************************** 28. row ***************************
+TABLE_NAME: user
+INDEX_NAME: UKob8kqyqqgmefl0aco34akdtpe
+      cols: email
+NON_UNIQUE: 0
+*************************** 29. row ***************************
+TABLE_NAME: work_stations
+INDEX_NAME: idx_work_stations_user
+      cols: user_id
+NON_UNIQUE: 1
+*************************** 30. row ***************************
+TABLE_NAME: work_stations
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0

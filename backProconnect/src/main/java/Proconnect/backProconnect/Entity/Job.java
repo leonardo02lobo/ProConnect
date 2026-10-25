@@ -1,13 +1,20 @@
 package Proconnect.backProconnect.Entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.util.Date;
+import java.time.Instant;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "Jobs")
@@ -17,15 +24,30 @@ public class Job {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Company ID cannot be null") private Long companyId;
+    @NotNull(message = "Company ID cannot be null") @Column(name = "company_id", nullable = false)
+    private Long companyId;
 
-    @NotBlank(message = "Title is mandatory") @NotNull(message = "Title cannot be null") private String title;
+    /** Relación de solo lectura (LAZY) sobre la FK company_id; se escribe con el campo Long. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "company_id",
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_jobs_company"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Company company;
 
-    @NotBlank(message = "Description is mandatory") @NotNull(message = "Description cannot be null") private String description;
+    @NotBlank(message = "Title is mandatory") @Column(nullable = false)
+    private String title;
 
-    @NotBlank(message = "WorkStation is mandatory") @NotNull(message = "WorkStation cannot be null") private String workStation;
+    @NotBlank(message = "Description is mandatory") @Column(nullable = false)
+    private String description;
 
-    private Date date;
+    @NotBlank(message = "WorkStation is mandatory") @Column(nullable = false)
+    private String workStation;
+
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
 
     /** Requerido por JPA para materializar la entidad. */
     public Job() {}
@@ -36,13 +58,13 @@ public class Job {
             String title,
             String description,
             String workStation,
-            Date date) {
+            Instant createdAt) {
         this.id = id;
         this.companyId = companyId;
         this.title = title;
         this.description = description;
         this.workStation = workStation;
-        this.date = date;
+        this.createdAt = createdAt != null ? createdAt : Instant.now();
     }
 
     public Long getId() {
@@ -59,6 +81,10 @@ public class Job {
 
     public void setCompanyId(Long companyId) {
         this.companyId = companyId;
+    }
+
+    public Company getCompany() {
+        return company;
     }
 
     public String getTitle() {
@@ -85,11 +111,11 @@ public class Job {
         this.workStation = workStation;
     }
 
-    public Date getDate() {
-        return date;
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 }

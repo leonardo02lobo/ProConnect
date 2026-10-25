@@ -3,7 +3,8 @@ import { SEED_COMMENT, SEED_POST_TITLE, USERS } from '../fixtures/users';
 
 test('feed shows the seed post with author, image and counters', async ({ feed }) => {
   await feed.goto();
-  const card = feed.post(SEED_POST_TITLE);
+  // The feed is paginated: other tests may have pushed the seed post past the first page.
+  const card = await feed.reveal(SEED_POST_TITLE);
   await expect(card).toHaveCount(1);
 
   const p = postParts(card);

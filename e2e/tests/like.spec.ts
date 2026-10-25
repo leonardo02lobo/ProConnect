@@ -6,7 +6,8 @@ test('like and unlike update the counter and persist after reload', async ({ pag
   await aliceApi.createPost({ title, content: 'post to like' });
 
   await feed.goto();
-  const p = postParts(feed.post(title));
+  // Paginated feed: parallel tests may publish newer posts, so look the post up by cursor.
+  const p = postParts(await feed.reveal(title));
   await expect(p.likeCount).toHaveText('0');
   await expect(p.likeButton).toHaveAttribute('aria-pressed', 'false');
 
@@ -18,12 +19,14 @@ test('like and unlike update the counter and persist after reload', async ({ pag
   expect(await page.evaluate(() => (window as unknown as { __noReload?: boolean }).__noReload)).toBe(true);
 
   await page.reload();
+  await feed.reveal(title);
   await expect(p.likeCount).toHaveText('1');
   await expect(p.likeButton).toHaveAttribute('aria-pressed', 'true');
 
   await p.likeButton.click();
   await expect(p.likeCount).toHaveText('0');
   await page.reload();
+  await feed.reveal(title);
   await expect(p.likeCount).toHaveText('0');
   await expect(p.likeButton).toHaveAttribute('aria-pressed', 'false');
 });

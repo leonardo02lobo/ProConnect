@@ -3,6 +3,7 @@ package Proconnect.backProconnect.api;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -102,7 +103,7 @@ class ApiErrorHandlingTests extends SecurityTestSupport {
         Long anaId = createUser("ana", "USER");
         Cookie ana = login("ana");
         Long postId =
-                posts.save(new Posts(null, anaId, "c", "t", null, new java.util.Date())).getId();
+                posts.save(new Posts(null, anaId, "c", "t", null, java.time.Instant.now())).getId();
         mvc.perform(post("/api/posts/" + postId + "/likes").cookie(ana))
                 .andExpect(status().isCreated());
         mvc.perform(post("/api/posts/" + postId + "/likes").cookie(ana))
@@ -170,11 +171,12 @@ class ApiErrorHandlingTests extends SecurityTestSupport {
     }
 
     /**
-     * Pendiente de verify-web-security: imageUrl/photoUrl solo admiten nombres de archivo de media.
+     * Pendiente de verify-web-security: imageUrl/avatarUrl solo admiten nombres de archivo de
+     * media.
      */
     @Test
     void imageReferencesMustBeMediaFileNames() throws Exception {
-        createUser("ana", "USER");
+        Long anaId = createUser("ana", "USER");
         Cookie ana = login("ana");
         for (String bad :
                 List.of(
@@ -194,11 +196,12 @@ class ApiErrorHandlingTests extends SecurityTestSupport {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.errors[0].field").value("imageUrl"));
             mvc.perform(
-                            post("/api/profile-photos")
+                            put("/api/users/" + anaId + "/media")
                                     .cookie(ana)
                                     .contentType(MediaType.APPLICATION_JSON)
-                                    .content("{\"photoUrl\":\"" + bad + "\"}"))
-                    .andExpect(status().isBadRequest());
+                                    .content("{\"avatarUrl\":\"" + bad + "\"}"))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.errors[0].field").value("avatarUrl"));
         }
         mvc.perform(
                         post("/api/posts")
@@ -209,11 +212,12 @@ class ApiErrorHandlingTests extends SecurityTestSupport {
                                                 + "\"3f2a9c1e-7b4d-4e8a-9f00-1a2b3c4d5e6f.webp\"}"))
                 .andExpect(status().isCreated());
         mvc.perform(
-                        post("/api/profile-photos")
+                        put("/api/users/" + anaId + "/media")
                                 .cookie(ana)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"photoUrl\":\"avatar.PNG\",\"wallPhotoUrl\":null}"))
-                .andExpect(status().isCreated());
+                                .content("{\"avatarUrl\":\"avatar.PNG\",\"coverUrl\":null}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.avatarUrl").value("avatar.PNG"));
         assertThat(posts.count()).isEqualTo(1);
     }
 }

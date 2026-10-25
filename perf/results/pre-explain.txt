@@ -1,0 +1,145 @@
+-- targets: viewer=1 profile_user=3 post=354
+*************************** 1. row ***************************
+section: ==== 1. PostsRepository.findFeed(viewer, NULL) — feed completo, EXPLAIN ANALYZE
+*************************** 1. row ***************************
+EXPLAIN: -> Nested loop left join  (cost=8007 rows=9958) (actual time=8.63..4850 rows=10000 loops=1)
+    -> Nested loop inner join  (cost=4521 rows=9958) (actual time=8.1..147 rows=10000 loops=1)
+        -> Sort: pos.`date` DESC, pos.id DESC  (cost=1036 rows=9958) (actual time=8.07..27.4 rows=10000 loops=1)
+            -> Filter: (pos.user_id is not null)  (cost=1036 rows=9958) (actual time=0.0369..3.58 rows=10000 loops=1)
+                -> Table scan on pos  (cost=1036 rows=9958) (actual time=0.0364..3.05 rows=10000 loops=1)
+        -> Single-row index lookup on us using PRIMARY (id=pos.user_id)  (cost=0.25 rows=1) (actual time=0.0111..0.0111 rows=1 loops=10000)
+    -> Filter: (prof.id = (select #5))  (cost=0.25 rows=1) (actual time=0.469..0.469 rows=0.924 loops=10000)
+        -> Single-row index lookup on prof using PRIMARY (id=(select #5))  (cost=0.25 rows=1) (actual time=0.326..0.326 rows=0.924 loops=10000)
+        -> Select #5 (subquery in condition; dependent)
+            -> Aggregate: max(p2.id)  (cost=20.2 rows=1) (actual time=0.161..0.161 rows=1 loops=28460)
+                -> Filter: (p2.user_id = us.id)  (cost=11 rows=92.2) (actual time=0.0887..0.16 rows=0.973 loops=28460)
+                    -> Table scan on p2  (cost=11 rows=922) (actual time=0.014..0.13 rows=922 loops=28460)
+-> Select #2 (subquery in projection; dependent)
+    -> Aggregate: count(0)  (cost=1056 rows=1) (actual time=7..7 rows=1 loops=10000)
+        -> Filter: (likes.post_id = pos.id)  (cost=556 rows=4998) (actual time=1.54..7 rows=5 loops=10000)
+            -> Table scan on likes  (cost=556 rows=49980) (actual time=0.262..5.21 rows=50000 loops=10000)
+-> Select #3 (subquery in projection; dependent)
+    -> Aggregate: count(0)  (cost=638 rows=1) (actual time=4.68..4.68 rows=1 loops=10000)
+        -> Filter: (comments.post_id = pos.id)  (cost=355 rows=2830) (actual time=1.49..4.68 rows=3 loops=10000)
+            -> Table scan on comments  (cost=355 rows=28298) (actual time=0.0221..3.59 rows=30000 loops=10000)
+-> Select #4 (subquery in projection; dependent)
+    -> Aggregate: count(0)  (cost=4654 rows=1) (actual time=7.56..7.56 rows=1 loops=10000)
+        -> Filter: ((likes.user_id = <cache>((@viewer))) and (likes.post_id = pos.id))  (cost=4604 rows=500) (actual time=7.54..7.56 rows=0.004 loops=10000)
+            -> Table scan on likes  (cost=4604 rows=49980) (actual time=0.259..5.77 rows=50000 loops=10000)
+
+*************************** 1. row ***************************
+section: ==== 2. PostsRepository.findFeed(viewer, author) — posts del perfil, EXPLAIN ANALYZE
+*************************** 1. row ***************************
+EXPLAIN: -> Sort: pos.`date` DESC, pos.id DESC  (cost=1036 rows=9958) (actual time=2.8..2.81 rows=10 loops=1)
+    -> Filter: (pos.user_id = '3')  (cost=1036 rows=9958) (actual time=0.107..2.78 rows=10 loops=1)
+        -> Table scan on pos  (cost=1036 rows=9958) (actual time=0.0214..2.44 rows=10000 loops=1)
+-> Select #2 (subquery in projection; dependent)
+    -> Aggregate: count(0)  (cost=1056 rows=1) (actual time=6.88..6.88 rows=1 loops=10)
+        -> Filter: (likes.post_id = pos.id)  (cost=556 rows=4998) (actual time=2.28..6.87 rows=4.7 loops=10)
+            -> Table scan on likes  (cost=556 rows=49980) (actual time=0.258..5.1 rows=50000 loops=10)
+-> Select #3 (subquery in projection; dependent)
+    -> Aggregate: count(0)  (cost=638 rows=1) (actual time=4.6..4.6 rows=1 loops=10)
+        -> Filter: (comments.post_id = pos.id)  (cost=355 rows=2830) (actual time=1.38..4.59 rows=2.6 loops=10)
+            -> Table scan on comments  (cost=355 rows=28298) (actual time=0.0206..3.52 rows=30000 loops=10)
+-> Select #4 (subquery in projection; dependent)
+    -> Aggregate: count(0)  (cost=4654 rows=1) (actual time=7.43..7.43 rows=1 loops=10)
+        -> Filter: ((likes.user_id = <cache>((@viewer))) and (likes.post_id = pos.id))  (cost=4604 rows=500) (actual time=7.43..7.43 rows=0 loops=10)
+            -> Table scan on likes  (cost=4604 rows=49980) (actual time=0.252..5.68 rows=50000 loops=10)
+
+*************************** 1. row ***************************
+section: ==== 3. CommentsRepository.findWithAuthorByPostId (1 por post del feed) — EXPLAIN ANALYZE
+*************************** 1. row ***************************
+EXPLAIN: -> Nested loop left join  (cost=9977 rows=28298) (actual time=7.19..11.6 rows=12 loops=1)
+    -> Nested loop inner join  (cost=6439 rows=28298) (actual time=6.67..6.7 rows=12 loops=1)
+        -> Sort: com.`date`, com.id  (cost=2902 rows=28298) (actual time=6.66..6.66 rows=12 loops=1)
+            -> Filter: (com.post_id = <cache>((@post)))  (cost=2902 rows=28298) (actual time=0.187..6.64 rows=12 loops=1)
+                -> Table scan on com  (cost=2902 rows=28298) (actual time=0.0432..5.73 rows=30000 loops=1)
+        -> Single-row index lookup on us using PRIMARY (id=com.user_id)  (cost=0.25 rows=1) (actual time=0.0027..0.00272 rows=1 loops=12)
+    -> Filter: (prof.id = (select #2))  (cost=0.25 rows=1) (actual time=0.412..0.412 rows=0.833 loops=12)
+        -> Single-row index lookup on prof using PRIMARY (id=(select #2))  (cost=0.25 rows=1) (actual time=0.282..0.282 rows=0.833 loops=12)
+        -> Select #2 (subquery in condition; dependent)
+            -> Aggregate: max(p2.id)  (cost=20.2 rows=1) (actual time=0.154..0.154 rows=1 loops=32)
+                -> Filter: (p2.user_id = us.id)  (cost=11 rows=92.2) (actual time=0.0767..0.153 rows=0.938 loops=32)
+                    -> Table scan on p2  (cost=11 rows=922) (actual time=0.00824..0.124 rows=922 loops=32)
+
+*************************** 1. row ***************************
+section: ==== 4. LikeRepository.existsByUserIdAndPostId (like) — EXPLAIN ANALYZE
+*************************** 1. row ***************************
+EXPLAIN: -> Limit: 1 row(s)  (cost=5054 rows=1) (actual time=8.76..8.76 rows=0 loops=1)
+    -> Filter: ((l1_0.post_id = <cache>((@post))) and (l1_0.user_id = <cache>((@viewer))))  (cost=5054 rows=500) (actual time=8.75..8.75 rows=0 loops=1)
+        -> Table scan on l1_0  (cost=5054 rows=49980) (actual time=0.329..6.95 rows=50000 loops=1)
+
+*************************** 1. row ***************************
+section: ==== 5. ProfilePhotosRepository.findFirstByUserIdOrderByIdDesc (perfil) — EXPLAIN ANALYZE
+*************************** 1. row ***************************
+EXPLAIN: -> Limit: 1 row(s)  (cost=0.0919 rows=0.1) (actual time=0.411..0.412 rows=1 loops=1)
+    -> Filter: (pp1_0.user_id = <cache>((@profile_user)))  (cost=0.0919 rows=0.1) (actual time=0.41..0.41 rows=1 loops=1)
+        -> Index scan on pp1_0 using PRIMARY (reverse)  (cost=0.0919 rows=1) (actual time=0.0233..0.347 rows=920 loops=1)
+
+*************************** 1. row ***************************
+section: ==== Índices existentes
+*************************** 1. row ***************************
+TABLE_NAME: comments
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 2. row ***************************
+TABLE_NAME: company
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 3. row ***************************
+TABLE_NAME: friends
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 4. row ***************************
+TABLE_NAME: jobs
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 5. row ***************************
+TABLE_NAME: likes
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 6. row ***************************
+TABLE_NAME: messages
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 7. row ***************************
+TABLE_NAME: posts
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 8. row ***************************
+TABLE_NAME: postulations
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 9. row ***************************
+TABLE_NAME: profile_photos
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 10. row ***************************
+TABLE_NAME: user
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0
+*************************** 11. row ***************************
+TABLE_NAME: user
+INDEX_NAME: UKlqjrcobrh9jc8wpcar64q1bfh
+      cols: user_name
+NON_UNIQUE: 0
+*************************** 12. row ***************************
+TABLE_NAME: user
+INDEX_NAME: UKob8kqyqqgmefl0aco34akdtpe
+      cols: email
+NON_UNIQUE: 0
+*************************** 13. row ***************************
+TABLE_NAME: work_stations
+INDEX_NAME: PRIMARY
+      cols: id
+NON_UNIQUE: 0

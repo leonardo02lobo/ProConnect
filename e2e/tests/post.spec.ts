@@ -1,5 +1,5 @@
 import { TEST_IMAGE } from '../fixtures/api';
-import { expect, postParts, test } from '../fixtures/test';
+import { expect, postParts, revealPost, test } from '../fixtures/test';
 import { USERS } from '../fixtures/users';
 
 test('create a post with an image: it appears in the feed and in the profile', async ({ page, feed, uid }) => {
@@ -25,5 +25,6 @@ test('create a post with an image: it appears in the feed and in the profile', a
 
   await page.goto('/Profile');
   await expect(page.getByTestId('profile-name')).toHaveText(USERS.alice.name);
-  await expect(feed.post(title)).toHaveCount(1);
+  // Paginated profile: parallel tests may have published newer posts by Alice.
+  await expect(await revealPost(page, title)).toHaveCount(1);
 });

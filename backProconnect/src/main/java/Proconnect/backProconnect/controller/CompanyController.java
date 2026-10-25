@@ -2,11 +2,11 @@ package Proconnect.backProconnect.controller;
 
 import Proconnect.backProconnect.model.CompanyDto;
 import Proconnect.backProconnect.model.CompanyRequest;
+import Proconnect.backProconnect.model.PageResponse;
 import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.CompanyService;
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,8 +31,10 @@ public class CompanyController {
     }
 
     @GetMapping
-    public List<CompanyDto> list() {
-        return companyService.list();
+    public PageResponse<CompanyDto> list(
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "size", required = false) Integer size) {
+        return companyService.list(page, size);
     }
 
     @GetMapping("/{id}")

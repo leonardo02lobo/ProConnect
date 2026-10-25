@@ -23,15 +23,15 @@ public class UserViews {
             String userName,
             String email,
             String role,
-            String photoUrl,
-            String wallPhotoUrl) {
+            String avatarUrl,
+            String coverUrl) {
         return new UserPublicDto(
                 id,
                 name,
                 userName,
                 guard.canSeePrivateDataOf(id) ? email : null,
                 role,
-                photoUrl,
-                wallPhotoUrl);
+                avatarUrl,
+                coverUrl);
     }
 }
