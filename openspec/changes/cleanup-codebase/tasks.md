@@ -68,5 +68,5 @@ Cada uno con su test de regresión (`backProconnect/src/test/.../api/InheritedBu
 ## 6. Verificación
 
 - [x] 6.1 Actualizar los tests E2E a las rutas `/login` y `/register` y a los endpoints nuevos
-- [ ] 6.2 Confirmar `ci` (lint, format, build) y `e2e` en verde
+- [x] 6.2 Confirmar `ci` (lint, format, build) y `e2e` en verde (GitHub: ci run 40194102715, e2e run 40194102737)
 - [x] 6.3 Verificar con curl: 404 en un post inexistente, 400 con `errors[]`, 409 en like duplicado y 500 sin stack trace
