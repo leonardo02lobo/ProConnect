@@ -24,9 +24,9 @@
 
 ## 4. E2E
 
-- [ ] 4.1 `admin.spec.ts`: el ADMIN (bootstrap de E2E) promueve a un usuario; un USER no ve el enlace y no accede a `/admin/users`
-- [ ] 4.2 `company-flow.spec.ts`: COMPANY_ADMIN crea empresa y empleo → otro usuario se postula → el dueño acepta → Mailpit recibe el correo
-- [ ] 4.3 Suite completa verde dos veces (`--workers=4`)
+- [x] 4.1 `admin.spec.ts`: el ADMIN (bootstrap de E2E) promueve a un usuario; un USER no ve el enlace y no accede a `/admin/users`
+- [x] 4.2 `company-flow.spec.ts`: COMPANY_ADMIN crea empresa y empleo → otro usuario se postula → el dueño acepta → Mailpit recibe el correo
+- [x] 4.3 Suite completa verde dos veces (`--workers=4`)
 
 ## 5. Integración y entrega
 
