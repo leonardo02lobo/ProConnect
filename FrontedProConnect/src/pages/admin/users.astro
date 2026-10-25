@@ -1,0 +1,9 @@
+---
+import AdminUsers from "../../components/admin/AdminUsers";
+import Main from "../../layouts/Main.astro";
+// El middleware ya redirige a "/" a quien no es ADMIN; la API responde 403 de todos modos.
+---
+
+<Main title="Administración de usuarios">
+    <AdminUsers client:load />
+</Main>

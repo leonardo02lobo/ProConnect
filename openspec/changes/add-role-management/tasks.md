@@ -17,10 +17,10 @@
 
 ## 3. Frontend
 
-- [ ] 3.1 Servicio `src/Service/admin.ts` (listar y cambiar rol) sobre `apiFetch`
-- [ ] 3.2 Página `src/pages/admin/users.astro` + isla `AdminUsers.tsx` (buscador, tabla, select de rol, mensajes de error problem+json), con `data-testid`
-- [ ] 3.3 El middleware redirige a `/` a los no-ADMIN en `/admin/**`
-- [ ] 3.4 Enlace "Administración" en el menú del `Header` solo para ADMIN
+- [x] 3.1 Servicio `src/Service/admin.ts` (listar y cambiar rol) sobre `apiFetch`
+- [x] 3.2 Página `src/pages/admin/users.astro` + isla `AdminUsers.tsx` (buscador, tabla, select de rol, mensajes de error problem+json), con `data-testid`
+- [x] 3.3 El middleware redirige a `/` a los no-ADMIN en `/admin/**`
+- [x] 3.4 Enlace "Administración" en el menú del `Header` solo para ADMIN
 
 ## 4. E2E
 
