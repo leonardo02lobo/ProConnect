@@ -50,6 +50,6 @@
 
 ## 8. Contract y cierre
 
-- [ ] 8.1 `V5__drop_profile_photos.sql` y eliminar la entidad y el repositorio `ProfilePhotos`
+- [x] 8.1 `V5__drop_profile_photos.sql` y eliminar la entidad y el repositorio `ProfilePhotos` — auditoría de filas eliminadas; rollback manual U5 (recrea desde `user`)
 - [ ] 8.2 Benchmark final → `docs/perf/<fecha>-after.md` con la comparación contra la línea base
 - [ ] 8.3 Confirmar los umbrales: ≤ 4 queries y p95 ≤ 150 ms en feed y perfil (reportando el hardware)

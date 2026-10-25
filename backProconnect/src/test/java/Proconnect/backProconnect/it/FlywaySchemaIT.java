@@ -27,7 +27,13 @@ class FlywaySchemaIT extends MySqlIntegrationTest {
                 jdbc.queryForObject(
                         "SELECT COUNT(*) FROM flyway_schema_history WHERE version IS NOT NULL",
                         Integer.class);
-        assertThat(applied).isGreaterThanOrEqualTo(2);
+        assertThat(applied).isGreaterThanOrEqualTo(6);
+        Integer photosTable =
+                jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA ="
+                                + " DATABASE() AND TABLE_NAME = 'profile_photos'",
+                        Integer.class);
+        assertThat(photosTable).as("V5 contract").isZero();
     }
 
     @Test

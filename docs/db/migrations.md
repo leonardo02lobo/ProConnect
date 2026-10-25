@@ -11,6 +11,7 @@ Desde `restructure-models-performance` el esquema de MySQL lo gestiona **solo Fl
 | V2.1 | `V2_1__types_and_enums.sql` | `date`→`created_at`, `messages.timestamp`→`sent_at` (DATETIME(6) UTC, NOT NULL); normaliza `friends.status`, `user.role`, `postulations.status` + CHECK | No (normaliza valores) |
 | V3 | `V3__user_media_columns.sql` | (expand) `user.avatar_url`/`cover_url` ← `profile_photos` | No |
 | V4 | `V4__post_counters.sql` | `posts.like_count`/`comment_count` + backfill; auditoría `counter_mismatch_after_backfill` = 0 | No |
+| V5 | `V5__drop_profile_photos.sql` | (contract) `DROP TABLE profile_photos` — solo cuando todos los entornos corren ≥ V3 | **Sí** (U5 la recrea desde `user`, sin ids originales) |
 
 ## Bases nuevas y existentes
 
@@ -47,8 +48,11 @@ Flyway Community no ejecuta *undo*. Los scripts de vuelta atrás están en
 ejecutan a mano, en orden inverso, con la versión anterior de la app desplegada:
 
 ```bash
-mysql proconnect < backProconnect/src/main/resources/db/rollback/U2__constraints_and_indexes.sql
-mysql proconnect -e "DELETE FROM flyway_schema_history WHERE version = '2'"
+# p. ej. volver de V5 a V2: U5, U4, U3, U2_1 (y U2 si hace falta), borrando sus filas del historial
+for u in U5__drop_profile_photos U4__post_counters U3__user_media_columns U2_1__types_and_enums; do
+  mysql proconnect < backProconnect/src/main/resources/db/rollback/$u.sql
+done
+mysql proconnect -e "DELETE FROM flyway_schema_history WHERE version IN ('5','4','3','2.1')"
 ```
 
 Las filas borradas por V2 (huérfanos y duplicados) **no** se recuperan con el rollback: para eso está el

@@ -238,4 +238,20 @@ class LegacyDatabaseMigrationIT {
                                 Long.class))
                 .isZero();
     }
+
+    /** V5 (contract): profile_photos desaparece tras copiar sus datos a user (V3). */
+    @Test
+    void dropsProfilePhotosAfterCopyingThem() {
+        assertThat(
+                        count(
+                                "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA"
+                                        + " = DATABASE() AND TABLE_NAME = 'profile_photos'"))
+                .isZero();
+        assertThat(
+                        jdbc.queryForObject(
+                                "SELECT affected_rows FROM migration_audit WHERE check_name ="
+                                        + " 'profile_photos_dropped'",
+                                Long.class))
+                .isEqualTo(1L);
+    }
 }
