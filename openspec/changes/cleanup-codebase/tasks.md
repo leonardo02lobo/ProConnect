@@ -60,7 +60,7 @@ Cada uno con su test de regresión (`backProconnect/src/test/.../api/InheritedBu
 - [x] 7.7 `user.name` UNIQUE impedía nombres repetidos (quitado de la entidad; la migración del índice la hace Flyway en restructure-models-performance) → `twoUsersCanShareTheSameName`
 - [x] 7.8 Like y comentario recargaban la página → optimista con rollback; E2E `like.spec.ts` / `comment.spec.ts` comprueban que no hay recarga completa
 - [x] 7.9 La búsqueda del header no hacía nada al pulsar Enter → página `/search`; E2E `search.spec.ts`
-- [x] 7.10 Avatar por defecto desde CDN externo (flaticon, además bloqueado por la CSP) → `public/assets/default-avatar.svg`; cubierto por `feed.spec.ts` (`post-author-photo` visible)
+- [x] 7.10 Avatar por defecto desde CDN externo (flaticon, además bloqueado por la CSP) → `public/assets/avatar-default.svg`; cubierto por `feed.spec.ts` (`post-author-photo` visible)
 - [x] 7.11 `Profile.astro` con `client:only` sin framework → `client:only="react"`; E2E `profile.spec.ts`
 - [x] 7.12 Lockfile del frontend incompatible con el npm 10 de `node:22-alpine` (heredado del upgrade a Astro 7) → regenerado; lo valida el build de la imagen web en E2E/CI
 

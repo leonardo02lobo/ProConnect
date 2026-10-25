@@ -88,7 +88,7 @@ export function mediaUrl(fileName?: string | null): string | undefined {
 }
 
 /** Avatar por defecto servido localmente (sin CDN de terceros: lo exige la CSP). */
-export const DEFAULT_AVATAR = "/assets/default-avatar.svg";
+export const DEFAULT_AVATAR = "/assets/avatar-default.svg";
 
 export function avatarUrl(fileName?: string | null): string {
     return mediaUrl(fileName) ?? DEFAULT_AVATAR;

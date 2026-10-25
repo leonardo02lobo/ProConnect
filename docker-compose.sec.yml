@@ -1,0 +1,13 @@
+# Override de seguridad (verify-web-security) sobre docker-compose.e2e.yml para DAST / pruebas locales:
+#   docker-compose -p pc-sec -f docker-compose.e2e.yml -f docker-compose.sec.yml up -d --build --wait
+# - Etiquetas de imagen propias (no pisa las pc-e2e/*:local del stack E2E).
+# - Puertos +30000 por defecto (CONTRACT.md): exportar E2E_*_PORT para cambiarlos.
+services:
+  api:
+    image: pc-sec/api:local
+  media:
+    image: pc-sec/media:local
+  gateway:
+    image: pc-sec/gateway:local
+  web:
+    image: pc-sec/web:local

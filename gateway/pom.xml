@@ -18,6 +18,11 @@
 		<java.version>17</java.version>
 		<spring-cloud.version>2025.0.3</spring-cloud.version>
 		<jjwt.version>0.12.6</jjwt.version>
+		<!-- verify-web-security: parches de seguridad sobre el BOM de Spring Boot 3.5.16 (ver docs/security/audit-2026-10-24.md, SEC-24) -->
+		<tomcat.version>10.1.61</tomcat.version>
+		<netty.version>4.1.139.Final</netty.version>
+		<log4j2.version>2.26.1</log4j2.version>
+		<jackson-bom.version>2.21.8</jackson-bom.version>
 	</properties>
 
 	<dependencies>

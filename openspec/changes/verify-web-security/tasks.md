@@ -1,15 +1,15 @@
 ## 1. Pipeline de escaneo (modo reporte)
 
-- [ ] 1.1 Crear `.github/dependabot.yml` (maven ×2, npm ×3, docker, github-actions; semanal)
-- [ ] 1.2 Crear `.github/workflows/security.yml` con gitleaks, CodeQL (java y js/ts), Semgrep, OWASP Dependency-Check y `npm audit`, sin bloquear todavía
-- [ ] 1.3 Crear `.github/workflows/dast.yml`: stack E2E + login semilla + ZAP baseline autenticado, con reporte como artifact
-- [ ] 1.4 Ejecutar gitleaks sobre todo el historial y registrar en la allowlist la contraseña de MySQL ya rotada
+- [x] 1.1 Crear `.github/dependabot.yml` (maven ×2, npm ×3, docker, github-actions; semanal)
+- [x] 1.2 Crear `.github/workflows/security.yml` con gitleaks, CodeQL (java y js/ts), Semgrep, OWASP Dependency-Check y `npm audit`, sin bloquear todavía
+- [x] 1.3 Crear `.github/workflows/dast.yml`: stack E2E + login semilla + ZAP baseline autenticado, con reporte como artifact
+- [x] 1.4 Ejecutar gitleaks sobre todo el historial y registrar en la allowlist la contraseña de MySQL ya rotada
 
 ## 2. Auditoría inicial
 
-- [ ] 2.1 Ejecutar un barrido con la skill `cyber-neo` sobre el repo
-- [ ] 2.2 Revisar a mano cada controller y service con el checklist ASVS L1 / OWASP Top 10 2025
-- [ ] 2.3 Consolidar los resultados de las herramientas y la revisión manual en `docs/security/audit-<fecha>.md` (ID, severidad, OWASP, evidencia, remediación, estado)
+- [x] 2.1 Ejecutar un barrido con la skill `cyber-neo` sobre el repo
+- [x] 2.2 Revisar a mano cada controller y service con el checklist ASVS L1 / OWASP Top 10 2025
+- [x] 2.3 Consolidar los resultados de las herramientas y la revisión manual en `docs/security/audit-<fecha>.md` (ID, severidad, OWASP, evidencia, remediación, estado)
 
 ## 3. Autorización
 
@@ -34,21 +34,21 @@
 - [x] 5.1 Filtro de headers de seguridad en el gateway (CSP en Report-Only, nosniff, Referrer-Policy, Permissions-Policy, frame-ancestors; HSTS en `prod`)
 - [x] 5.2 Filtro de validación de `Origin`/`Referer` para mutaciones en la API
 - [x] 5.3 Rate limiting con Bucket4j + Caffeine en `/api/auth/**` (10/min por IP, lockout de 15 min tras 5 fallos por email, 429 + `Retry-After`) y proxies de confianza para `X-Forwarded-For`
-- [ ] 5.4 Revisar los logs: sin passwords ni tokens; login fallido con email e IP
-- [ ] 5.5 Verificar atributos de la cookie de sesión (`HttpOnly`, `SameSite`, `Secure` en prod)
+- [x] 5.4 Revisar los logs: sin passwords ni tokens; login fallido con email e IP
+- [x] 5.5 Verificar atributos de la cookie de sesión (`HttpOnly`, `SameSite`, `Secure` en prod)
 
 ## 6. Tests de regresión de seguridad
 
 - [x] 6.1 Tests de integración de IDOR por recurso (A intenta mutar o leer recursos de B → 403/404)
-- [ ] 6.2 Tests de media: HTML disfrazado (415), SVG (415), 12 MB (413), nombre con traversal, EXIF eliminado y subida anónima (401)
-- [ ] 6.3 Tests de headers y CSRF (`Origin` ajeno → 403)
+- [x] 6.2 Tests de media: HTML disfrazado (415), SVG (415), 12 MB (413), nombre con traversal, EXIF eliminado y subida anónima (401)
+- [x] 6.3 Tests de headers y CSRF (`Origin` ajeno → 403)
 - [x] 6.4 Tests de rate limit y lockout (429)
 - [x] 6.5 Test que recorre las respuestas de los endpoints públicos y falla si aparecen `password`, `token` o email de terceros
-- [ ] 6.6 E2E: `document.cookie` no expone la sesión y la CSP no rompe la app
+- [x] 6.6 E2E: `document.cookie` no expone la sesión y la CSP no rompe la app
 
 ## 7. Cierre
 
-- [ ] 7.1 Pasar la CSP a enforce tras E2E verdes
-- [ ] 7.2 Volver bloqueantes los jobs de seguridad (alto/crítico) y agregarlos como checks requeridos en `main`
-- [ ] 7.3 Actualizar la auditoría con el estado final de cada hallazgo y su test asociado
-- [ ] 7.4 Publicar `SECURITY.md` (política de reporte y alcance)
+- [x] 7.1 Pasar la CSP a enforce tras E2E verdes
+- [ ] 7.2 Volver bloqueantes los jobs de seguridad (alto/crítico) y agregarlos como checks requeridos en `main` — jobs ya bloqueantes (`BLOCKING=true` en security.yml, dast.yml falla en alto); PENDIENTE DEL USUARIO: marcarlos como checks requeridos en la branch protection de `main`
+- [x] 7.3 Actualizar la auditoría con el estado final de cada hallazgo y su test asociado
+- [x] 7.4 Publicar `SECURITY.md` (política de reporte y alcance)
