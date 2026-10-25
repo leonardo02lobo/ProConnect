@@ -1,18 +1,16 @@
 package Proconnect.backProconnect.service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import Proconnect.backProconnect.Entity.Job;
 import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.model.JobDto;
 import Proconnect.backProconnect.model.JobRequest;
 import Proconnect.backProconnect.repository.JobRepository;
 import Proconnect.backProconnect.specification.JobSpecification;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class JobService {
@@ -25,21 +23,30 @@ public class JobService {
         this.companyService = companyService;
     }
 
-    /** Solo el propietario de la empresa (o ADMIN) publica empleos en ella (403; 404 si no existe). */
+    /**
+     * Solo el propietario de la empresa (o ADMIN) publica empleos en ella (403; 404 si no existe).
+     */
     @Transactional
     public JobDto create(JobRequest request) {
         companyService.assertCanManage(request.companyId());
-        Job job = new Job(null, request.companyId(), request.title().trim(), request.description().trim(),
-                request.workStation().trim(), request.date() != null ? request.date() : new Date());
+        Job job =
+                new Job(
+                        null,
+                        request.companyId(),
+                        request.title().trim(),
+                        request.description().trim(),
+                        request.workStation().trim(),
+                        request.date() != null ? request.date() : new Date());
         return toDto(jobRepository.save(job));
     }
 
     /** Todos los empleos, o los que contienen {@code query} en el título o la descripción. */
     @Transactional(readOnly = true)
     public List<JobDto> list(Optional<String> query) {
-        List<Job> jobs = query.filter(q -> !q.isBlank())
-                .map(q -> jobRepository.findAll(JobSpecification.hasKeyWord(q.trim())))
-                .orElseGet(jobRepository::findAll);
+        List<Job> jobs =
+                query.filter(q -> !q.isBlank())
+                        .map(q -> jobRepository.findAll(JobSpecification.hasKeyWord(q.trim())))
+                        .orElseGet(jobRepository::findAll);
         return jobs.stream().map(JobService::toDto).toList();
     }
 
@@ -60,11 +67,18 @@ public class JobService {
         if (id == null || id <= 0) {
             throw new NotFoundException("Empleo no encontrado");
         }
-        return jobRepository.findById(id).orElseThrow(() -> new NotFoundException("Empleo no encontrado"));
+        return jobRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException("Empleo no encontrado"));
     }
 
     static JobDto toDto(Job j) {
-        return new JobDto(j.getId(), j.getCompanyId(), j.getTitle(), j.getDescription(), j.getWorkStation(),
+        return new JobDto(
+                j.getId(),
+                j.getCompanyId(),
+                j.getTitle(),
+                j.getDescription(),
+                j.getWorkStation(),
                 j.getDate());
     }
 }

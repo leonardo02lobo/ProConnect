@@ -4,17 +4,43 @@ import SignUpAndInLayout from "../layouts/SignUpAndInLayout.astro";
 
 <SignUpAndInLayout title="Log in">
     <div class="flex m-auto items-center justify-center h-screen">
-        <form class="flex flex-col justify-center items-center gap-4 shadow-2xl shadow-black p-4 rounded-2xl" id="login-form">
+        <form
+            class="flex flex-col justify-center items-center gap-4 shadow-2xl shadow-black p-4 rounded-2xl"
+            id="login-form"
+        >
             <label for="email" class="flex flex-col gap-3">
                 Email
-                <input type="email" name="email" required autocomplete="email" placeholder="insert your email" class="w-full/2 border border-gray-300 rounded-xl p-3 text-lg outline-none focus:border-blue-500" id="email" data-testid="login-email">
+                <input
+                    type="email"
+                    name="email"
+                    required
+                    autocomplete="email"
+                    placeholder="insert your email"
+                    class="w-full/2 border border-gray-300 rounded-xl p-3 text-lg outline-none focus:border-blue-500"
+                    id="email"
+                    data-testid="login-email"
+                />
             </label>
             <label for="password" class="flex flex-col gap-3">
                 Password
-                <input type="password" name="password" required autocomplete="current-password" placeholder="insert your password" class="w-full/2 border border-gray-300 rounded-xl p-3 text-lg outline-none focus:border-blue-500" id="password" data-testid="login-password">
+                <input
+                    type="password"
+                    name="password"
+                    required
+                    autocomplete="current-password"
+                    placeholder="insert your password"
+                    class="w-full/2 border border-gray-300 rounded-xl p-3 text-lg outline-none focus:border-blue-500"
+                    id="password"
+                    data-testid="login-password"
+                />
             </label>
             <p id="login-error" data-testid="login-error" class="text-red-600 text-sm hidden" role="alert"></p>
-            <button type="submit" id="login-submit" data-testid="login-submit" class="bg-blue-600 hover:bg-blue-700 rounded-2xl px-4 py-3 text-lg text-white cursor-pointer w-full">
+            <button
+                type="submit"
+                id="login-submit"
+                data-testid="login-submit"
+                class="bg-blue-600 hover:bg-blue-700 rounded-2xl px-4 py-3 text-lg text-white cursor-pointer w-full"
+            >
                 Log in
             </button>
             <p>¿ Do not have account ?. <a href="/register" class="text-blue-600">Create account</a></p>
@@ -25,27 +51,30 @@ import SignUpAndInLayout from "../layouts/SignUpAndInLayout.astro";
         import { authService } from "../Service/auth";
         import { ApiError } from "../Service/http";
 
-        const errorBox = document.getElementById("login-error") as HTMLParagraphElement
+        const errorBox = document.getElementById("login-error") as HTMLParagraphElement;
 
         document.getElementById("login-form")?.addEventListener("submit", async (e) => {
-            e.preventDefault()
+            e.preventDefault();
 
-            const email = document.getElementById("email") as HTMLInputElement
-            const password = document.getElementById("password") as HTMLInputElement
+            const email = document.getElementById("email") as HTMLInputElement;
+            const password = document.getElementById("password") as HTMLInputElement;
 
             try {
-                await authService.login(email.value, password.value)
+                await authService.login(email.value, password.value);
                 // La sesión queda en la cookie httpOnly pc_session emitida por el backend.
-                location.href = "/"
-                return
+                location.href = "/";
+                return;
             } catch (e) {
                 if (e instanceof ApiError) {
-                    errorBox.textContent = e.status === 401 ? "Credenciales inválidas" : (e.problem?.detail ?? "No se pudo iniciar sesión")
+                    errorBox.textContent =
+                        e.status === 401
+                            ? "Credenciales inválidas"
+                            : (e.problem?.detail ?? "No se pudo iniciar sesión");
                 } else {
-                    errorBox.textContent = "No se pudo conectar con el servidor"
+                    errorBox.textContent = "No se pudo conectar con el servidor";
                 }
             }
-            errorBox.classList.remove("hidden")
+            errorBox.classList.remove("hidden");
         });
     </script>
 </SignUpAndInLayout>

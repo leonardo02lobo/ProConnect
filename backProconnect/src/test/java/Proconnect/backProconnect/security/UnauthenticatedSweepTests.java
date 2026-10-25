@@ -6,7 +6,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,22 +19,20 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 /**
- * Recorre TODOS los endpoints registrados en Spring MVC (no una lista a mano, así sobrevive a renombrados de
- * rutas) y comprueba que sin sesión responden 401, salvo login, registro y logout.
+ * Recorre TODOS los endpoints registrados en Spring MVC (no una lista a mano, así sobrevive a
+ * renombrados de rutas) y comprueba que sin sesión responden 401, salvo login, registro y logout.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
 class UnauthenticatedSweepTests {
 
-    private static final Set<String> PUBLIC = Set.of("POST /api/auth/login", "POST /api/auth/register",
-            "POST /api/auth/logout");
+    private static final Set<String> PUBLIC =
+            Set.of("POST /api/auth/login", "POST /api/auth/register", "POST /api/auth/logout");
+
+    @Autowired MockMvc mvc;
 
     @Autowired
-    MockMvc mvc;
-
-    @Autowired
-    @Qualifier("requestMappingHandlerMapping")
-    RequestMappingHandlerMapping mapping;
+    @Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping mapping;
 
     @Test
     void everyApiEndpointRequiresSession() throws Exception {
@@ -48,17 +45,25 @@ class UnauthenticatedSweepTests {
                 if (!pattern.startsWith("/api")) {
                     continue;
                 }
-                for (RequestMethod method : methods.isEmpty() ? Set.of(RequestMethod.GET) : methods) {
+                for (RequestMethod method :
+                        methods.isEmpty() ? Set.of(RequestMethod.GET) : methods) {
                     String key = method.name() + " " + pattern;
                     if (PUBLIC.contains(key)) {
                         continue;
                     }
                     String uri = pattern.replaceAll("\\{[^}]+}", "1");
-                    int status = mvc.perform(request(HttpMethod.valueOf(method.name()), uri)
-                            .param("keyword", "x").param("userIdBeFollowed", "1").param("userId", "1")
-                            .param("otherUserId", "1")
-                            .contentType(MediaType.APPLICATION_JSON).content("{}"))
-                            .andReturn().getResponse().getStatus();
+                    int status =
+                            mvc.perform(
+                                            request(HttpMethod.valueOf(method.name()), uri)
+                                                    .param("keyword", "x")
+                                                    .param("userIdBeFollowed", "1")
+                                                    .param("userId", "1")
+                                                    .param("otherUserId", "1")
+                                                    .contentType(MediaType.APPLICATION_JSON)
+                                                    .content("{}"))
+                                    .andReturn()
+                                    .getResponse()
+                                    .getStatus();
                     checked.add(key);
                     if (status != 401) {
                         failures.add(key + " -> " + status);

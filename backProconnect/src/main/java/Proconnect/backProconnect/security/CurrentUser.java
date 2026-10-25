@@ -7,8 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 /** Acceso al actor autenticado. La autoría de toda mutación sale de aquí, nunca del body. */
 public final class CurrentUser {
 
-    private CurrentUser() {
-    }
+    private CurrentUser() {}
 
     public static AuthPrincipal principal() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

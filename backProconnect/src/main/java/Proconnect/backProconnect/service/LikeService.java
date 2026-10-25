@@ -1,17 +1,15 @@
 package Proconnect.backProconnect.service;
 
-import java.util.Date;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import Proconnect.backProconnect.Entity.Like;
 import Proconnect.backProconnect.exception.ConflictException;
 import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.model.LikeDto;
 import Proconnect.backProconnect.repository.LikeRepository;
 import Proconnect.backProconnect.repository.PostsRepository;
+import java.util.Date;
+import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class LikeService {
@@ -27,7 +25,9 @@ public class LikeService {
     @Transactional(readOnly = true)
     public List<LikeDto> listByPost(Long postId) {
         assertPostExists(postId);
-        return likeRepository.findByPostIdOrderByIdAsc(postId).stream().map(LikeService::toDto).toList();
+        return likeRepository.findByPostIdOrderByIdAsc(postId).stream()
+                .map(LikeService::toDto)
+                .toList();
     }
 
     /** Like del usuario de la sesión: 404 si el post no existe, 409 si ya le dio like. */
@@ -44,8 +44,11 @@ public class LikeService {
     @Transactional
     public void unlike(Long postId, Long userId) {
         assertPostExists(postId);
-        Like like = likeRepository.findByUserIdAndPostId(userId, postId)
-                .orElseThrow(() -> new NotFoundException("No habías dado like a este post"));
+        Like like =
+                likeRepository
+                        .findByUserIdAndPostId(userId, postId)
+                        .orElseThrow(
+                                () -> new NotFoundException("No habías dado like a este post"));
         likeRepository.delete(like);
     }
 

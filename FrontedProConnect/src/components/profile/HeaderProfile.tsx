@@ -38,11 +38,7 @@ function HeaderProfile({ initialUser }: HeaderProfileProps) {
         <div className="flex flex-col justify-center items-center bg-white">
             <header className="relative w-full">
                 <a href={mediaUrl(user?.wallPhotoUrl)} target="_blank">
-                    <img
-                        src={mediaUrl(user?.wallPhotoUrl)}
-                        alt="Portada"
-                        className="w-full h-48 object-cover"
-                    />
+                    <img src={mediaUrl(user?.wallPhotoUrl)} alt="Portada" className="w-full h-48 object-cover" />
                 </a>
                 <a href={mediaUrl(user?.photoUrl)} target="_blank">
                     <img
@@ -55,7 +51,9 @@ function HeaderProfile({ initialUser }: HeaderProfileProps) {
 
             <div className="w-full max-w-4xl px-4 py-6">
                 <div className="text-center mb-4">
-                    <h1 className="text-2xl font-bold text-gray-900" data-testid="profile-name">{user?.name}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900" data-testid="profile-name">
+                        {user?.name}
+                    </h1>
                     <p className="text-gray-600 mt-1">8 amigos • 8 amigos en común</p>
                 </div>
 
@@ -91,7 +89,12 @@ function HeaderProfile({ initialUser }: HeaderProfileProps) {
                             </a>
                             <a href="#" className="text-gray-600 hover:text-blue-600 text-sm">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                    />
                                 </svg>
                             </a>
                         </div>

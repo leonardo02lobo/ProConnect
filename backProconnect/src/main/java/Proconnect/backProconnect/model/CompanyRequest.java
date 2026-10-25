@@ -7,5 +7,4 @@ import jakarta.validation.constraints.Size;
 public record CompanyRequest(
         @NotBlank(message = "El nombre es obligatorio") @Size(max = 255) String name,
         @NotBlank(message = "La descripción es obligatoria") @Size(max = 255) String description,
-        @NotBlank(message = "La ubicación es obligatoria") @Size(max = 255) String location) {
-}
+        @NotBlank(message = "La ubicación es obligatoria") @Size(max = 255) String location) {}

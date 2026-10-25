@@ -1,7 +1,5 @@
 package Proconnect.backProconnect.Entity;
 
-import java.util.Date;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,34 +9,32 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
 @Table(name = "Postulations")
 public class Postulation {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @NotNull(message = "User ID cannot be null")
-    private Long userId;
-    
-    @NotNull(message = "Job ID cannot be null")
-    private Long jobId;
+
+    @NotNull(message = "User ID cannot be null") private Long userId;
+
+    @NotNull(message = "Job ID cannot be null") private Long jobId;
 
     private Date date;
 
     /**
-     * Columna creada por ddl-auto=update con DEFAULT 'PENDING' para rellenar las filas existentes; la migración
-     * Flyway de restructure-models-performance la captura en su baseline.
+     * Columna creada por ddl-auto=update con DEFAULT 'PENDING' para rellenar las filas existentes;
+     * la migración Flyway de restructure-models-performance la captura en su baseline.
      */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, columnDefinition = "varchar(16) not null default 'PENDING'")
     private PostulationStatus status = PostulationStatus.PENDING;
 
     /** Requerido por JPA para materializar la entidad. */
-    public Postulation() {
-    }
+    public Postulation() {}
 
     public Postulation(Long id, Long userId, Long jobId, Date date) {
         this.id = id;
@@ -86,6 +82,4 @@ public class Postulation {
     public void setDate(Date date) {
         this.date = date;
     }
-
-    
 }

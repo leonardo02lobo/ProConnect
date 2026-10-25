@@ -9,5 +9,5 @@ const UPLOAD_DIR = path.resolve(process.env.UPLOAD_DIR ?? 'upload')
 fs.mkdirSync(UPLOAD_DIR, { recursive: true })
 
 createApp(UPLOAD_DIR).listen(PORT, () => {
-    console.log(`media service on http://localhost:${PORT}`)
+  console.log(`media service on http://localhost:${PORT}`)
 })

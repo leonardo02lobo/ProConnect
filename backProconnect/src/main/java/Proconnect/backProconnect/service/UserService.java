@@ -1,12 +1,5 @@
 package Proconnect.backProconnect.service;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import Proconnect.backProconnect.Entity.ProfilePhotos;
 import Proconnect.backProconnect.Entity.User;
 import Proconnect.backProconnect.exception.ConflictException;
@@ -18,6 +11,11 @@ import Proconnect.backProconnect.repository.ProfilePhotosRepository;
 import Proconnect.backProconnect.repository.UserRepository;
 import Proconnect.backProconnect.security.OwnershipGuard;
 import Proconnect.backProconnect.specification.UserSpecification;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
@@ -28,8 +26,12 @@ public class UserService {
     private final PostsService postsService;
     private final OwnershipGuard guard;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-            ProfilePhotosRepository profilePhotosRepository, PostsService postsService, OwnershipGuard guard) {
+    public UserService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            ProfilePhotosRepository profilePhotosRepository,
+            PostsService postsService,
+            OwnershipGuard guard) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.profilePhotosRepository = profilePhotosRepository;
@@ -55,9 +57,10 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserPublicDto> listUsers(Optional<String> query) {
-        List<User> users = query.filter(q -> !q.isBlank())
-                .map(q -> userRepository.findAll(UserSpecification.hasNameLike(q.trim())))
-                .orElseGet(userRepository::findAll);
+        List<User> users =
+                query.filter(q -> !q.isBlank())
+                        .map(q -> userRepository.findAll(UserSpecification.hasNameLike(q.trim())))
+                        .orElseGet(userRepository::findAll);
         return users.stream().map(this::toPublic).toList();
     }
 
@@ -66,19 +69,30 @@ public class UserService {
         return toPublic(findOr404(id));
     }
 
-    /** Solo el propio usuario o un ADMIN (403); 404 si no existe; 409 si email/userName son de otro usuario. */
+    /**
+     * Solo el propio usuario o un ADMIN (403); 404 si no existe; 409 si email/userName son de otro
+     * usuario.
+     */
     @Transactional
     public UserPublicDto updateUser(Long id, UserUpdateRequest request) {
         User user = findOr404(id);
         guard.assertOwnerOrAdmin(user.getId());
         String email = request.email().trim();
         String userName = request.userName().trim();
-        userRepository.findByEmail(email).filter(other -> !other.getId().equals(id)).ifPresent(other -> {
-            throw new ConflictException("El email ya está registrado");
-        });
-        userRepository.findByUserName(userName).filter(other -> !other.getId().equals(id)).ifPresent(other -> {
-            throw new ConflictException("El userName ya está registrado");
-        });
+        userRepository
+                .findByEmail(email)
+                .filter(other -> !other.getId().equals(id))
+                .ifPresent(
+                        other -> {
+                            throw new ConflictException("El email ya está registrado");
+                        });
+        userRepository
+                .findByUserName(userName)
+                .filter(other -> !other.getId().equals(id))
+                .ifPresent(
+                        other -> {
+                            throw new ConflictException("El userName ya está registrado");
+                        });
         // El id y el rol no se cambian desde aquí; el password se guarda siempre hasheado.
         user.setName(request.name().trim());
         user.setEmail(email);
@@ -97,11 +111,14 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    /** Perfil con sus posts; {@code userLiked} de cada post es del viewer (el usuario de la sesión). */
+    /**
+     * Perfil con sus posts; {@code userLiked} de cada post es del viewer (el usuario de la sesión).
+     */
     @Transactional(readOnly = true)
     public UserProfileDto getProfile(Long id, Optional<Long> viewerId) {
         User user = findOr404(id);
-        Optional<ProfilePhotos> photos = profilePhotosRepository.findFirstByUserIdOrderByIdDesc(user.getId());
+        Optional<ProfilePhotos> photos =
+                profilePhotosRepository.findFirstByUserIdOrderByIdDesc(user.getId());
         return new UserProfileDto(
                 user.getId(),
                 guard.canSeePrivateDataOf(user.getId()) ? user.getEmail() : null,
@@ -117,13 +134,20 @@ public class UserService {
         if (id == null || id <= 0) {
             throw new NotFoundException("Usuario no encontrado");
         }
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
+        return userRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
     }
 
     private UserPublicDto toPublic(User user, boolean includePrivate) {
-        Optional<ProfilePhotos> photos = profilePhotosRepository.findFirstByUserIdOrderByIdDesc(user.getId());
-        return new UserPublicDto(user.getId(), user.getName(), user.getUserName(),
-                includePrivate ? user.getEmail() : null, user.getRole(),
+        Optional<ProfilePhotos> photos =
+                profilePhotosRepository.findFirstByUserIdOrderByIdDesc(user.getId());
+        return new UserPublicDto(
+                user.getId(),
+                user.getName(),
+                user.getUserName(),
+                includePrivate ? user.getEmail() : null,
+                user.getRole(),
                 photos.map(ProfilePhotos::getPhotoUrl).orElse(null),
                 photos.map(ProfilePhotos::getWallPhotoUrl).orElse(null));
     }

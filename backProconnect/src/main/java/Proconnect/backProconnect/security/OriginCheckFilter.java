@@ -1,24 +1,22 @@
 package Proconnect.backProconnect.security;
 
 import Proconnect.backProconnect.exception.ProblemResponses;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.Set;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.web.filter.OncePerRequestFilter;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URI;
+import java.util.Set;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Defensa CSRF sin estado: rechaza con 403 las mutaciones (POST/PUT/PATCH/DELETE) cuyo {@code Origin} (o, en su
- * ausencia, el origen del {@code Referer}) no esté en {@code CORS_ORIGINS}. Un {@code Origin: null} se rechaza.
- * Si no llega ninguna de las dos cabeceras (clientes no navegador, SSR) se deja pasar: los navegadores
- * siempre envían {@code Origin} en mutaciones y la cookie {@code SameSite=Lax} no viaja en peticiones cross-site.
+ * Defensa CSRF sin estado: rechaza con 403 las mutaciones (POST/PUT/PATCH/DELETE) cuyo {@code
+ * Origin} (o, en su ausencia, el origen del {@code Referer}) no esté en {@code CORS_ORIGINS}. Un
+ * {@code Origin: null} se rechaza. Si no llega ninguna de las dos cabeceras (clientes no navegador,
+ * SSR) se deja pasar: los navegadores siempre envían {@code Origin} en mutaciones y la cookie
+ * {@code SameSite=Lax} no viaja en peticiones cross-site.
  */
 public class OriginCheckFilter extends OncePerRequestFilter {
 
@@ -36,7 +34,8 @@ public class OriginCheckFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    protected void doFilterInternal(
+            HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         String origin = request.getHeader("Origin");
         if (origin == null) {
@@ -67,7 +66,10 @@ public class OriginCheckFilter extends OncePerRequestFilter {
             if (uri.getScheme() == null || uri.getHost() == null) {
                 return "null";
             }
-            return uri.getScheme() + "://" + uri.getHost() + (uri.getPort() == -1 ? "" : ":" + uri.getPort());
+            return uri.getScheme()
+                    + "://"
+                    + uri.getHost()
+                    + (uri.getPort() == -1 ? "" : ":" + uri.getPort());
         } catch (IllegalArgumentException e) {
             return "null";
         }

@@ -1,8 +1,7 @@
 package Proconnect.backProconnect.model;
 
+import Proconnect.backProconnect.Entity.PostulationStatus;
 import java.util.Date;
 
-import Proconnect.backProconnect.Entity.PostulationStatus;
-
-public record PostulationDto(Long id, Long userId, Long jobId, Date date, PostulationStatus status) {
-}
+public record PostulationDto(
+        Long id, Long userId, Long jobId, Date date, PostulationStatus status) {}

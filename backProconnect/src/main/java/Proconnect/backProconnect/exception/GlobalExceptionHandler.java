@@ -1,7 +1,8 @@
 package Proconnect.backProconnect.exception;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,13 +22,11 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolationException;
-
 /**
- * Manejo centralizado de errores: toda respuesta de error es {@code application/problem+json} (RFC 7807) con el
- * código HTTP de su causa y un {@code traceId}. Los errores no previstos responden 500 genérico (sin stack trace,
- * SQL ni mensajes de Hibernate) y el detalle completo queda en el log asociado al mismo traceId.
+ * Manejo centralizado de errores: toda respuesta de error es {@code application/problem+json} (RFC
+ * 7807) con el código HTTP de su causa y un {@code traceId}. Los errores no previstos responden 500
+ * genérico (sin stack trace, SQL ni mensajes de Hibernate) y el detalle completo queda en el log
+ * asociado al mismo traceId.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -52,29 +51,44 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ProblemDetail> validation(ValidationException e, HttpServletRequest req) {
-        ProblemDetail problem = ProblemResponses.problem(HttpStatus.BAD_REQUEST, e.getMessage(), req);
+        ProblemDetail problem =
+                ProblemResponses.problem(HttpStatus.BAD_REQUEST, e.getMessage(), req);
         ProblemResponses.withErrors(problem, e.getErrors());
         return build(problem);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ProblemDetail> constraint(ConstraintViolationException e, HttpServletRequest req) {
-        List<ValidationException.FieldError> errors = e.getConstraintViolations().stream()
-                .map(v -> new ValidationException.FieldError(lastNode(v.getPropertyPath().toString()), v.getMessage()))
-                .toList();
-        ProblemDetail problem = ProblemResponses.problem(HttpStatus.BAD_REQUEST, "Datos inválidos", req);
+    public ResponseEntity<ProblemDetail> constraint(
+            ConstraintViolationException e, HttpServletRequest req) {
+        List<ValidationException.FieldError> errors =
+                e.getConstraintViolations().stream()
+                        .map(
+                                v ->
+                                        new ValidationException.FieldError(
+                                                lastNode(v.getPropertyPath().toString()),
+                                                v.getMessage()))
+                        .toList();
+        ProblemDetail problem =
+                ProblemResponses.problem(HttpStatus.BAD_REQUEST, "Datos inválidos", req);
         return build(ProblemResponses.withErrors(problem, errors));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ProblemDetail> typeMismatch(MethodArgumentTypeMismatchException e, HttpServletRequest req) {
-        ProblemDetail problem = ProblemResponses.problem(HttpStatus.BAD_REQUEST, "Parámetro inválido", req);
-        return build(ProblemResponses.withErrors(problem,
-                List.of(new ValidationException.FieldError(e.getName(), "Valor no válido"))));
+    public ResponseEntity<ProblemDetail> typeMismatch(
+            MethodArgumentTypeMismatchException e, HttpServletRequest req) {
+        ProblemDetail problem =
+                ProblemResponses.problem(HttpStatus.BAD_REQUEST, "Parámetro inválido", req);
+        return build(
+                ProblemResponses.withErrors(
+                        problem,
+                        List.of(
+                                new ValidationException.FieldError(
+                                        e.getName(), "Valor no válido"))));
     }
 
     @ExceptionHandler(TooManyRequestsException.class)
-    public ResponseEntity<ProblemDetail> tooMany(TooManyRequestsException e, HttpServletRequest req) {
+    public ResponseEntity<ProblemDetail> tooMany(
+            TooManyRequestsException e, HttpServletRequest req) {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                 .header(HttpHeaders.RETRY_AFTER, String.valueOf(e.getRetryAfterSeconds()))
                 .contentType(ProblemResponses.PROBLEM_JSON)
@@ -82,16 +96,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
-    public ResponseEntity<ProblemDetail> unauthenticated(AuthenticationCredentialsNotFoundException e,
-            HttpServletRequest req) {
+    public ResponseEntity<ProblemDetail> unauthenticated(
+            AuthenticationCredentialsNotFoundException e, HttpServletRequest req) {
         return respond(HttpStatus.UNAUTHORIZED, "Sesión requerida", req);
     }
 
     /** Unicidad u otra restricción de la BD: 409 sin exponer el mensaje del driver. */
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ProblemDetail> integrity(DataIntegrityViolationException e, HttpServletRequest req) {
-        log.warn("Violación de integridad en {}: {}", req.getRequestURI(), e.getMostSpecificCause().getMessage());
-        return respond(HttpStatus.CONFLICT, "El recurso entra en conflicto con datos existentes", req);
+    public ResponseEntity<ProblemDetail> integrity(
+            DataIntegrityViolationException e, HttpServletRequest req) {
+        log.warn(
+                "Violación de integridad en {}: {}",
+                req.getRequestURI(),
+                e.getMostSpecificCause().getMessage());
+        return respond(
+                HttpStatus.CONFLICT, "El recurso entra en conflicto con datos existentes", req);
     }
 
     @ExceptionHandler(Exception.class)
@@ -100,26 +119,42 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return respond(HttpStatus.INTERNAL_SERVER_ERROR, GENERIC_500, req);
     }
 
-    /** Bean Validation sobre {@code @Valid @RequestBody}: 400 con un elemento de {@code errors} por campo. */
+    /**
+     * Bean Validation sobre {@code @Valid @RequestBody}: 400 con un elemento de {@code errors} por
+     * campo.
+     */
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex,
-            @NonNull HttpHeaders headers, @NonNull HttpStatusCode status, @NonNull WebRequest request) {
-        List<ValidationException.FieldError> errors = ex.getBindingResult().getFieldErrors().stream()
-                .map(fe -> new ValidationException.FieldError(fe.getField(), fe.getDefaultMessage()))
-                .toList();
-        ProblemDetail problem = ProblemResponses.problem(HttpStatus.BAD_REQUEST, "Datos inválidos", servlet(request));
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            @NonNull MethodArgumentNotValidException ex,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request) {
+        List<ValidationException.FieldError> errors =
+                ex.getBindingResult().getFieldErrors().stream()
+                        .map(
+                                fe ->
+                                        new ValidationException.FieldError(
+                                                fe.getField(), fe.getDefaultMessage()))
+                        .toList();
+        ProblemDetail problem =
+                ProblemResponses.problem(
+                        HttpStatus.BAD_REQUEST, "Datos inválidos", servlet(request));
         ProblemResponses.withErrors(problem, errors);
         return ResponseEntity.badRequest().contentType(ProblemResponses.PROBLEM_JSON).body(problem);
     }
 
     /**
-     * Resto de excepciones estándar de Spring MVC (body ilegible, método no soportado, 404 de ruta...): se
-     * conserva su código pero el cuerpo pasa a tener el formato común (title, instance, traceId) sin detalles
-     * internos.
+     * Resto de excepciones estándar de Spring MVC (body ilegible, método no soportado, 404 de
+     * ruta...): se conserva su código pero el cuerpo pasa a tener el formato común (title,
+     * instance, traceId) sin detalles internos.
      */
     @Override
-    protected ResponseEntity<Object> handleExceptionInternal(@NonNull Exception ex, @Nullable Object body,
-            @NonNull HttpHeaders headers, @NonNull HttpStatusCode statusCode, @NonNull WebRequest request) {
+    protected ResponseEntity<Object> handleExceptionInternal(
+            @NonNull Exception ex,
+            @Nullable Object body,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode statusCode,
+            @NonNull WebRequest request) {
         HttpStatus status = HttpStatus.resolve(statusCode.value());
         if (status == null) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -127,27 +162,40 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         if (status.is5xxServerError()) {
             log.error("Error de infraestructura MVC", ex);
         }
-        String detail = status.is5xxServerError() ? GENERIC_500
-                : (body instanceof ProblemDetail pd && pd.getDetail() != null ? pd.getDetail()
-                        : status.getReasonPhrase());
-        if (status == HttpStatus.BAD_REQUEST && ex instanceof org.springframework.http.converter.HttpMessageNotReadableException) {
+        String detail =
+                status.is5xxServerError()
+                        ? GENERIC_500
+                        : (body instanceof ProblemDetail pd && pd.getDetail() != null
+                                ? pd.getDetail()
+                                : status.getReasonPhrase());
+        if (status == HttpStatus.BAD_REQUEST
+                && ex
+                        instanceof
+                        org.springframework.http.converter.HttpMessageNotReadableException) {
             detail = "Body ausente o con formato inválido";
         }
         ProblemDetail problem = ProblemResponses.problem(status, detail, servlet(request));
-        return ResponseEntity.status(status).headers(headers).contentType(ProblemResponses.PROBLEM_JSON)
+        return ResponseEntity.status(status)
+                .headers(headers)
+                .contentType(ProblemResponses.PROBLEM_JSON)
                 .body(problem);
     }
 
-    private static ResponseEntity<ProblemDetail> respond(HttpStatus status, String detail, HttpServletRequest req) {
+    private static ResponseEntity<ProblemDetail> respond(
+            HttpStatus status, String detail, HttpServletRequest req) {
         return build(ProblemResponses.problem(status, detail, req));
     }
 
     private static ResponseEntity<ProblemDetail> build(ProblemDetail problem) {
-        return ResponseEntity.status(problem.getStatus()).contentType(ProblemResponses.PROBLEM_JSON).body(problem);
+        return ResponseEntity.status(problem.getStatus())
+                .contentType(ProblemResponses.PROBLEM_JSON)
+                .body(problem);
     }
 
     private static HttpServletRequest servlet(WebRequest request) {
-        return request instanceof NativeWebRequest nwr ? nwr.getNativeRequest(HttpServletRequest.class) : null;
+        return request instanceof NativeWebRequest nwr
+                ? nwr.getNativeRequest(HttpServletRequest.class)
+                : null;
     }
 
     private static String lastNode(String path) {

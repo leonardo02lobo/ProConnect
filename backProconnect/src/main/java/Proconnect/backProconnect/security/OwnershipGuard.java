@@ -1,24 +1,24 @@
 package Proconnect.backProconnect.security;
 
-import java.util.Arrays;
-import java.util.Objects;
-
-import org.springframework.stereotype.Component;
-
 import Proconnect.backProconnect.exception.ForbiddenException;
 import Proconnect.backProconnect.exception.ResourceNotFoundException;
 import Proconnect.backProconnect.model.Role;
+import java.util.Arrays;
+import java.util.Objects;
+import org.springframework.stereotype.Component;
 
 /**
  * Autorización por propiedad y rol, centralizada para que los services no repitan lógica.
  *
  * <ul>
- * <li>Recursos públicos con mutación (posts, comentarios, empresas, empleos, usuarios, fotos, workstations):
- * el ajeno recibe 403 ({@link #assertOwnerOrAdmin}).</li>
- * <li>Recursos privados (mensajes, postulaciones): el ajeno recibe 404, igual que un id inexistente
- * ({@link #assertParticipantOrNotFound}), para no revelar su existencia.</li>
+ *   <li>Recursos públicos con mutación (posts, comentarios, empresas, empleos, usuarios, fotos,
+ *       workstations): el ajeno recibe 403 ({@link #assertOwnerOrAdmin}).
+ *   <li>Recursos privados (mensajes, postulaciones): el ajeno recibe 404, igual que un id
+ *       inexistente ({@link #assertParticipantOrNotFound}), para no revelar su existencia.
  * </ul>
- * Los checks viven en la capa de servicio, no en las rutas, para que sobrevivan a renombrados de la API.
+ *
+ * Los checks viven en la capa de servicio, no en las rutas, para que sobrevivan a renombrados de la
+ * API.
  */
 @Component
 public class OwnershipGuard {

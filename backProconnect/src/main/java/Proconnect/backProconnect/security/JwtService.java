@@ -1,23 +1,20 @@
 package Proconnect.backProconnect.security;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
-
-import javax.crypto.SecretKey;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import Proconnect.backProconnect.Entity.User;
 import Proconnect.backProconnect.model.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
+import javax.crypto.SecretKey;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 /** Firma y valida los JWT de sesión (HS256). */
 @Service
@@ -33,15 +30,18 @@ public class JwtService {
     }
 
     @org.springframework.beans.factory.annotation.Autowired
-    public JwtService(@Value("${proconnect.jwt.secret:}") String secret,
-            @Value("${proconnect.jwt.ttl:PT24H}") Duration ttl, TokenDenylist denylist) {
+    public JwtService(
+            @Value("${proconnect.jwt.secret:}") String secret,
+            @Value("${proconnect.jwt.ttl:PT24H}") Duration ttl,
+            TokenDenylist denylist) {
         if (secret == null || secret.isBlank()) {
             throw new IllegalStateException(
                     "JWT_SECRET no está definido. Defínelo (>= 32 bytes) antes de arrancar la API.");
         }
         byte[] bytes = secret.getBytes(StandardCharsets.UTF_8);
         if (bytes.length < 32) {
-            throw new IllegalStateException("JWT_SECRET debe tener al menos 32 bytes (tiene " + bytes.length + ")");
+            throw new IllegalStateException(
+                    "JWT_SECRET debe tener al menos 32 bytes (tiene " + bytes.length + ")");
         }
         this.key = Keys.hmacShaKeyFor(bytes);
         this.ttl = ttl;
@@ -68,7 +68,8 @@ public class JwtService {
     /** Devuelve el principal si la firma y la expiración son válidas. */
     public Optional<AuthPrincipal> parse(String token) {
         try {
-            Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+            Claims claims =
+                    Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
             if (denylist.isRevoked(claims.getId())) {
                 return Optional.empty();
             }
@@ -86,7 +87,8 @@ public class JwtService {
             return;
         }
         try {
-            Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+            Claims claims =
+                    Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
             if (claims.getExpiration() != null) {
                 denylist.revoke(claims.getId(), claims.getExpiration().toInstant());
             }

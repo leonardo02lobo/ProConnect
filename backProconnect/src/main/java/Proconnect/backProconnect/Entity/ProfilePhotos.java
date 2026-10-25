@@ -15,15 +15,13 @@ public class ProfilePhotos {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "User ID cannot be null")
-    private Long userId;
+    @NotNull(message = "User ID cannot be null") private Long userId;
 
     private String photoUrl;
 
     private String wallPhotoUrl;
 
-    public ProfilePhotos() {
-    }
+    public ProfilePhotos() {}
 
     public ProfilePhotos(Long id, Long userId, String photoUrl, String wallPhotoUrl) {
         this.id = id;
@@ -63,5 +61,4 @@ public class ProfilePhotos {
     public void setWallPhotoUrl(String wallPhotoUrl) {
         this.wallPhotoUrl = wallPhotoUrl;
     }
-
 }

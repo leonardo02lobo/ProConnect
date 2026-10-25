@@ -1,17 +1,15 @@
 package Proconnect.backProconnect.service;
 
-import java.util.Optional;
-
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import Proconnect.backProconnect.Entity.User;
 import Proconnect.backProconnect.exception.ConflictException;
 import Proconnect.backProconnect.model.RegisterRequest;
 import Proconnect.backProconnect.model.Role;
 import Proconnect.backProconnect.repository.UserRepository;
+import java.util.Optional;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthService {
@@ -32,13 +30,17 @@ public class AuthService {
         if (email == null || email.isBlank() || password == null) {
             return Optional.empty();
         }
-        return userRepository.findByEmail(email.trim())
-                .filter(user -> isBcrypt(user.getPassword()) && passwordEncoder.matches(password, user.getPassword()));
+        return userRepository
+                .findByEmail(email.trim())
+                .filter(
+                        user ->
+                                isBcrypt(user.getPassword())
+                                        && passwordEncoder.matches(password, user.getPassword()));
     }
 
     /**
-     * Registra un usuario nuevo con rol USER (se ignora cualquier rol del body) y password hasheado. El formato ya
-     * lo valida Bean Validation en el controller.
+     * Registra un usuario nuevo con rol USER (se ignora cualquier rol del body) y password
+     * hasheado. El formato ya lo valida Bean Validation en el controller.
      *
      * @throws ConflictException si email o userName ya existen (409)
      */
@@ -52,8 +54,14 @@ public class AuthService {
         if (userRepository.findByUserName(userName).isPresent()) {
             throw new DuplicateUserException("El userName ya está registrado");
         }
-        User user = new User(null, request.name().trim(), userName, email, passwordEncoder.encode(request.password()),
-                Role.USER.name());
+        User user =
+                new User(
+                        null,
+                        request.name().trim(),
+                        userName,
+                        email,
+                        passwordEncoder.encode(request.password()),
+                        Role.USER.name());
         try {
             return userRepository.saveAndFlush(user);
         } catch (DataIntegrityViolationException e) {

@@ -1,11 +1,5 @@
 package Proconnect.backProconnect.service;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import Proconnect.backProconnect.Entity.WorkStation;
 import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.model.WorkStationDto;
@@ -13,6 +7,10 @@ import Proconnect.backProconnect.model.WorkStationRequest;
 import Proconnect.backProconnect.repository.WorkStationRepository;
 import Proconnect.backProconnect.security.OwnershipGuard;
 import Proconnect.backProconnect.specification.WorkStationSpecification;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class WorkStationService {
@@ -27,14 +25,21 @@ public class WorkStationService {
 
     @Transactional
     public WorkStationDto create(Long ownerId, WorkStationRequest request) {
-        return toDto(workStationRepository.save(new WorkStation(null, ownerId, request.workStation().trim())));
+        return toDto(
+                workStationRepository.save(
+                        new WorkStation(null, ownerId, request.workStation().trim())));
     }
 
     @Transactional(readOnly = true)
     public List<WorkStationDto> list(Optional<String> query) {
-        List<WorkStation> result = query.filter(q -> !q.isBlank())
-                .map(q -> workStationRepository.findAll(WorkStationSpecification.hasWorkStationLike(q.trim())))
-                .orElseGet(workStationRepository::findAll);
+        List<WorkStation> result =
+                query.filter(q -> !q.isBlank())
+                        .map(
+                                q ->
+                                        workStationRepository.findAll(
+                                                WorkStationSpecification.hasWorkStationLike(
+                                                        q.trim())))
+                        .orElseGet(workStationRepository::findAll);
         return result.stream().map(WorkStationService::toDto).toList();
     }
 
@@ -43,7 +48,9 @@ public class WorkStationService {
         return toDto(findOr404(id));
     }
 
-    /** Solo el propietario (o ADMIN) la modifica (403); 404 si no existe. El propietario no cambia. */
+    /**
+     * Solo el propietario (o ADMIN) la modifica (403); 404 si no existe. El propietario no cambia.
+     */
     @Transactional
     public WorkStationDto update(Long id, WorkStationRequest request) {
         WorkStation ws = findOr404(id);
@@ -64,7 +71,9 @@ public class WorkStationService {
         if (id == null || id <= 0) {
             throw new NotFoundException("Puesto no encontrado");
         }
-        return workStationRepository.findById(id).orElseThrow(() -> new NotFoundException("Puesto no encontrado"));
+        return workStationRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException("Puesto no encontrado"));
     }
 
     private static WorkStationDto toDto(WorkStation ws) {

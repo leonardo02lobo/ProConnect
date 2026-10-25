@@ -4,7 +4,6 @@ import Search from "./Search";
 import { $user, loadSession, logout } from "../Service/session";
 
 function Header() {
-
     const user = useStore($user);
 
     useEffect(() => {
@@ -21,8 +20,13 @@ function Header() {
                     <Search />
                     <div className="flex flex-column justify-start items-center">
                         <details className="relative">
-                            <summary data-testid="header-user-menu" className="flex items-center gap-3 cursor-pointer rounded-full px-3 py-1 hover:bg-gray-100">
-                                <span className="text-sm font-medium text-gray-800" id="header-user-name">{user?.name || "User"}</span>
+                            <summary
+                                data-testid="header-user-menu"
+                                className="flex items-center gap-3 cursor-pointer rounded-full px-3 py-1 hover:bg-gray-100"
+                            >
+                                <span className="text-sm font-medium text-gray-800" id="header-user-name">
+                                    {user?.name || "User"}
+                                </span>
                             </summary>
 
                             <div className="absolute right-0 mt-2 w-44 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 z-20">
@@ -36,7 +40,9 @@ function Header() {
                                 <button
                                     id="logout-button"
                                     data-testid="header-logout"
-                                    onClick={() => { logout(); }}
+                                    onClick={() => {
+                                        logout();
+                                    }}
                                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                                 >
                                     Log out
@@ -56,7 +62,8 @@ function Header() {
                     </a>
                     <Search />
                     <div className="flex flex-column justify-start items-center">
-                        <a href="/login"
+                        <a
+                            href="/login"
                             className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition"
                         >
                             Log in

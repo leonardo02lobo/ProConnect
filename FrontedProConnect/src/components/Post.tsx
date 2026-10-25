@@ -47,7 +47,8 @@ function Post({ post }: PostProps) {
             }
         } catch (e) {
             // 409 (ya tenía like) / 404 al quitar (ya no lo tenía): el estado optimista ya coincide con el servidor.
-            const alreadyInSync = e instanceof ApiError && ((!wasLiked && e.status === 409) || (wasLiked && e.status === 404));
+            const alreadyInSync =
+                e instanceof ApiError && ((!wasLiked && e.status === 409) || (wasLiked && e.status === 404));
             if (!alreadyInSync) {
                 setLiked(wasLiked);
                 setLikeCount((n) => n + (wasLiked ? 1 : -1));

@@ -1,7 +1,5 @@
 package Proconnect.backProconnect.Entity;
 
-import java.util.Date;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
 @Table(name = "Comments")
@@ -18,20 +17,15 @@ public class Comments {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Post ID cannot be null")
-    private Long postId;
+    @NotNull(message = "Post ID cannot be null") private Long postId;
 
-    @NotNull(message = "User ID cannot be null")
-    private Long userId;
+    @NotNull(message = "User ID cannot be null") private Long userId;
 
-    @NotBlank(message = "Content is mandatory")
-    @NotNull(message = "Content cannot be null")
-    private String content;
+    @NotBlank(message = "Content is mandatory") @NotNull(message = "Content cannot be null") private String content;
 
     private Date date;
 
-    public Comments() {
-    }
+    public Comments() {}
 
     public Comments(Long id, Long postId, Long userId, String content, Date date) {
         this.id = id;

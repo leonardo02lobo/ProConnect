@@ -98,7 +98,12 @@ function AddPost({ onCreated }: AddPostProps) {
                                 className="flex items-center gap-2 cursor-pointer px-2 py-1 rounded-full hover:bg-gray-100"
                                 title="Agregar imagen"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-5 w-5 text-green-500"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                >
                                     <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V7.414A2 2 0 0017.414 6L13 1.586A2 2 0 0011.586 1H4z" />
                                 </svg>
                                 <span>Imagen</span>
@@ -113,9 +118,7 @@ function AddPost({ onCreated }: AddPostProps) {
                                 data-testid="add-post-image"
                             />
                             {imageFile && (
-                                <p className="text-sm text-green-600">
-                                    Imagen lista para publicar: {imageFile.name}
-                                </p>
+                                <p className="text-sm text-green-600">Imagen lista para publicar: {imageFile.name}</p>
                             )}
                         </div>
 

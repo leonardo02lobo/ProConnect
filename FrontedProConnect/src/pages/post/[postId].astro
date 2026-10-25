@@ -1,32 +1,39 @@
 ---
-import Main from "../../layouts/Main.astro"
-import { ssrFetch } from "../../Service/server"
-import { mediaUrl } from "../../Service/http"
+import Main from "../../layouts/Main.astro";
+import { ssrFetch } from "../../Service/server";
+import { mediaUrl } from "../../Service/http";
 
-const { postId } = Astro.params
+const { postId } = Astro.params;
 
 // SSR: se reenvía la cookie de sesión del navegador al backend.
-const response = await ssrFetch(Astro, `/api/posts/${encodeURIComponent(postId ?? "")}`)
+const response = await ssrFetch(Astro, `/api/posts/${encodeURIComponent(postId ?? "")}`);
 if (response.status === 401) {
-    return Astro.redirect("/login")
+    return Astro.redirect("/login");
 }
-const text = response.ok ? await response.text() : ""
-const post = text ? JSON.parse(text) : null
+const text = response.ok ? await response.text() : "";
+const post = text ? JSON.parse(text) : null;
 if (!post) {
-    Astro.response.status = 404
+    Astro.response.status = 404;
 }
 ---
+
 <Main title={post?.title ?? "Post"}>
     <section class="bg-white rounded-2xl shadow-md p-5 w-full max-w-lg mx-auto my-6">
-        {post ? (
-            <article id="post-detail">
-                <h1 class="text-gray-800 mb-3 text-2xl">{post.title}</h1>
-                <p class="text-gray-800 mb-3">{post.content}</p>
-                {post.imageUrl && <img src={mediaUrl(post.imageUrl)} alt="Post" class="rounded-xl max-h-80 w-full object-cover" />}
-                <a href={`/user/${post.userId}`} class="text-blue-600 text-sm">Ver autor</a>
-            </article>
-        ) : (
-            <p>Post no encontrado</p>
-        )}
+        {
+            post ? (
+                <article id="post-detail">
+                    <h1 class="text-gray-800 mb-3 text-2xl">{post.title}</h1>
+                    <p class="text-gray-800 mb-3">{post.content}</p>
+                    {post.imageUrl && (
+                        <img src={mediaUrl(post.imageUrl)} alt="Post" class="rounded-xl max-h-80 w-full object-cover" />
+                    )}
+                    <a href={`/user/${post.userId}`} class="text-blue-600 text-sm">
+                        Ver autor
+                    </a>
+                </article>
+            ) : (
+                <p>Post no encontrado</p>
+            )
+        }
     </section>
 </Main>

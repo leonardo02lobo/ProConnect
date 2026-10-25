@@ -1,34 +1,35 @@
 package Proconnect.backProconnect.exception;
 
+import Proconnect.backProconnect.web.TraceIdFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
-
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import Proconnect.backProconnect.web.TraceIdFilter;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 /**
- * Construcción de respuestas RFC 7807 ({@code application/problem+json}) compartida por el
- * {@link GlobalExceptionHandler} y por los filtros que responden antes de llegar a un controller (401/403/429).
+ * Construcción de respuestas RFC 7807 ({@code application/problem+json}) compartida por el {@link
+ * GlobalExceptionHandler} y por los filtros que responden antes de llegar a un controller
+ * (401/403/429).
  */
 public final class ProblemResponses {
 
     public static final MediaType PROBLEM_JSON = MediaType.APPLICATION_PROBLEM_JSON;
     private static final ObjectMapper JSON = new ObjectMapper();
 
-    private ProblemResponses() {
-    }
+    private ProblemResponses() {}
 
-    /** ProblemDetail con {@code type}, {@code title}, {@code status}, {@code detail}, {@code instance} y traceId. */
-    public static ProblemDetail problem(HttpStatus status, String detail, HttpServletRequest request) {
+    /**
+     * ProblemDetail con {@code type}, {@code title}, {@code status}, {@code detail}, {@code
+     * instance} y traceId.
+     */
+    public static ProblemDetail problem(
+            HttpStatus status, String detail, HttpServletRequest request) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
         problem.setTitle(status.getReasonPhrase());
         problem.setType(URI.create("about:blank"));
@@ -42,14 +43,22 @@ public final class ProblemResponses {
         return problem;
     }
 
-    public static ProblemDetail withErrors(ProblemDetail problem, List<ValidationException.FieldError> errors) {
+    public static ProblemDetail withErrors(
+            ProblemDetail problem, List<ValidationException.FieldError> errors) {
         problem.setProperty("errors", errors);
         return problem;
     }
 
-    /** Escribe el problem+json directamente en la respuesta servlet (filtros y entry points de seguridad). */
-    public static void write(HttpServletRequest request, HttpServletResponse response, HttpStatus status,
-            String detail) throws IOException {
+    /**
+     * Escribe el problem+json directamente en la respuesta servlet (filtros y entry points de
+     * seguridad).
+     */
+    public static void write(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            HttpStatus status,
+            String detail)
+            throws IOException {
         ProblemDetail problem = problem(status, detail, request);
         response.setStatus(status.value());
         response.setContentType(PROBLEM_JSON.toString());

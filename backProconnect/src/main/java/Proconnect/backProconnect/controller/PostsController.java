@@ -1,22 +1,5 @@
 package Proconnect.backProconnect.controller;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-
 import Proconnect.backProconnect.model.CommentDto;
 import Proconnect.backProconnect.model.CommentRequest;
 import Proconnect.backProconnect.model.FeedPostDto;
@@ -28,6 +11,20 @@ import Proconnect.backProconnect.service.CommentsService;
 import Proconnect.backProconnect.service.LikeService;
 import Proconnect.backProconnect.service.PostsService;
 import jakarta.validation.Valid;
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 /** Posts y sus sub-recursos (likes y comentarios). La autoría siempre sale de la sesión. */
 @RestController
@@ -38,7 +35,8 @@ public class PostsController {
     private final LikeService likeService;
     private final CommentsService commentsService;
 
-    public PostsController(PostsService postsService, LikeService likeService, CommentsService commentsService) {
+    public PostsController(
+            PostsService postsService, LikeService likeService, CommentsService commentsService) {
         this.postsService = postsService;
         this.likeService = likeService;
         this.commentsService = commentsService;
@@ -101,8 +99,8 @@ public class PostsController {
     }
 
     @PostMapping("/{postId}/comments")
-    public ResponseEntity<CommentDto> comment(@PathVariable Long postId,
-            @RequestBody @Valid CommentRequest request) {
+    public ResponseEntity<CommentDto> comment(
+            @PathVariable Long postId, @RequestBody @Valid CommentRequest request) {
         CommentDto created = commentsService.create(postId, CurrentUser.id(), request);
         return ResponseEntity.created(URI.create("/api/comments/" + created.id())).body(created);
     }

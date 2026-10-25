@@ -1,26 +1,22 @@
 package Proconnect.backProconnect.controller;
 
+import Proconnect.backProconnect.model.FriendRequestCreate;
+import Proconnect.backProconnect.model.FriendRequestDto;
+import Proconnect.backProconnect.security.CurrentUser;
+import Proconnect.backProconnect.service.FriendService;
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import Proconnect.backProconnect.model.FriendRequestCreate;
-import Proconnect.backProconnect.model.FriendRequestDto;
-import Proconnect.backProconnect.security.CurrentUser;
-import Proconnect.backProconnect.service.FriendService;
-import jakarta.validation.Valid;
 
 /** Solicitudes de amistad y amistades del usuario de la sesión. */
 @RestController
@@ -37,7 +33,8 @@ public class FriendController {
     @PostMapping("/requests")
     public ResponseEntity<FriendRequestDto> send(@RequestBody @Valid FriendRequestCreate request) {
         FriendRequestDto created = friendService.sendRequest(CurrentUser.id(), request.userId());
-        return ResponseEntity.created(URI.create("/api/friends/requests/" + created.id())).body(created);
+        return ResponseEntity.created(URI.create("/api/friends/requests/" + created.id()))
+                .body(created);
     }
 
     /** Solicitudes pendientes recibidas (cada una con el {@code id} para aceptar o rechazar). */

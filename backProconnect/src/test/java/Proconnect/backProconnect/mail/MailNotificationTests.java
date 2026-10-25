@@ -5,8 +5,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import Proconnect.backProconnect.Entity.Company;
+import Proconnect.backProconnect.Entity.Job;
+import Proconnect.backProconnect.Entity.Postulation;
+import Proconnect.backProconnect.Entity.PostulationStatus;
+import Proconnect.backProconnect.security.SecurityTestSupport;
+import com.icegreen.greenmail.junit5.GreenMailExtension;
+import com.icegreen.greenmail.util.ServerSetupTest;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.servlet.http.Cookie;
 import java.util.Date;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -14,18 +22,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 
-import com.icegreen.greenmail.junit5.GreenMailExtension;
-import com.icegreen.greenmail.util.ServerSetupTest;
-
-import Proconnect.backProconnect.Entity.Company;
-import Proconnect.backProconnect.Entity.Job;
-import Proconnect.backProconnect.Entity.Postulation;
-import Proconnect.backProconnect.Entity.PostulationStatus;
-import Proconnect.backProconnect.security.SecurityTestSupport;
-import jakarta.mail.internet.MimeMessage;
-import jakarta.servlet.http.Cookie;
-
-/** Spec job-application-notifications: resolución por la empresa y correo al postulante (GreenMail en :3025). */
+/**
+ * Spec job-application-notifications: resolución por la empresa y correo al postulante (GreenMail
+ * en :3025).
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 class MailNotificationTests extends SecurityTestSupport {
@@ -46,7 +46,8 @@ class MailNotificationTests extends SecurityTestSupport {
         createUser("Dave", "COMPANY_ADMIN");
         createUser("Root", "ADMIN");
         Long companyId = companies.save(new Company(null, "Acme", "d", "l", ownerId)).getId();
-        Long jobId = jobs.save(new Job(null, companyId, "Backend Dev", "d", "w", new Date())).getId();
+        Long jobId =
+                jobs.save(new Job(null, companyId, "Backend Dev", "d", "w", new Date())).getId();
         postulationId = postulations.save(new Postulation(null, anaId, jobId, new Date())).getId();
         owner = login("Carla");
         applicant = login("Ana");
@@ -63,9 +64,12 @@ class MailNotificationTests extends SecurityTestSupport {
     @Test
     void ownerAcceptsAndApplicantGetsThePositiveMail() throws Exception {
         // Un destinatario en el body se ignora: el correo va al email registrado del postulante.
-        mvc.perform(post("/api/postulations/" + postulationId + "/accept").cookie(owner)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"correoDestino\":\"attacker@evil.example\",\"email\":\"attacker@evil.example\"}"))
+        mvc.perform(
+                        post("/api/postulations/" + postulationId + "/accept")
+                                .cookie(owner)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        "{\"correoDestino\":\"attacker@evil.example\",\"email\":\"attacker@evil.example\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("ACCEPTED"));
         assertThat(postulations.findById(postulationId).orElseThrow().getStatus())
@@ -75,19 +79,26 @@ class MailNotificationTests extends SecurityTestSupport {
         MimeMessage[] received = greenMail.getReceivedMessages();
         assertThat(received).hasSize(1);
         MimeMessage mail = received[0];
-        assertThat(mail.getAllRecipients()).extracting(Object::toString).containsExactly("Ana@example.com");
+        assertThat(mail.getAllRecipients())
+                .extracting(Object::toString)
+                .containsExactly("Ana@example.com");
         assertThat(mail.getSubject()).isEqualTo("Respuesta hacia el puesto de: Backend Dev");
-        assertThat(((String) mail.getContent())).contains("Hola Ana").contains("Backend Dev").contains("Acme")
+        assertThat(((String) mail.getContent()))
+                .contains("Hola Ana")
+                .contains("Backend Dev")
+                .contains("Acme")
                 .contains("Felicidades");
     }
 
     @Test
     void rejectSendsTheNegativeTemplate() throws Exception {
         mvc.perform(post("/api/postulations/" + postulationId + "/reject").cookie(admin))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("REJECTED"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("REJECTED"));
         assertThat(greenMail.waitForIncomingEmail(10_000, 1)).isTrue();
         assertThat(((String) greenMail.getReceivedMessages()[0].getContent()))
-                .contains("hemos decidido continuar con otros candidatos").doesNotContain("Felicidades");
+                .contains("hemos decidido continuar con otros candidatos")
+                .doesNotContain("Felicidades");
     }
 
     @Test
@@ -95,7 +106,8 @@ class MailNotificationTests extends SecurityTestSupport {
         // El postulante ve su postulación pero no es dueño de la empresa: 403.
         mvc.perform(post("/api/postulations/" + postulationId + "/accept").cookie(applicant))
                 .andExpect(status().isForbidden());
-        // Otro COMPANY_ADMIN no puede verla (recurso privado, verify-web-security): 404 como un id inexistente.
+        // Otro COMPANY_ADMIN no puede verla (recurso privado, verify-web-security): 404 como un id
+        // inexistente.
         mvc.perform(post("/api/postulations/" + postulationId + "/reject").cookie(otherCompany))
                 .andExpect(status().isNotFound());
         assertThat(postulations.findById(postulationId).orElseThrow().getStatus())
@@ -105,7 +117,8 @@ class MailNotificationTests extends SecurityTestSupport {
 
     @Test
     void resolvedPostulationCannotBeResolvedAgain() throws Exception {
-        mvc.perform(post("/api/postulations/" + postulationId + "/accept").cookie(owner)).andExpect(status().isOk());
+        mvc.perform(post("/api/postulations/" + postulationId + "/accept").cookie(owner))
+                .andExpect(status().isOk());
         mvc.perform(post("/api/postulations/" + postulationId + "/reject").cookie(owner))
                 .andExpect(status().isConflict());
         assertThat(postulations.findById(postulationId).orElseThrow().getStatus())

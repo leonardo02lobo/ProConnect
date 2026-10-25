@@ -1,12 +1,5 @@
 package Proconnect.backProconnect.service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import Proconnect.backProconnect.Entity.Posts;
 import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.model.FeedPostDto;
@@ -17,6 +10,11 @@ import Proconnect.backProconnect.repository.LikeRepository;
 import Proconnect.backProconnect.repository.PostsRepository;
 import Proconnect.backProconnect.repository.projection.FeedRow;
 import Proconnect.backProconnect.security.OwnershipGuard;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PostsService {
@@ -28,8 +26,12 @@ public class PostsService {
     private final UserViews userViews;
     private final OwnershipGuard guard;
 
-    public PostsService(PostsRepository postsRepository, CommentsRepository commentsRepository,
-            LikeRepository likeRepository, CommentsService commentsService, UserViews userViews,
+    public PostsService(
+            PostsRepository postsRepository,
+            CommentsRepository commentsRepository,
+            LikeRepository likeRepository,
+            CommentsService commentsService,
+            UserViews userViews,
             OwnershipGuard guard) {
         this.postsRepository = postsRepository;
         this.commentsRepository = commentsRepository;
@@ -39,7 +41,10 @@ public class PostsService {
         this.guard = guard;
     }
 
-    /** Feed completo, del más nuevo al más antiguo. {@code userLiked} es del viewer (false si no hay viewer). */
+    /**
+     * Feed completo, del más nuevo al más antiguo. {@code userLiked} es del viewer (false si no hay
+     * viewer).
+     */
     @Transactional(readOnly = true)
     public List<FeedPostDto> getFeed(Optional<Long> viewerId) {
         return toFeed(postsRepository.findFeed(viewerId.orElse(null), null));
@@ -59,8 +64,14 @@ public class PostsService {
     /** El autor sale de la sesión (lo pasa el controller), nunca del body. */
     @Transactional
     public PostDto createPost(Long authorId, PostRequest request) {
-        Posts post = new Posts(null, authorId, request.content().trim(), request.title().trim(),
-                blankToNull(request.imageUrl()), new Date());
+        Posts post =
+                new Posts(
+                        null,
+                        authorId,
+                        request.content().trim(),
+                        request.title().trim(),
+                        blankToNull(request.imageUrl()),
+                        new Date());
         return toDto(postsRepository.save(post));
     }
 
@@ -75,7 +86,10 @@ public class PostsService {
         return toDto(postsRepository.save(post));
     }
 
-    /** Solo el autor o un ADMIN (moderación) borran (403); 404 si no existe. Arrastra sus likes y comentarios. */
+    /**
+     * Solo el autor o un ADMIN (moderación) borran (403); 404 si no existe. Arrastra sus likes y
+     * comentarios.
+     */
     @Transactional
     public void deletePost(Long id) {
         Posts post = findOr404(id);
@@ -89,7 +103,9 @@ public class PostsService {
         if (id == null || id <= 0) {
             throw new NotFoundException("Post no encontrado");
         }
-        return postsRepository.findById(id).orElseThrow(() -> new NotFoundException("Post no encontrado"));
+        return postsRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException("Post no encontrado"));
     }
 
     private List<FeedPostDto> toFeed(List<FeedRow> rows) {
@@ -100,8 +116,14 @@ public class PostsService {
         return new FeedPostDto(
                 row.getId(),
                 row.getUserId(),
-                userViews.publicView(row.getUserId(), row.getUserName(), row.getUserUserName(), row.getUserEmail(),
-                        row.getUserRole(), row.getPhotoUrl(), row.getWallPhotoUrl()),
+                userViews.publicView(
+                        row.getUserId(),
+                        row.getUserName(),
+                        row.getUserUserName(),
+                        row.getUserEmail(),
+                        row.getUserRole(),
+                        row.getPhotoUrl(),
+                        row.getWallPhotoUrl()),
                 row.getTitle(),
                 row.getContent(),
                 row.getImageUrl(),
@@ -113,7 +135,12 @@ public class PostsService {
     }
 
     private static PostDto toDto(Posts post) {
-        return new PostDto(post.getId(), post.getUserId(), post.getTitle(), post.getContent(), post.getImageUrl(),
+        return new PostDto(
+                post.getId(),
+                post.getUserId(),
+                post.getTitle(),
+                post.getContent(),
+                post.getImageUrl(),
                 post.getDate());
     }
 

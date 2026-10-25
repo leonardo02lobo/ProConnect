@@ -1,11 +1,9 @@
 package Proconnect.backProconnect.repository;
 
+import Proconnect.backProconnect.Entity.Message;
 import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import Proconnect.backProconnect.Entity.Message;
 
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {

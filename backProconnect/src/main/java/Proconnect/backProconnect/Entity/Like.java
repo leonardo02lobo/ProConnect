@@ -1,13 +1,12 @@
 package Proconnect.backProconnect.Entity;
 
-import java.util.Date;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
 @Table(name = "Likes")
@@ -17,16 +16,13 @@ public class Like {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "User ID cannot be null")
-    private Long userId;
+    @NotNull(message = "User ID cannot be null") private Long userId;
 
-    @NotNull(message = "Post ID cannot be null")
-    private Long postId;
+    @NotNull(message = "Post ID cannot be null") private Long postId;
 
     private Date date;
 
-    public Like() {
-    }
+    public Like() {}
 
     public Like(Long id, Long userId, Long postId, Date date) {
         this.id = id;
@@ -66,5 +62,4 @@ public class Like {
     public void setDate(Date date) {
         this.date = date;
     }
-
 }

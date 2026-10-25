@@ -1,10 +1,5 @@
 package Proconnect.backProconnect.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import Proconnect.backProconnect.Entity.Company;
 import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.model.CompanyDto;
@@ -12,6 +7,9 @@ import Proconnect.backProconnect.model.CompanyRequest;
 import Proconnect.backProconnect.model.Role;
 import Proconnect.backProconnect.repository.CompanyRepository;
 import Proconnect.backProconnect.security.OwnershipGuard;
+import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CompanyService {
@@ -24,12 +22,19 @@ public class CompanyService {
         this.guard = guard;
     }
 
-    /** Solo COMPANY_ADMIN o ADMIN crean empresas (403); el creador (sesión) queda como propietario. */
+    /**
+     * Solo COMPANY_ADMIN o ADMIN crean empresas (403); el creador (sesión) queda como propietario.
+     */
     @Transactional
     public CompanyDto create(Long ownerId, CompanyRequest request) {
         guard.requireAnyRole(Role.COMPANY_ADMIN, Role.ADMIN);
-        Company company = new Company(null, request.name().trim(), request.description().trim(),
-                request.location().trim(), ownerId);
+        Company company =
+                new Company(
+                        null,
+                        request.name().trim(),
+                        request.description().trim(),
+                        request.location().trim(),
+                        ownerId);
         return toDto(companyRepository.save(company));
     }
 
@@ -67,7 +72,9 @@ public class CompanyService {
         if (id == null || id <= 0) {
             throw new NotFoundException("Empresa no encontrada");
         }
-        return companyRepository.findById(id).orElseThrow(() -> new NotFoundException("Empresa no encontrada"));
+        return companyRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException("Empresa no encontrada"));
     }
 
     /** 403 si el actor no es el propietario de la empresa ni ADMIN (404 si no existe). */
@@ -76,6 +83,7 @@ public class CompanyService {
     }
 
     static CompanyDto toDto(Company c) {
-        return new CompanyDto(c.getId(), c.getName(), c.getDescription(), c.getLocation(), c.getUserId());
+        return new CompanyDto(
+                c.getId(), c.getName(), c.getDescription(), c.getLocation(), c.getUserId());
     }
 }

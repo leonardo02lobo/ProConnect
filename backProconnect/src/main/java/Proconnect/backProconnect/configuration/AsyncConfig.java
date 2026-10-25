@@ -8,5 +8,4 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @Configuration
 @EnableAsync
 @EnableRetry
-public class AsyncConfig {
-}
+public class AsyncConfig {}

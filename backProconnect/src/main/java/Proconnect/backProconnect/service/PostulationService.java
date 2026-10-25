@@ -1,17 +1,5 @@
 package Proconnect.backProconnect.service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import Proconnect.backProconnect.Entity.Company;
 import Proconnect.backProconnect.Entity.Job;
 import Proconnect.backProconnect.Entity.Postulation;
@@ -27,11 +15,21 @@ import Proconnect.backProconnect.repository.JobRepository;
 import Proconnect.backProconnect.repository.PostulationRepository;
 import Proconnect.backProconnect.repository.UserRepository;
 import Proconnect.backProconnect.security.OwnershipGuard;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Postulaciones: recurso privado. Las ve el postulante, el propietario de la empresa del empleo y un ADMIN;
- * cualquier otro recibe 404 (igual que un id inexistente). Solo el propietario de la empresa (o un ADMIN) las
- * resuelve, y al resolverlas se notifica por correo al postulante.
+ * Postulaciones: recurso privado. Las ve el postulante, el propietario de la empresa del empleo y
+ * un ADMIN; cualquier otro recibe 404 (igual que un id inexistente). Solo el propietario de la
+ * empresa (o un ADMIN) las resuelve, y al resolverlas se notifica por correo al postulante.
  */
 @Service
 public class PostulationService {
@@ -44,9 +42,14 @@ public class PostulationService {
     private final OwnershipGuard guard;
     private final ApplicationEventPublisher events;
 
-    public PostulationService(PostulationRepository postulationRepository, JobRepository jobRepository,
-            CompanyRepository companyRepository, UserRepository userRepository, CompanyService companyService,
-            OwnershipGuard guard, ApplicationEventPublisher events) {
+    public PostulationService(
+            PostulationRepository postulationRepository,
+            JobRepository jobRepository,
+            CompanyRepository companyRepository,
+            UserRepository userRepository,
+            CompanyService companyService,
+            OwnershipGuard guard,
+            ApplicationEventPublisher events) {
         this.postulationRepository = postulationRepository;
         this.jobRepository = jobRepository;
         this.companyRepository = companyRepository;
@@ -78,9 +81,11 @@ public class PostulationService {
         Long me = guard.currentUserId();
         Map<Long, Postulation> visible = new LinkedHashMap<>();
         postulationRepository.findByUserId(me).forEach(p -> visible.put(p.getId(), p));
-        List<Long> companyIds = companyRepository.findByUserId(me).stream().map(Company::getId).toList();
+        List<Long> companyIds =
+                companyRepository.findByUserId(me).stream().map(Company::getId).toList();
         if (!companyIds.isEmpty()) {
-            List<Long> jobIds = jobRepository.findByCompanyIdIn(companyIds).stream().map(Job::getId).toList();
+            List<Long> jobIds =
+                    jobRepository.findByCompanyIdIn(companyIds).stream().map(Job::getId).toList();
             if (!jobIds.isEmpty()) {
                 postulationRepository.findByJobIdIn(jobIds).forEach(p -> visible.put(p.getId(), p));
             }
@@ -90,7 +95,10 @@ public class PostulationService {
         return result.stream().map(PostulationService::toDto).toList();
     }
 
-    /** Postulaciones de un empleo: solo el propietario de la empresa o un ADMIN (403; 404 si no existe). */
+    /**
+     * Postulaciones de un empleo: solo el propietario de la empresa o un ADMIN (403; 404 si no
+     * existe).
+     */
     @Transactional(readOnly = true)
     public List<PostulationDto> listByJob(Long jobId) {
         Job job = jobId == null ? null : jobRepository.findById(jobId).orElse(null);
@@ -98,7 +106,9 @@ public class PostulationService {
             throw new NotFoundException("Empleo no encontrado");
         }
         companyService.assertCanManage(job.getCompanyId());
-        return postulationRepository.findByJobId(jobId).stream().map(PostulationService::toDto).toList();
+        return postulationRepository.findByJobId(jobId).stream()
+                .map(PostulationService::toDto)
+                .toList();
     }
 
     /** 404 si no existe o si el actor no es postulante, propietario de la empresa ni ADMIN. */
@@ -107,7 +117,10 @@ public class PostulationService {
         return toDto(findVisibleOr404(id));
     }
 
-    /** Solo el postulante (o ADMIN) cambia el empleo de su postulación pendiente; el postulante no cambia. */
+    /**
+     * Solo el postulante (o ADMIN) cambia el empleo de su postulación pendiente; el postulante no
+     * cambia.
+     */
     @Transactional
     public PostulationDto update(Long id, PostulationRequest request) {
         Postulation existing = findVisibleOr404(id);
@@ -124,7 +137,9 @@ public class PostulationService {
         return toDto(postulationRepository.save(existing));
     }
 
-    /** La retira el postulante o la descarta el propietario de la empresa (o ADMIN); el resto, 404. */
+    /**
+     * La retira el postulante o la descarta el propietario de la empresa (o ADMIN); el resto, 404.
+     */
     @Transactional
     public void delete(Long id) {
         postulationRepository.delete(findVisibleOr404(id));
@@ -141,15 +156,17 @@ public class PostulationService {
     }
 
     /**
-     * Resolución: quien no puede ver la postulación recibe 404 (privacidad, igual que verify-web-security); quien
-     * la ve pero no es propietario de la empresa ni ADMIN (p. ej. el propio postulante) recibe 403; una ya
-     * resuelta, 409. El correo se publica como evento y sale tras el commit con los datos de la BD (nunca del
-     * body).
+     * Resolución: quien no puede ver la postulación recibe 404 (privacidad, igual que
+     * verify-web-security); quien la ve pero no es propietario de la empresa ni ADMIN (p. ej. el
+     * propio postulante) recibe 403; una ya resuelta, 409. El correo se publica como evento y sale
+     * tras el commit con los datos de la BD (nunca del body).
      */
     private PostulationDto resolve(Long id, PostulationStatus status) {
         Postulation postulation = findVisibleOr404(id);
-        Job job = jobRepository.findById(postulation.getJobId())
-                .orElseThrow(() -> new NotFoundException("Empleo no encontrado"));
+        Job job =
+                jobRepository
+                        .findById(postulation.getJobId())
+                        .orElseThrow(() -> new NotFoundException("Empleo no encontrado"));
         Company company = companyService.findOr404(job.getCompanyId());
         guard.assertOwnerOrAdmin(company.getUserId());
         if (postulation.getStatus() != PostulationStatus.PENDING) {
@@ -157,19 +174,29 @@ public class PostulationService {
         }
         postulation.setStatus(status);
         Postulation saved = postulationRepository.save(postulation);
-        User applicant = userRepository.findById(saved.getUserId())
-                .orElseThrow(() -> new NotFoundException("Postulante no encontrado"));
-        events.publishEvent(new PostulationResolvedEvent(saved.getId(), status, applicant.getEmail(),
-                applicant.getName(), job.getTitle(), company.getName()));
+        User applicant =
+                userRepository
+                        .findById(saved.getUserId())
+                        .orElseThrow(() -> new NotFoundException("Postulante no encontrado"));
+        events.publishEvent(
+                new PostulationResolvedEvent(
+                        saved.getId(),
+                        status,
+                        applicant.getEmail(),
+                        applicant.getName(),
+                        job.getTitle(),
+                        company.getName()));
         return toDto(saved);
     }
 
     private Postulation findVisibleOr404(Long id) {
-        Postulation postulation = (id == null || id <= 0) ? null : postulationRepository.findById(id).orElse(null);
+        Postulation postulation =
+                (id == null || id <= 0) ? null : postulationRepository.findById(id).orElse(null);
         if (postulation == null) {
             throw new NotFoundException();
         }
-        guard.assertParticipantOrNotFound(postulation.getUserId(), companyOwnerOf(postulation.getJobId()));
+        guard.assertParticipantOrNotFound(
+                postulation.getUserId(), companyOwnerOf(postulation.getJobId()));
         return postulation;
     }
 
@@ -177,13 +204,15 @@ public class PostulationService {
         if (jobId == null) {
             return null;
         }
-        return jobRepository.findById(jobId)
+        return jobRepository
+                .findById(jobId)
                 .flatMap(job -> companyRepository.findById(job.getCompanyId()))
                 .map(Company::getUserId)
                 .orElse(null);
     }
 
     private static PostulationDto toDto(Postulation p) {
-        return new PostulationDto(p.getId(), p.getUserId(), p.getJobId(), p.getDate(), p.getStatus());
+        return new PostulationDto(
+                p.getId(), p.getUserId(), p.getJobId(), p.getDate(), p.getStatus());
     }
 }

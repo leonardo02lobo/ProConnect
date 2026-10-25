@@ -25,6 +25,5 @@ public class ValidationException extends RuntimeException {
     }
 
     /** Un campo inválido y su mensaje. */
-    public record FieldError(String field, String message) {
-    }
+    public record FieldError(String field, String message) {}
 }

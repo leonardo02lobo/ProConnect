@@ -18,8 +18,14 @@ const API_ORIGIN = (() => {
     }
 })();
 const STRICT_CSP = [
-    "default-src 'self'", "script-src 'self'", "style-src 'self'", `img-src 'self' data: ${API_ORIGIN}`.trim(),
-    `connect-src 'self' ${API_ORIGIN}`.trim(), "object-src 'none'", "base-uri 'self'", "form-action 'self'",
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self'",
+    `img-src 'self' data: ${API_ORIGIN}`.trim(),
+    `connect-src 'self' ${API_ORIGIN}`.trim(),
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
     "frame-ancestors 'none'",
 ].join("; ");
 

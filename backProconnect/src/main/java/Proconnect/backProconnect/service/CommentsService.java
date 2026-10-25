@@ -1,11 +1,5 @@
 package Proconnect.backProconnect.service;
 
-import java.util.Date;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import Proconnect.backProconnect.Entity.Comments;
 import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.model.CommentDto;
@@ -14,6 +8,10 @@ import Proconnect.backProconnect.repository.CommentsRepository;
 import Proconnect.backProconnect.repository.PostsRepository;
 import Proconnect.backProconnect.repository.projection.CommentRow;
 import Proconnect.backProconnect.security.OwnershipGuard;
+import java.util.Date;
+import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CommentsService {
@@ -23,8 +21,11 @@ public class CommentsService {
     private final UserViews userViews;
     private final OwnershipGuard guard;
 
-    public CommentsService(CommentsRepository commentsRepository, PostsRepository postsRepository,
-            UserViews userViews, OwnershipGuard guard) {
+    public CommentsService(
+            CommentsRepository commentsRepository,
+            PostsRepository postsRepository,
+            UserViews userViews,
+            OwnershipGuard guard) {
         this.commentsRepository = commentsRepository;
         this.postsRepository = postsRepository;
         this.userViews = userViews;
@@ -47,9 +48,12 @@ public class CommentsService {
     @Transactional
     public CommentDto create(Long postId, Long authorId, CommentRequest request) {
         assertPostExists(postId);
-        Comments saved = commentsRepository.save(
-                new Comments(null, postId, authorId, request.content().trim(), new Date()));
-        return commentsRepository.findWithAuthorById(saved.getId()).stream().findFirst().map(this::toDto)
+        Comments saved =
+                commentsRepository.save(
+                        new Comments(null, postId, authorId, request.content().trim(), new Date()));
+        return commentsRepository.findWithAuthorById(saved.getId()).stream()
+                .findFirst()
+                .map(this::toDto)
                 .orElseThrow(() -> new NotFoundException("Comentario no encontrado"));
     }
 
@@ -59,8 +63,10 @@ public class CommentsService {
         if (id == null || id <= 0) {
             throw new NotFoundException("Comentario no encontrado");
         }
-        Comments comment = commentsRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Comentario no encontrado"));
+        Comments comment =
+                commentsRepository
+                        .findById(id)
+                        .orElseThrow(() -> new NotFoundException("Comentario no encontrado"));
         guard.assertOwnerOrAdmin(comment.getUserId());
         commentsRepository.delete(comment);
     }
@@ -72,8 +78,19 @@ public class CommentsService {
     }
 
     private CommentDto toDto(CommentRow row) {
-        return new CommentDto(row.getId(), row.getPostId(), row.getUserId(), row.getContent(), row.getDate(),
-                userViews.publicView(row.getUserId(), row.getUserName(), row.getUserUserName(), row.getUserEmail(),
-                        row.getUserRole(), row.getPhotoUrl(), row.getWallPhotoUrl()));
+        return new CommentDto(
+                row.getId(),
+                row.getPostId(),
+                row.getUserId(),
+                row.getContent(),
+                row.getDate(),
+                userViews.publicView(
+                        row.getUserId(),
+                        row.getUserName(),
+                        row.getUserUserName(),
+                        row.getUserEmail(),
+                        row.getUserRole(),
+                        row.getPhotoUrl(),
+                        row.getWallPhotoUrl()));
     }
 }

@@ -15,5 +15,4 @@ public record FeedPostDto(
         long totalLikes,
         long totalComments,
         boolean userLiked,
-        List<CommentDto> comments) {
-}
+        List<CommentDto> comments) {}

@@ -1,7 +1,5 @@
 package Proconnect.backProconnect.Entity;
 
-import java.util.Date;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,28 +7,26 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
 @Table(name = "Messages")
 public class Message {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Sender ID cannot be null")
-    private Long senderId;
-    @NotNull(message = "Receiver ID cannot be null")
-    private Long receiverId;
-    @NotBlank(message = "Content is mandatory")
-    @NotNull(message = "Content cannot be null")
-    private String content;
+    @NotNull(message = "Sender ID cannot be null") private Long senderId;
+
+    @NotNull(message = "Receiver ID cannot be null") private Long receiverId;
+
+    @NotBlank(message = "Content is mandatory") @NotNull(message = "Content cannot be null") private String content;
 
     private Date timestamp;
 
     /** Requerido por JPA para materializar la entidad. */
-    public Message() {
-    }
+    public Message() {}
 
     public Message(Long id, Long senderId, Long receiverId, String content, Date timestamp) {
         this.id = id;
@@ -79,5 +75,4 @@ public class Message {
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
-    
 }
