@@ -1,10 +1,10 @@
 ## 1. Tooling de calidad
 
-- [ ] 1.1 Agregar `.editorconfig` raíz
-- [ ] 1.2 Configurar `spotless-maven-plugin` y `maven-checkstyle-plugin` (reglas de nombres) en `backProconnect` y `gateway`
-- [ ] 1.3 Configurar ESLint (flat config, typescript-eslint, astro, react-hooks, `no-console`) y Prettier en `FrontedProConnect` y `NodeTsPosts`
-- [ ] 1.4 Aplicar el formateo automático en un commit aislado y registrarlo en `.git-blame-ignore-revs`
-- [ ] 1.5 Añadir `spotless:check`, `checkstyle:check` y `npm run lint` al workflow `ci`
+- [x] 1.1 Agregar `.editorconfig` raíz
+- [x] 1.2 Configurar `spotless-maven-plugin` y `maven-checkstyle-plugin` (reglas de nombres) en `backProconnect` y `gateway`
+- [x] 1.3 Configurar ESLint (flat config, typescript-eslint, astro, react-hooks, `no-console`) y Prettier en `FrontedProConnect` y `NodeTsPosts`
+- [x] 1.4 Aplicar el formateo automático en un commit aislado y registrarlo en `.git-blame-ignore-revs`
+- [x] 1.5 Añadir `spotless:check`, `checkstyle:check` y `npm run lint` al workflow `ci`
 
 ## 2. Manejo de errores
 
@@ -32,7 +32,7 @@
 - [x] 4.4 Crear `/login` y `/register` (con formulario de registro real), eliminar `SignIn.astro` y `SignUp.astro`, y actualizar redirecciones y links
 - [x] 4.5 Unificar tipos en inglés (`totalComments`) alineados con los DTOs del backend
 - [x] 4.6 Eliminar todos los `console.log`
-- [ ] 4.7 Arreglar el script `dev` de `NodeTsPosts` (`tsx watch index.ts`)
+- [x] 4.7 Arreglar el script `dev` de `NodeTsPosts` (`tsx watch index.ts`)
 
 ## 5. Correos de postulación y retiro del legacy
 
@@ -68,4 +68,4 @@ Cada uno con su test de regresión (`backProconnect/src/test/.../api/InheritedBu
 
 - [x] 6.1 Actualizar los tests E2E a las rutas `/login` y `/register` y a los endpoints nuevos
 - [ ] 6.2 Confirmar `ci` (lint, format, build) y `e2e` en verde
-- [ ] 6.3 Verificar con curl: 404 en un post inexistente, 400 con `errors[]`, 409 en like duplicado y 500 sin stack trace
+- [x] 6.3 Verificar con curl: 404 en un post inexistente, 400 con `errors[]`, 409 en like duplicado y 500 sin stack trace

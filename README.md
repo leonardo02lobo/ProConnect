@@ -33,7 +33,7 @@ Cada servicio tiene un `.env.example` con todas sus variables. Copia los valores
 Requisitos: Docker (`docker-compose`), Node 22, y Java 17 o Docker para compilar.
 
 ```bash
-# 1. MySQL
+# 1. MySQL + Mailpit (captura los correos de postulación: SMTP :1025, UI http://localhost:8025)
 docker-compose -p pc-risks -f docker-compose.dev.yml up -d
 
 # 2. Variables comunes (ejemplo de desarrollo)
@@ -53,6 +53,10 @@ export DB_URL=jdbc:mysql://localhost:3306/proconnect DB_USER=proconnect DB_PASSW
 ```
 
 Abre `http://localhost:4321` usando `localhost`, no `127.0.0.1`, para que la cookie de sesión se comparta entre `:4321` y `:8080`.
+
+Los correos de postulación salen por SMTP (`MAIL_HOST`, `MAIL_PORT`; por defecto Mailpit en `localhost:1025`). El primer ADMIN se crea con `BOOTSTRAP_ADMIN_EMAIL` y `BOOTSTRAP_ADMIN_PASSWORD` (ver `backProconnect/.env.example`). Las rutas de la API están en [`docs/api-routes.md`](docs/api-routes.md), y los errores son `application/problem+json` con `traceId`.
+
+Calidad (la CI la exige): `mvn spotless:apply` / `mvn spotless:check checkstyle:check` en `backProconnect/` y `gateway/`, y `npm run lint`, `npm run format` / `npm run format:check` en `FrontedProConnect/` y `NodeTsPosts/`. El commit de formato masivo está en `.git-blame-ignore-revs` (`git config blame.ignoreRevsFile .git-blame-ignore-revs`).
 
 Para compilar y testear sin Maven local: `docker run --rm -v "$PWD":/app -v "$HOME/.m2":/root/.m2 -w /app maven:3.9-eclipse-temurin-17 mvn -B verify`, desde `backProconnect/` o `gateway/`. Los tests de la API usan H2 en memoria y no necesitan MySQL.
 
