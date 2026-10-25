@@ -1,0 +1,22 @@
+{
+  "label": "after",
+  "endpoint": "feedDeep",
+  "mode": "serial",
+  "vus": 1,
+  "duration": "30s",
+  "iterations": 7510,
+  "rps": 248.44848850027097,
+  "errorRate": 0,
+  "latencyMs": {
+    "feedDeep": {
+      "count": 7510,
+      "min": 3.331813,
+      "p50": 3.6595295,
+      "avg": 3.782541282822911,
+      "p90": 4.1210104,
+      "p95": 4.499644999999999,
+      "p99": 6.051458039999999,
+      "max": 35.556112
+    }
+  }
+}

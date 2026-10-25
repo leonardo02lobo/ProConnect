@@ -58,6 +58,8 @@ async function http(ep) {
   return { status: res.status, bytes: buf.length, ms, sample: buf.subarray(0, 160).toString() };
 }
 
+export const DML_EVENTS = ['select', 'insert', 'update', 'delete', 'update_multi', 'delete_multi', 'insert_select', 'replace', 'replace_select'];
+
 async function resetCounters(conn) {
   await conn.query('TRUNCATE TABLE performance_schema.events_statements_summary_by_user_by_event_name');
   await conn.query('TRUNCATE TABLE performance_schema.events_statements_summary_by_digest');
@@ -81,7 +83,8 @@ async function readCounters(conn) {
   );
   const events = Object.fromEntries(byEvent.map((r) => [r.ev.replace('statement/sql/', ''), Number(r.n)]));
   const total = byEvent.reduce((a, r) => a + Number(r.n), 0);
-  const dml = ['select', 'insert', 'update', 'delete'].reduce((a, k) => a + (events[k] ?? 0), 0);
+  // *_multi: UPDATE/DELETE con alias o JOIN (p. ej. el DELETE de JPQL de Hibernate: `DELETE l1_0 FROM likes l1_0`).
+  const dml = DML_EVENTS.reduce((a, k) => a + (events[k] ?? 0), 0);
   const dbMs = byEvent.reduce((a, r) => a + Number(r.ps), 0) / 1e9;
   const rowsExamined = byEvent.reduce((a, r) => a + Number(r.rx), 0);
   return {

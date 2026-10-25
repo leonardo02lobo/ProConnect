@@ -12,7 +12,7 @@ Ningún cliente lo usaba: el frontend habla solo con el gateway → API Spring (
 | `usuario/crearUsuario`, `usuario/loginUser`, `usuario/logout`, `usuario/getCookie` | `/api/auth/register\|login\|logout\|me` | JWT HS256 en cookie `pc_session` |
 | `usuario/`, `usuario/Filtrar/:id`, `usuario/Buscador/:n`, `usuario/FiltrarNombre/:n`, `usuario/FindUser` | `GET /api/users`, `/api/users/{id}`, `/api/users?q=` | |
 | `usuario/ValidarNombreUsuario`, `usuario/ValidarEmail` | `POST /api/auth/register` (409 con el campo duplicado) | No hay endpoint de "¿está libre?" |
-| `usuario/ActualizarFotoUsuario` | `POST /upload/subirImagen` + `POST\|PUT /api/profile-photos` | |
+| `usuario/ActualizarFotoUsuario` | `POST /upload/subirImagen` + `PUT /api/users/{id}/media` | |
 | `Empresas/`, `Empresas/CrearEmpresa` | `GET\|POST /api/companies` | Spring exige COMPANY_ADMIN/ADMIN |
 | `Empleo/crearEmpleo`, `Empleo/ObtenerTodosLosEmpleos`, `Empleo/ObtenerByID/:id` | `POST /api/jobs`, `GET /api/jobs`, `GET /api/jobs/{id}` | |
 | `Empleo/BuscarEmpleoPorNombre/:n` | `GET /api/jobs?q=` | título o descripción |

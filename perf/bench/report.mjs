@@ -5,6 +5,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+const DML = ['select', 'insert', 'update', 'delete', 'update_multi', 'delete_multi', 'insert_select', 'replace', 'replace_select'];
 const dir = path.join(path.dirname(new URL(import.meta.url).pathname), '..', 'results');
 const label = process.argv[2] ?? 'baseline';
 const ci = process.argv.indexOf('--compare');
@@ -31,12 +32,20 @@ const LEGACY = [
 const isLegacy = (data) => Boolean(data.q.feedViewer || data.k6['feedViewer:serial']);
 
 function load(lbl) {
-  const files = fs.readdirSync(dir).filter((f) => f.startsWith(`${lbl}-`) && f.endsWith('.json') && (f.includes('-queries') || f.includes('-k6-')));
+  // Prefijo exacto: `after-` no debe recoger `after-v2-*`.
+  const own = new RegExp(`^${lbl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}-(queries|k6)-.*\\.json$`);
+  const files = fs.readdirSync(dir).filter((f) => own.test(f));
   const q = {};
   const k6 = {};
   for (const f of files) {
     const j = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
-    if (f.includes('-queries')) for (const r of j.results) q[r.key] = r;
+    // DML recalculado desde los eventos guardados (mismo criterio para todas las mediciones;
+    // incluye update_multi/delete_multi, que la primera versión de count-queries no sumaba).
+    if (f.includes('-queries'))
+      for (const r of j.results) {
+        if (r.events) r.statementsDml = DML.reduce((a, k) => a + (r.events[k] ?? 0), 0);
+        q[r.key] = r;
+      }
     else if (f.includes('-k6-')) k6[`${j.endpoint}:${j.mode}`] = j;
   }
   return { q, k6 };

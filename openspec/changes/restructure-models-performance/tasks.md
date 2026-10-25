@@ -35,7 +35,7 @@
 ## 6. Queries paginadas
 
 - [x] 6.1 Implementar el feed en 3 queries (posts+autor, likes del viewer, preview de 3 comentarios con `ROW_NUMBER`) con cursor opaco
-- [ ] 6.2 Validar con `EXPLAIN` el uso del índice `posts(created_at, id)` y ajustar el predicado si hace falta
+- [x] 6.2 Validar con `EXPLAIN` el uso del índice `posts(created_at, id)` y ajustar el predicado si hace falta — predicado con `OR`: range scan de `idx_posts_feed` (21 filas); la comparación de tuplas recorría 5.022 (`perf/results/after-explain.txt`)
 - [x] 6.3 `GET /api/posts/{id}/comments` paginado por cursor
 - [x] 6.4 Perfil: datos de usuario + primera página de posts por cursor, sin JOIN con comments
 - [x] 6.5 Paginación `Pageable` (máx. 100) en usuarios, empresas, empleos, postulaciones, puestos, mensajes y amigos
@@ -51,5 +51,5 @@
 ## 8. Contract y cierre
 
 - [x] 8.1 `V5__drop_profile_photos.sql` y eliminar la entidad y el repositorio `ProfilePhotos` — auditoría de filas eliminadas; rollback manual U5 (recrea desde `user`)
-- [ ] 8.2 Benchmark final → `docs/perf/<fecha>-after.md` con la comparación contra la línea base
-- [ ] 8.3 Confirmar los umbrales: ≤ 4 queries y p95 ≤ 150 ms en feed y perfil (reportando el hardware)
+- [x] 8.2 Benchmark final → `docs/perf/<fecha>-after.md` con la comparación contra la línea base — `docs/perf/2026-10-25-after.md` (+ mediciones intermedias `pre` y `after-v2`)
+- [x] 8.3 Confirmar los umbrales: ≤ 4 queries y p95 ≤ 150 ms en feed y perfil (reportando el hardware) — feed 3 / 4,9 ms, perfil 4 / 9,6 ms (portátil Ryzen 5 7520U; el conteo es bloqueante en CI)
