@@ -37,6 +37,15 @@ function Header() {
                                 >
                                     Profile
                                 </a>
+                                {user.role === "ADMIN" && (
+                                    <a
+                                        href="/admin/users"
+                                        data-testid="header-admin-link"
+                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                        Administración
+                                    </a>
+                                )}
                                 <button
                                     id="logout-button"
                                     data-testid="header-logout"

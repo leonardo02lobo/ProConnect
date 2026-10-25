@@ -41,7 +41,8 @@ export function uniqueId(workerIndex: number): string {
 
 /**
  * ADMIN created by the API at startup (BOOTSTRAP_ADMIN_* in docker-compose.e2e.yml). Registration always
- * yields USER, so this is the only account that can own companies in the suite.
+ * yields USER; this account promotes throwaway users (PUT /api/admin/users/{id}/role) in admin/company-flow.
+ * Never demote it: other tests log in as ADMIN.
  */
 export const ADMIN = {
   email: 'admin.e2e@proconnect.test',
