@@ -51,7 +51,7 @@ jobs:
             --log-opts="$range" --redact --verbose -f sarif -r /repo/gitleaks.sarif || rc=$?
           echo "gitleaks exit code: $rc"
           if [ "$rc" -ne 0 ] && [ "$BLOCKING" = "true" ]; then exit "$rc"; fi
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: gitleaks-report
@@ -148,7 +148,7 @@ jobs:
             -DsuppressionFiles="$GITHUB_WORKSPACE/.security/dependency-check-suppressions.xml" \
             -DossindexAnalyzerEnabled=false -DretireJsAnalyzerEnabled=false \
             -DnodeAnalyzerEnabled=false -DnodeAuditAnalyzerEnabled=false
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: dependency-check-${{ matrix.service }}
@@ -177,7 +177,7 @@ jobs:
           node -e 'const a=require("./npm-audit.json");console.log(JSON.stringify(a.metadata?.vulnerabilities??a,null,1))'
           rc=0; npm audit --audit-level=high || rc=$?
           if [ "$rc" -ne 0 ] && [ "$BLOCKING" = "true" ]; then exit "$rc"; fi
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: npm-audit-${{ matrix.project }}
