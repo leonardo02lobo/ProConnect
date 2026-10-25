@@ -27,19 +27,19 @@
 
 ## 5. Media en User y contadores
 
-- [ ] 5.1 `V3__user_media_columns.sql`: `avatar_url` y `cover_url` en `user` + copia desde `profile_photos`
-- [ ] 5.2 Adaptar código y DTOs para leer y escribir `avatarUrl`/`coverUrl`
-- [ ] 5.3 `V4__post_counters.sql`: `like_count`, `comment_count` + backfill y test de consistencia
-- [ ] 5.4 Actualizar contadores en las transacciones de like, unlike, comentar y borrar comentario
+- [x] 5.1 `V3__user_media_columns.sql`: `avatar_url` y `cover_url` en `user` + copia desde `profile_photos`
+- [x] 5.2 Adaptar código y DTOs para leer y escribir `avatarUrl`/`coverUrl` — `UserPublicDto`/perfil exponen `avatarUrl`/`coverUrl`; `/api/profile-photos` sustituido por `PUT /api/users/{id}/media` (parcial, propietario o ADMIN)
+- [x] 5.3 `V4__post_counters.sql`: `like_count`, `comment_count` + backfill y test de consistencia
+- [x] 5.4 Actualizar contadores en las transacciones de like, unlike, comentar y borrar comentario — UPDATE atómico primero (bloquea el post, 404 si no existe) y luego INSERT/DELETE; el UNIQUE revierte todo con 409. `PostCounterReconciler` (`COUNTERS_RECONCILE_CRON`, desactivado por defecto)
 
 ## 6. Queries paginadas
 
-- [ ] 6.1 Implementar el feed en 3 queries (posts+autor, likes del viewer, preview de 3 comentarios con `ROW_NUMBER`) con cursor opaco
+- [x] 6.1 Implementar el feed en 3 queries (posts+autor, likes del viewer, preview de 3 comentarios con `ROW_NUMBER`) con cursor opaco
 - [ ] 6.2 Validar con `EXPLAIN` el uso del índice `posts(created_at, id)` y ajustar el predicado si hace falta
-- [ ] 6.3 `GET /api/posts/{id}/comments` paginado por cursor
-- [ ] 6.4 Perfil: datos de usuario + primera página de posts por cursor, sin JOIN con comments
-- [ ] 6.5 Paginación `Pageable` (máx. 100) en usuarios, empresas, empleos, postulaciones, puestos, mensajes y amigos
-- [ ] 6.6 Tests de integración con `QueryCounter`: feed ≤ 4 y perfil ≤ 4 sentencias
+- [x] 6.3 `GET /api/posts/{id}/comments` paginado por cursor
+- [x] 6.4 Perfil: datos de usuario + primera página de posts por cursor, sin JOIN con comments
+- [x] 6.5 Paginación `Pageable` (máx. 100) en usuarios, empresas, empleos, postulaciones, puestos, mensajes y amigos
+- [x] 6.6 Tests de integración con `QueryCounter`: feed ≤ 4 y perfil ≤ 4 sentencias — `it/FeedQueryCountIT` (feed = 3 con 500 comentarios en la página, perfil de 200 posts ≤ 4, comentarios = 1, cursor estable ante inserciones, `limit` acotado a 50, contadores)
 
 ## 7. Frontend y E2E
 

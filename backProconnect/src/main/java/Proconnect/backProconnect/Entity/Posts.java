@@ -52,6 +52,17 @@ public class Posts {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    /**
+     * Contadores denormalizados (V4). updatable=false: guardar la entidad (p. ej. al editar el
+     * post) nunca los pisa; solo cambian con UPDATE atómicos de {@code PostsRepository} en la
+     * transacción del like/comentario.
+     */
+    @Column(name = "like_count", nullable = false, updatable = false)
+    private int likeCount;
+
+    @Column(name = "comment_count", nullable = false, updatable = false)
+    private int commentCount;
+
     public Posts() {}
 
     public Posts(
@@ -119,5 +130,13 @@ public class Posts {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public int getLikeCount() {
+        return likeCount;
+    }
+
+    public int getCommentCount() {
+        return commentCount;
     }
 }

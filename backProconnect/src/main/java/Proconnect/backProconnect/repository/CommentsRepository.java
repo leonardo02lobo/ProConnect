@@ -2,52 +2,68 @@ package Proconnect.backProconnect.repository;
 
 import Proconnect.backProconnect.Entity.Comments;
 import Proconnect.backProconnect.repository.projection.CommentRow;
+import Proconnect.backProconnect.repository.projection.CommentView;
+import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+/** Comentarios. Índice {@code idx_comments_post_feed (post_id, created_at, id)}. */
 @Repository
 public interface CommentsRepository extends JpaRepository<Comments, Long> {
 
+    String VIEW_SELECT =
+            "SELECT new Proconnect.backProconnect.repository.projection.CommentView("
+                    + "c.id, c.postId, c.userId, c.content, c.createdAt, u.name, u.userName,"
+                    + " u.email, u.role, u.avatarUrl, u.coverUrl) FROM Comments c JOIN c.author u ";
+
     /**
-     * Comentarios de un post con su autor (una fila de foto por usuario), del más antiguo al más
-     * nuevo.
+     * Preview del feed/perfil en UNA query para toda la página: los {@code n} comentarios más
+     * recientes de cada post (ROW_NUMBER por post), con su autor, en orden cronológico. Evita el
+     * N+1 de una query por post (design D4, Q3).
      */
     @Query(
             value =
                     """
-            SELECT
-                com.id AS id, com.post_id AS postId, com.user_id AS userId, com.content AS content, com.created_at AS date,
-                us.email AS userEmail, us.name AS userName, us.role AS userRole, us.user_name AS userUserName,
-                prof.photo_url AS photoUrl, prof.wall_photo_url AS wallPhotoUrl
-            FROM proconnect.comments AS com
-            JOIN proconnect.user AS us ON com.user_id = us.id
-            LEFT JOIN proconnect.profile_photos AS prof ON prof.id =
-                (SELECT MAX(p2.id) FROM proconnect.profile_photos p2 WHERE p2.user_id = us.id)
-            WHERE com.post_id = :postId
-            ORDER BY com.created_at ASC, com.id ASC
+            SELECT t.id AS id, t.post_id AS postId, t.user_id AS userId, t.content AS content,
+                   t.created_at AS createdAt, t.name AS authorName, t.user_name AS authorUserName,
+                   t.email AS authorEmail, t.role AS authorRole, t.avatar_url AS authorAvatarUrl,
+                   t.cover_url AS authorCoverUrl
+            FROM (
+                SELECT c.id, c.post_id, c.user_id, c.content, c.created_at,
+                       u.name, u.user_name, u.email, u.role, u.avatar_url, u.cover_url,
+                       ROW_NUMBER() OVER (PARTITION BY c.post_id ORDER BY c.created_at DESC, c.id DESC) AS rn
+                FROM proconnect.comments c
+                JOIN proconnect.user u ON u.id = c.user_id
+                WHERE c.post_id IN (:postIds)
+            ) t
+            WHERE t.rn <= :perPost
+            ORDER BY t.post_id, t.created_at, t.id
             """,
             nativeQuery = true)
-    List<CommentRow> findWithAuthorByPostId(@Param("postId") Long postId);
+    List<CommentRow> latestPerPost(
+            @Param("postIds") Collection<Long> postIds, @Param("perPost") int perPost);
+
+    /** Primera página de comentarios de un post (más antiguo primero). */
+    @Query(VIEW_SELECT + "WHERE c.postId = :postId ORDER BY c.createdAt, c.id")
+    List<CommentView> pageFirst(@Param("postId") Long postId, Limit limit);
+
+    @Query(
+            VIEW_SELECT
+                    + "WHERE c.postId = :postId AND (c.createdAt > :ts OR (c.createdAt = :ts AND"
+                    + " c.id > :id)) ORDER BY c.createdAt, c.id")
+    List<CommentView> pageAfter(
+            @Param("postId") Long postId,
+            @Param("ts") Instant ts,
+            @Param("id") Long id,
+            Limit limit);
 
     /** Un comentario concreto con su autor (respuesta del POST). */
-    @Query(
-            value =
-                    """
-            SELECT
-                com.id AS id, com.post_id AS postId, com.user_id AS userId, com.content AS content, com.created_at AS date,
-                us.email AS userEmail, us.name AS userName, us.role AS userRole, us.user_name AS userUserName,
-                prof.photo_url AS photoUrl, prof.wall_photo_url AS wallPhotoUrl
-            FROM proconnect.comments AS com
-            JOIN proconnect.user AS us ON com.user_id = us.id
-            LEFT JOIN proconnect.profile_photos AS prof ON prof.id =
-                (SELECT MAX(p2.id) FROM proconnect.profile_photos p2 WHERE p2.user_id = us.id)
-            WHERE com.id = :id
-            """,
-            nativeQuery = true)
-    List<CommentRow> findWithAuthorById(@Param("id") Long id);
-
-    void deleteByPostId(Long postId);
+    @Query(VIEW_SELECT + "WHERE c.id = :id")
+    Optional<CommentView> findView(@Param("id") Long id);
 }

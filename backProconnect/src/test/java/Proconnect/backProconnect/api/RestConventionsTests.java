@@ -121,7 +121,8 @@ class RestConventionsTests extends SecurityTestSupport {
                 .andExpect(status().isCreated());
         mvc.perform(get("/api/posts/" + postId + "/likes").cookie(bob))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1));
+                .andExpect(jsonPath("$.items.length()").value(1))
+                .andExpect(jsonPath("$.hasNext").value(false));
         // DELETE sin body: el like se identifica por la ruta y la sesión.
         mvc.perform(delete("/api/posts/" + postId + "/likes").cookie(bob))
                 .andExpect(status().isNoContent());
@@ -144,7 +145,8 @@ class RestConventionsTests extends SecurityTestSupport {
         Integer commentId = JsonPath.read(comment, "$.id");
         mvc.perform(get("/api/posts/" + postId + "/comments").cookie(bob))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].content").value("hola"));
+                .andExpect(jsonPath("$.items[0].content").value("hola"))
+                .andExpect(jsonPath("$.nextCursor").doesNotExist());
         mvc.perform(
                         post("/api/posts/999999/comments")
                                 .cookie(bob)

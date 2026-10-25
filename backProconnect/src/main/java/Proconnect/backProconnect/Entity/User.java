@@ -50,6 +50,13 @@ public class User {
     @Column(nullable = false, length = 16)
     private Role role = Role.USER;
 
+    /** Nombre de archivo del servicio de media (V3; antes en profile_photos). */
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
+    @Column(name = "cover_url")
+    private String coverUrl;
+
     public User() {}
 
     public User(Long id, String name, String userName, String email, String password, Role role) {
@@ -100,6 +107,22 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public String getCoverUrl() {
+        return coverUrl;
+    }
+
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
     }
 
     public String getUserName() {

@@ -210,4 +210,32 @@ class LegacyDatabaseMigrationIT {
                 .isEqualTo("2025-01-01 10:00");
         assertThat(count("SELECT COUNT(*) FROM messages WHERE sent_at IS NOT NULL")).isEqualTo(1);
     }
+
+    /** V3: avatar/portada copiados desde la fila más reciente de profile_photos. */
+    @Test
+    void copiesProfilePhotosIntoUserColumns() {
+        Map<String, Object> ana =
+                jdbc.queryForMap("SELECT avatar_url, cover_url FROM `user` WHERE id = 1");
+        assertThat(ana).containsEntry("avatar_url", "new.png").containsEntry("cover_url", "w.png");
+    }
+
+    /** V4: contadores iguales a los COUNT(*) reales tras el backfill. */
+    @Test
+    void backfillsConsistentCounters() {
+        assertThat(
+                        count(
+                                "SELECT COUNT(*) FROM posts p WHERE p.like_count <> (SELECT"
+                                        + " COUNT(*) FROM likes l WHERE l.post_id = p.id) OR"
+                                        + " p.comment_count <> (SELECT COUNT(*) FROM comments c"
+                                        + " WHERE c.post_id = p.id)"))
+                .isZero();
+        assertThat(jdbc.queryForObject("SELECT like_count FROM posts WHERE id = 1", Integer.class))
+                .isEqualTo(1);
+        assertThat(
+                        jdbc.queryForObject(
+                                "SELECT affected_rows FROM migration_audit WHERE check_name ="
+                                        + " 'counter_mismatch_after_backfill'",
+                                Long.class))
+                .isZero();
+    }
 }

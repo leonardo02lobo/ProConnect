@@ -6,6 +6,7 @@ import Proconnect.backProconnect.exception.ConflictException;
 import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.exception.ValidationException;
 import Proconnect.backProconnect.model.FriendRequestDto;
+import Proconnect.backProconnect.model.PageResponse;
 import Proconnect.backProconnect.repository.FriendRepository;
 import Proconnect.backProconnect.repository.UserRepository;
 import Proconnect.backProconnect.security.OwnershipGuard;
@@ -56,12 +57,12 @@ public class FriendService {
 
     /** Solicitudes pendientes recibidas por el usuario. */
     @Transactional(readOnly = true)
-    public List<FriendRequestDto> pendingReceivedBy(Long userId) {
-        return friendRepository
-                .findByUserIdBeFollowedAndStatusOrderByIdAsc(userId, PENDING)
-                .stream()
-                .map(FriendService::toDto)
-                .toList();
+    public PageResponse<FriendRequestDto> pendingReceivedBy(
+            Long userId, Integer page, Integer size) {
+        return PageResponse.of(
+                friendRepository.findByUserIdBeFollowedAndStatus(
+                        userId, PENDING, Paging.page(page, size)),
+                FriendService::toDto);
     }
 
     /**
@@ -94,13 +95,14 @@ public class FriendService {
 
     /** Amistades aceptadas del usuario. */
     @Transactional(readOnly = true)
-    public List<FriendRequestDto> friendsOf(Long userId) {
+    public PageResponse<FriendRequestDto> friendsOf(Long userId, Integer page, Integer size) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Usuario no encontrado");
         }
-        return friendRepository.findByParticipantAndStatus(userId, ACCEPTED).stream()
-                .map(FriendService::toDto)
-                .toList();
+        return PageResponse.of(
+                friendRepository.findByParticipantAndStatus(
+                        userId, ACCEPTED, Paging.page(page, size)),
+                FriendService::toDto);
     }
 
     /**

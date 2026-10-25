@@ -84,6 +84,9 @@ proconnect:
       max-attempts: 3
       delay-ms: ${MAIL_RETRY_DELAY_MS:2000}
       multiplier: 2
+  counters:
+    # Cron de PostCounterReconciler ("-" = desactivado).
+    reconcile-cron: ${COUNTERS_RECONCILE_CRON:-}
   ratelimit:
     auth-per-minute: ${RATE_LIMIT_AUTH_PER_MINUTE:10}
     max-failures: ${RATE_LIMIT_MAX_FAILURES:5}

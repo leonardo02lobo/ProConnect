@@ -6,7 +6,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import Proconnect.backProconnect.Entity.Comments;
 import Proconnect.backProconnect.Entity.Posts;
-import Proconnect.backProconnect.Entity.ProfilePhotos;
 import jakarta.servlet.http.Cookie;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,7 @@ class SensitiveDataTests extends SecurityTestSupport {
     void thirdPartyViewsDoNotLeakCredentialsOrEmail() throws Exception {
         Long anaId = createUser("ana", "USER");
         createUser("bob", "USER");
-        photos.save(new ProfilePhotos(null, anaId, "a.png", null));
+        setMedia(anaId, "a.png", null);
         Long postId =
                 posts.save(new Posts(null, anaId, "c", "t", null, java.time.Instant.now())).getId();
         comments.save(new Comments(null, postId, anaId, "hola", java.time.Instant.now()));

@@ -14,10 +14,8 @@ import Proconnect.backProconnect.Entity.Company;
 import Proconnect.backProconnect.Entity.Friend;
 import Proconnect.backProconnect.Entity.FriendStatus;
 import Proconnect.backProconnect.Entity.Job;
-import Proconnect.backProconnect.Entity.Like;
 import Proconnect.backProconnect.Entity.Posts;
 import Proconnect.backProconnect.Entity.Postulation;
-import Proconnect.backProconnect.Entity.ProfilePhotos;
 import Proconnect.backProconnect.security.SecurityTestSupport;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.servlet.http.Cookie;
@@ -66,8 +64,8 @@ class InheritedBugsTests extends SecurityTestSupport {
                         .andReturn()
                         .getResponse()
                         .getContentAsString();
-        Integer requestId = JsonPath.read(pending, "$[0].id");
-        assertThat((Integer) JsonPath.read(pending, "$[0].requesterId"))
+        Integer requestId = JsonPath.read(pending, "$.items[0].id");
+        assertThat((Integer) JsonPath.read(pending, "$.items[0].requesterId"))
                 .isEqualTo(anaId.intValue());
         mvc.perform(post("/api/friends/requests/" + requestId + "/accept").cookie(bob))
                 .andExpect(status().isOk())
@@ -76,7 +74,7 @@ class InheritedBugsTests extends SecurityTestSupport {
                 .andExpect(status().isConflict());
         mvc.perform(get("/api/users/" + anaId + "/friends").cookie(carla))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1));
+                .andExpect(jsonPath("$.items.length()").value(1));
         mvc.perform(
                         post("/api/friends/requests")
                                 .cookie(bob)
@@ -166,23 +164,26 @@ class InheritedBugsTests extends SecurityTestSupport {
                 .andExpect(status().isConflict());
     }
 
-    /** B4: GET de fotos por id estaba roto (nombre de @PathVariable). */
+    /**
+     * B4: las fotos de perfil se leían por un GET roto. Desde V3 (restructure-models-performance)
+     * avatar y portada son parte del usuario: se ven en GET /api/users/{id}.
+     */
     @Test
-    void profilePhotosCanBeReadById() throws Exception {
+    void profilePhotosAreReadWithTheUser() throws Exception {
         Long anaId = createUser("ana", "USER");
         createUser("bob", "USER");
         Cookie bob = login("bob");
-        Long photoId = photos.save(new ProfilePhotos(null, anaId, "a.png", "w.png")).getId();
-        mvc.perform(get("/api/profile-photos/" + photoId).cookie(bob))
+        setMedia(anaId, "a.png", "w.png");
+        mvc.perform(get("/api/users/" + anaId).cookie(bob))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.photoUrl").value("a.png"))
-                .andExpect(jsonPath("$.userId").value(anaId));
-        mvc.perform(get("/api/profile-photos/999999").cookie(bob)).andExpect(status().isNotFound());
+                .andExpect(jsonPath("$.avatarUrl").value("a.png"))
+                .andExpect(jsonPath("$.coverUrl").value("w.png"));
+        mvc.perform(get("/api/users/999999").cookie(bob)).andExpect(status().isNotFound());
     }
 
     /**
      * B5: el feed vacío era null, no tenía orden y duplicaba posts con varias filas de
-     * profile_photos.
+     * profile_photos (ahora el avatar es una columna de user: no puede duplicar).
      */
     @Test
     void feedIsAnOrderedListWithoutDuplicates() throws Exception {
@@ -190,10 +191,9 @@ class InheritedBugsTests extends SecurityTestSupport {
         Cookie ana = login("ana");
         mvc.perform(get("/api/posts").cookie(ana))
                 .andExpect(status().isOk())
-                .andExpect(content().json("[]"));
+                .andExpect(content().json("{\"items\":[],\"nextCursor\":null}"));
 
-        photos.save(new ProfilePhotos(null, anaId, "old.png", null));
-        photos.save(new ProfilePhotos(null, anaId, "new.png", null));
+        setMedia(anaId, "new.png", null);
         long now = System.currentTimeMillis();
         savePost(anaId, "viejo", Instant.ofEpochMilli(now - 60_000));
         savePost(anaId, "nuevo", Instant.ofEpochMilli(now));
@@ -203,9 +203,9 @@ class InheritedBugsTests extends SecurityTestSupport {
                         .andReturn()
                         .getResponse()
                         .getContentAsString();
-        List<String> titles = JsonPath.read(feed, "$[*].title");
+        List<String> titles = JsonPath.read(feed, "$.items[*].title");
         assertThat(titles).containsExactly("nuevo", "viejo");
-        assertThat((String) JsonPath.read(feed, "$[0].user.photoUrl")).isEqualTo("new.png");
+        assertThat((String) JsonPath.read(feed, "$.items[0].user.avatarUrl")).isEqualTo("new.png");
     }
 
     /**
@@ -224,8 +224,15 @@ class InheritedBugsTests extends SecurityTestSupport {
 
         Long withoutComments = savePost(anaId, "sin comentarios", Instant.now());
         Long liked = savePost(anaId, "con like de bob", Instant.now().plusMillis(1000));
-        comments.save(new Comments(null, liked, bobId, "bien", Instant.now()));
-        likes.save(new Like(null, bobId, liked, Instant.now()));
+        // Por la API: los contadores denormalizados los mantiene el servicio (V4).
+        mvc.perform(
+                        post("/api/posts/" + liked + "/comments")
+                                .cookie(bob)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"content\":\"bien\"}"))
+                .andExpect(status().isCreated());
+        mvc.perform(post("/api/posts/" + liked + "/likes").cookie(bob))
+                .andExpect(status().isCreated());
 
         String asBob =
                 mvc.perform(get("/api/users/" + anaId + "/profile").cookie(bob))
@@ -242,12 +249,14 @@ class InheritedBugsTests extends SecurityTestSupport {
                         (List<Object>)
                                 JsonPath.read(
                                         asBob,
-                                        "$.posts[?(@.id == " + withoutComments + ")].comments[*]"))
+                                        "$.posts[?(@.id == "
+                                                + withoutComments
+                                                + ")].commentsPreview[*]"))
                 .isEmpty();
         assertThat(
                         (List<Object>)
                                 JsonPath.read(
-                                        asBob, "$.posts[?(@.id == " + liked + ")].totalComments"))
+                                        asBob, "$.posts[?(@.id == " + liked + ")].commentCount"))
                 .containsExactly(1);
 
         String asAna =

@@ -3,8 +3,10 @@ package Proconnect.backProconnect.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
- * Representación pública de un usuario: nunca incluye el password. El email solo se rellena para el
- * propio usuario o un ADMIN; en vistas de terceros es null y no se serializa.
+ * Representación pública de un usuario: nunca incluye el password. {@code avatarUrl}/{@code
+ * coverUrl} son nombres de archivo del servicio de media (columnas de {@code user} desde V3). El
+ * email solo se rellena para el propio usuario o un ADMIN; en vistas de terceros es null y no se
+ * serializa.
  */
 public class UserPublicDto {
 
@@ -16,8 +18,8 @@ public class UserPublicDto {
     private String email;
 
     private String role;
-    private String photoUrl;
-    private String wallPhotoUrl;
+    private String avatarUrl;
+    private String coverUrl;
 
     public UserPublicDto() {}
 
@@ -27,15 +29,15 @@ public class UserPublicDto {
             String userName,
             String email,
             String role,
-            String photoUrl,
-            String wallPhotoUrl) {
+            String avatarUrl,
+            String coverUrl) {
         this.id = id;
         this.name = name;
         this.userName = userName;
         this.email = email;
         this.role = role;
-        this.photoUrl = photoUrl;
-        this.wallPhotoUrl = wallPhotoUrl;
+        this.avatarUrl = avatarUrl;
+        this.coverUrl = coverUrl;
     }
 
     public Long getId() {
@@ -78,19 +80,19 @@ public class UserPublicDto {
         this.role = role;
     }
 
-    public String getPhotoUrl() {
-        return photoUrl;
+    public String getAvatarUrl() {
+        return avatarUrl;
     }
 
-    public void setPhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
-    public String getWallPhotoUrl() {
-        return wallPhotoUrl;
+    public String getCoverUrl() {
+        return coverUrl;
     }
 
-    public void setWallPhotoUrl(String wallPhotoUrl) {
-        this.wallPhotoUrl = wallPhotoUrl;
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
     }
 }

@@ -1,12 +1,12 @@
 package Proconnect.backProconnect.controller;
 
+import Proconnect.backProconnect.model.PageResponse;
 import Proconnect.backProconnect.model.WorkStationDto;
 import Proconnect.backProconnect.model.WorkStationRequest;
 import Proconnect.backProconnect.security.CurrentUser;
 import Proconnect.backProconnect.service.WorkStationService;
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,8 +32,11 @@ public class WorkStationController {
     }
 
     @GetMapping
-    public List<WorkStationDto> list(@RequestParam(name = "q", required = false) String query) {
-        return workStationService.list(Optional.ofNullable(query));
+    public PageResponse<WorkStationDto> list(
+            @RequestParam(name = "q", required = false) String query,
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "size", required = false) Integer size) {
+        return workStationService.list(Optional.ofNullable(query), page, size);
     }
 
     @GetMapping("/{id}")

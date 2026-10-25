@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import Proconnect.backProconnect.Entity.Comments;
@@ -15,7 +16,7 @@ import Proconnect.backProconnect.Entity.Job;
 import Proconnect.backProconnect.Entity.Message;
 import Proconnect.backProconnect.Entity.Posts;
 import Proconnect.backProconnect.Entity.Postulation;
-import Proconnect.backProconnect.Entity.ProfilePhotos;
+import Proconnect.backProconnect.Entity.User;
 import Proconnect.backProconnect.Entity.WorkStation;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
@@ -267,7 +268,7 @@ class AccessControlTests extends SecurityTestSupport {
                         .andReturn()
                         .getResponse()
                         .getContentAsString();
-        assertThat(anaList).isEqualTo("[]");
+        assertThat(anaList).contains("\"items\":[]");
         String carlaList =
                 mvc.perform(get("/api/postulations").cookie(carla))
                         .andExpect(status().isOk())
@@ -363,29 +364,38 @@ class AccessControlTests extends SecurityTestSupport {
 
     @Test
     void onlyOwnerChangesProfilePhotos() throws Exception {
-        Long photoId = photos.save(new ProfilePhotos(null, anaId, "a.png", "w.png")).getId();
+        setMedia(anaId, "a.png", "w.png");
         mvc.perform(
-                        put("/api/profile-photos/" + photoId)
+                        put("/api/users/" + anaId + "/media")
                                 .cookie(bob)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"photoUrl\":\"evil.png\"}"))
+                                .content("{\"avatarUrl\":\"evil.png\"}"))
                 .andExpect(status().isForbidden());
         mvc.perform(
-                        put("/api/profile-photos/" + photoId)
+                        put("/api/users/" + anaId + "/media")
                                 .cookie(bob)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"wallPhotoUrl\":\"evil.png\"}"))
+                                .content("{\"coverUrl\":\"evil.png\"}"))
                 .andExpect(status().isForbidden());
-        ProfilePhotos p = photos.findById(photoId).orElseThrow();
-        assertThat(p.getPhotoUrl()).isEqualTo("a.png");
-        assertThat(p.getWallPhotoUrl()).isEqualTo("w.png");
+        User stored = users.findById(anaId).orElseThrow();
+        assertThat(stored.getAvatarUrl()).isEqualTo("a.png");
+        assertThat(stored.getCoverUrl()).isEqualTo("w.png");
         mvc.perform(
-                        put("/api/profile-photos/" + photoId)
+                        put("/api/users/" + anaId + "/media")
                                 .cookie(ana)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"photoUrl\":\"b.png\"}"))
+                                .content("{\"avatarUrl\":\"b.png\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.avatarUrl").value("b.png"))
+                .andExpect(jsonPath("$.coverUrl").value("w.png"));
+        mvc.perform(
+                        put("/api/users/" + anaId + "/media")
+                                .cookie(admin)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"coverUrl\":\"\"}"))
                 .andExpect(status().isOk());
-        mvc.perform(get("/api/profile-photos/" + photoId).cookie(bob)).andExpect(status().isOk());
+        assertThat(users.findById(anaId).orElseThrow().getCoverUrl()).isNull();
+        mvc.perform(get("/api/users/" + anaId).cookie(bob)).andExpect(status().isOk());
     }
 
     @Test

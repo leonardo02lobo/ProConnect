@@ -2,7 +2,7 @@ package Proconnect.backProconnect.repository.projection;
 
 import java.time.Instant;
 
-/** Comentario con los datos públicos de su autor (query nativa de {@code CommentsRepository}). */
+/** Comentario con su autor leído por alias desde la query nativa del preview del feed. */
 public interface CommentRow {
     Long getId();
 
@@ -12,17 +12,17 @@ public interface CommentRow {
 
     String getContent();
 
-    Instant getDate();
+    Instant getCreatedAt();
 
-    String getUserEmail();
+    String getAuthorName();
 
-    String getUserName();
+    String getAuthorUserName();
 
-    String getUserRole();
+    String getAuthorEmail();
 
-    String getUserUserName();
+    String getAuthorRole();
 
-    String getPhotoUrl();
+    String getAuthorAvatarUrl();
 
-    String getWallPhotoUrl();
+    String getAuthorCoverUrl();
 }
