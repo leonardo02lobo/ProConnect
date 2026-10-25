@@ -30,6 +30,15 @@
 - **Alternativa**: Boot 4.0 en los dos módulos. Vence en 2 meses y obliga a migrar otra vez enseguida.
 - **Alternativa**: Spring Cloud RC en el gateway. Es inaceptable en producción.
 
+#### D1 — Resolución al aplicar (2026-10-25)
+Comprobado en las fuentes oficiales, no supuesto:
+- **spring.io/projects/spring-cloud**, tabla "Release train Spring Boot compatibility": `2025.1.x aka Oakwood → 4.0.x, 4.1.x (Starting with 2025.1.2)`.
+- **start.spring.io/actuator/info** (`bom-ranges.spring-cloud`): `2025.1.4 → Spring Boot >=4.0.0 and <4.2.0-M1`; `2026.0.0-RC1 → >=4.2.0-M1` (2026.0 es el tren de **Boot 4.2**, no de 4.1).
+- Maven Central: `spring-cloud-dependencies` 2025.1.4 GA (gateway 5.0.4); 2026.0.0 solo en RC1.
+
+La premisa de la tabla D1 ("4.1 necesita 2026.0") era incorrecta: Spring Cloud **2025.1.4 GA ya soporta Boot 4.1.x**.
+**Decisión**: los dos módulos van a **Spring Boot 4.1.2**; el gateway con **Spring Cloud 2025.1.4 GA**. No se usa el fallback 4.0 ni versiones RC/M, y no hace falta la tarea de seguimiento "gateway → 4.1" (tarea 3.3 no aplica). Siguiente revisión: Boot 4.2 + Spring Cloud 2026.0 GA antes del fin de soporte OSS de 4.1 (2027-07-31), vigilado por `eol-check.yml`.
+
 ### D2. Estrategia: OpenRewrite primero, ajustes manuales después
 - Ejecutar la receta oficial `org.openrewrite.java.spring.boot4.UpgradeSpringBoot_4_x` (rewrite-spring) con el plugin `rewrite-maven-plugin` en modo `dryRun`. Se revisa el diff y luego se aplica. No queda como dependencia del proyecto.
 - Puntos de atención conocidos de Boot 4 (se verifican en las release notes oficiales durante la implementación):

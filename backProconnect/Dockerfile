@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-# Multi-stage build: Maven (JDK 17) -> JRE 17 (alpine).
+# Multi-stage build: Maven (JDK 17, target 17) -> JRE 21 LTS (alpine) en runtime (upgrade-spring-boot-4, D4).
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY pom.xml ./
@@ -8,7 +8,7 @@ COPY src ./src
 RUN --mount=type=cache,target=/root/.m2 mvn -B -q package -DskipTests \
  && cp target/*.jar /app/app.jar
 
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 RUN addgroup -S app && adduser -S app -G app
 COPY --from=build /app/app.jar /app/app.jar

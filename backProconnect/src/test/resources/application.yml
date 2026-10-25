@@ -21,7 +21,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-    database-platform: org.hibernate.dialect.H2Dialect
     properties:
       hibernate:
         # Las queries nativas usan el schema literal "proconnect."

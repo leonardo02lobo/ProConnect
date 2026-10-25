@@ -15,10 +15,10 @@ import java.time.Duration;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 
 /**
  * SMTP caído: el estado se confirma igual, la API responde 200 y el log registra los 3 intentos
@@ -55,6 +55,8 @@ class MailFailureTests extends SecurityTestSupport {
                                                 "Correo de la postulación "
                                                         + id
                                                         + " descartado tras agotar los reintentos"));
+        // Exactamente 3 intentos (max-attempts=3): ni uno más.
+        assertThat(output.getOut()).doesNotContain("postulación " + id + " (intento 4)");
         assertThat(postulations.findById(id).orElseThrow().getStatus())
                 .isEqualTo(PostulationStatus.ACCEPTED);
     }

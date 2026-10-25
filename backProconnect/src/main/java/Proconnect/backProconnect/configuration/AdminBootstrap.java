@@ -5,7 +5,6 @@ import Proconnect.backProconnect.model.Role;
 import Proconnect.backProconnect.repository.UserRepository;
 import Proconnect.backProconnect.security.PasswordPolicy;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.slf4j.Logger;
@@ -131,7 +130,7 @@ public class AdminBootstrap implements ApplicationRunner {
     /** Contenido del archivo sin espacios ni saltos de línea al principio o al final. */
     private static String readPasswordFile(String file) {
         try {
-            return Files.readString(Path.of(file), StandardCharsets.UTF_8).strip();
+            return Files.readString(Path.of(file)).strip();
         } catch (IOException | RuntimeException e) {
             // Sin el contenido ni la causa en el mensaje: solo la ruta configurada.
             throw new IllegalStateException(
