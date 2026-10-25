@@ -1,0 +1,43 @@
+Generando dataset (seed=20261024)...
+Vaciando tablas en 127.0.0.1:23306/proconnect...
+Insertando:
+  user            1000
+  posts           10000
+  likes           50000
+  comments        30000
+  friends         5000
+  posts.like_count/comment_count recalculados
+Listo en 3.2 s. Password de todos los usuarios: PerfPass#2026
+{
+  "seed": 20261024,
+  "tables": {
+    "user": {
+      "rows": 1000,
+      "checksum": "2081009435"
+    },
+    "posts": {
+      "rows": 10000,
+      "checksum": "2069171388"
+    },
+    "likes": {
+      "rows": 50000,
+      "checksum": "2355206940"
+    },
+    "comments": {
+      "rows": 30000,
+      "checksum": "2095163351"
+    },
+    "friends": {
+      "rows": 5000,
+      "checksum": "4013970291"
+    },
+    "user_media": {
+      "rows": 922,
+      "checksum": "2673174645"
+    },
+    "post_counters": {
+      "rows": 10000,
+      "checksum": "1296547953"
+    }
+  }
+}

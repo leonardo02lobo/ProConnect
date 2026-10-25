@@ -12,7 +12,7 @@ import Proconnect.backProconnect.Entity.Postulation;
 import Proconnect.backProconnect.Entity.PostulationStatus;
 import Proconnect.backProconnect.security.SecurityTestSupport;
 import java.time.Duration;
-import java.util.Date;
+import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -35,8 +35,8 @@ class MailFailureTests extends SecurityTestSupport {
         Long anaId = createUser("ana", "USER");
         Long companyId = companies.save(new Company(null, "Acme", "d", "l", ownerId)).getId();
         Long jobId =
-                jobs.save(new Job(null, companyId, "Backend Dev", "d", "w", new Date())).getId();
-        Long id = postulations.save(new Postulation(null, anaId, jobId, new Date())).getId();
+                jobs.save(new Job(null, companyId, "Backend Dev", "d", "w", Instant.now())).getId();
+        Long id = postulations.save(new Postulation(null, anaId, jobId, Instant.now())).getId();
 
         mvc.perform(post("/api/postulations/" + id + "/accept").cookie(login("carla")))
                 .andExpect(status().isOk())

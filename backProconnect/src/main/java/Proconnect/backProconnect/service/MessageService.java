@@ -4,11 +4,11 @@ import Proconnect.backProconnect.Entity.Message;
 import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.model.MessageDto;
 import Proconnect.backProconnect.model.MessageRequest;
+import Proconnect.backProconnect.model.PageResponse;
 import Proconnect.backProconnect.repository.MessageRepository;
 import Proconnect.backProconnect.repository.UserRepository;
 import Proconnect.backProconnect.security.OwnershipGuard;
-import java.util.Date;
-import java.util.List;
+import java.time.Instant;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,16 +41,17 @@ public class MessageService {
                                 senderId,
                                 request.receiverId(),
                                 request.content().trim(),
-                                new Date()));
+                                Instant.now()));
         return toDto(saved);
     }
 
     /** Mensajes en los que participa el usuario (el controller pasa el id de la sesión). */
     @Transactional(readOnly = true)
-    public List<MessageDto> listFor(Long userId) {
-        return messageRepository.findBySenderIdOrReceiverIdOrderByIdAsc(userId, userId).stream()
-                .map(MessageService::toDto)
-                .toList();
+    public PageResponse<MessageDto> listFor(Long userId, Integer page, Integer size) {
+        return PageResponse.of(
+                messageRepository.findBySenderIdOrReceiverId(
+                        userId, userId, Paging.page(page, size)),
+                MessageService::toDto);
     }
 
     /** Solo el emisor (o ADMIN) borra; el resto recibe 404, igual que un id inexistente. */
@@ -67,6 +68,6 @@ public class MessageService {
 
     private static MessageDto toDto(Message m) {
         return new MessageDto(
-                m.getId(), m.getSenderId(), m.getReceiverId(), m.getContent(), m.getTimestamp());
+                m.getId(), m.getSenderId(), m.getReceiverId(), m.getContent(), m.getSentAt());
     }
 }

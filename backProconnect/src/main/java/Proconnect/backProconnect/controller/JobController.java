@@ -2,12 +2,12 @@ package Proconnect.backProconnect.controller;
 
 import Proconnect.backProconnect.model.JobDto;
 import Proconnect.backProconnect.model.JobRequest;
+import Proconnect.backProconnect.model.PageResponse;
 import Proconnect.backProconnect.model.PostulationDto;
 import Proconnect.backProconnect.service.JobService;
 import Proconnect.backProconnect.service.PostulationService;
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +35,11 @@ public class JobController {
 
     /** Todos los empleos, o los que contienen {@code q} en el título o la descripción. */
     @GetMapping
-    public List<JobDto> list(@RequestParam(name = "q", required = false) String query) {
-        return jobService.list(Optional.ofNullable(query));
+    public PageResponse<JobDto> list(
+            @RequestParam(name = "q", required = false) String query,
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "size", required = false) Integer size) {
+        return jobService.list(Optional.ofNullable(query), page, size);
     }
 
     @GetMapping("/{id}")
@@ -58,7 +61,10 @@ public class JobController {
 
     /** Postulaciones recibidas en el empleo (solo el propietario de la empresa o ADMIN). */
     @GetMapping("/{id}/postulations")
-    public List<PostulationDto> postulations(@PathVariable Long id) {
-        return postulationService.listByJob(id);
+    public PageResponse<PostulationDto> postulations(
+            @PathVariable Long id,
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "size", required = false) Integer size) {
+        return postulationService.listByJob(id, page, size);
     }
 }

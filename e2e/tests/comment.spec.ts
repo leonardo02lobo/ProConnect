@@ -8,7 +8,8 @@ test('comment on a post and see it with its author', async ({ page, feed, bobApi
   const text = `Nice post ${uid}`;
 
   await feed.goto();
-  const p = postParts(feed.post(title));
+  // Paginated feed: parallel tests may publish newer posts, so look the post up by cursor.
+  const p = postParts(await feed.reveal(title));
   await expect(p.commentCount).toHaveText('0');
   await expect(p.commentSubmit).toBeDisabled();
 
@@ -26,5 +27,6 @@ test('comment on a post and see it with its author', async ({ page, feed, bobApi
   expect(await page.evaluate(() => (window as unknown as { __noReload?: boolean }).__noReload)).toBe(true);
 
   await page.reload();
+  await feed.reveal(title);
   await expect(p.comments.filter({ hasText: text })).toHaveCount(1);
 });

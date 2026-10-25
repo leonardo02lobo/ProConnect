@@ -14,20 +14,33 @@ export interface PublicUser {
   userName: string;
   email: string;
   role?: string;
-  photoUrl?: string | null;
-  wallPhotoUrl?: string | null;
+  avatarUrl?: string | null;
+  coverUrl?: string | null;
 }
 
+export interface FeedComment {
+  id: number;
+  content: string;
+  user?: { id: number; name: string };
+}
+
+/** Post of the feed (restructure-models-performance: denormalized counters + 3-comment preview). */
 export interface FeedPost {
   id: number;
   title: string;
   content: string;
   imageUrl: string | null;
-  totalLikes: number;
-  totalComments: number;
+  likeCount: number;
+  commentCount: number;
   userLiked?: boolean;
   user?: { id: number; name: string };
-  comments: Array<{ id: number; content: string; user?: { id: number; name: string } }>;
+  commentsPreview: FeedComment[];
+}
+
+/** Cursor page (feed, profile posts, comments): nextCursor is null on the last page. */
+export interface CursorPage<T> {
+  items: T[];
+  nextCursor: string | null;
 }
 
 export const TEST_IMAGE = path.join(__dirname, '..', 'assets', 'test-image.png');
@@ -109,14 +122,38 @@ export class ApiClient {
     return (await res.json()) as { id: number };
   }
 
-  /** Feed as seen by the session user (userLiked depends on the viewer). */
-  async feed(): Promise<FeedPost[]> {
-    const res = await ensureOk(await this.ctx.get('/api/posts'), 'GET feed');
-    return (await jsonOrNull<FeedPost[]>(res)) ?? [];
+  /** One page of the feed as seen by the session user (userLiked depends on the viewer). */
+  async feedPage(cursor?: string | null, limit?: number): Promise<CursorPage<FeedPost>> {
+    const params = new URLSearchParams();
+    if (cursor) params.set('cursor', cursor);
+    if (limit) params.set('limit', String(limit));
+    const qs = params.toString();
+    const res = await ensureOk(await this.ctx.get(`/api/posts${qs ? `?${qs}` : ''}`), 'GET feed');
+    return (await jsonOrNull<CursorPage<FeedPost>>(res)) ?? { items: [], nextCursor: null };
   }
 
-  async findPostByTitle(title: string): Promise<FeedPost | undefined> {
-    return (await this.feed()).find((p) => p.title === title);
+  /** First page of the feed. */
+  async feed(): Promise<FeedPost[]> {
+    return (await this.feedPage()).items;
+  }
+
+  /** Walks the feed by cursor until the post is found (newest first, bounded). */
+  async findPostByTitle(title: string, maxPages = 50): Promise<FeedPost | undefined> {
+    let cursor: string | null = null;
+    for (let i = 0; i < maxPages; i++) {
+      const page: CursorPage<FeedPost> = await this.feedPage(cursor, 50);
+      const found = page.items.find((p) => p.title === title);
+      if (found || !page.nextCursor) return found;
+      cursor = page.nextCursor;
+    }
+    return undefined;
+  }
+
+  /** GET /api/posts/{id}/comments (paginated by cursor, oldest first). */
+  async comments(postId: number, cursor?: string | null): Promise<CursorPage<FeedComment>> {
+    const qs = cursor ? `?cursor=${encodeURIComponent(cursor)}` : '';
+    const res = await ensureOk(await this.ctx.get(`/api/posts/${postId}/comments${qs}`), 'GET comments');
+    return (await res.json()) as CursorPage<FeedComment>;
   }
 
   async like(postId: number): Promise<void> {

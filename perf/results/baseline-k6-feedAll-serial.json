@@ -1,0 +1,22 @@
+{
+  "label": "baseline",
+  "endpoint": "feedAll",
+  "mode": "serial",
+  "vus": 1,
+  "duration": "30s",
+  "iterations": 1,
+  "rps": 0.005820539744180107,
+  "errorRate": 0,
+  "latencyMs": {
+    "feedAll": {
+      "count": 1,
+      "min": 171803.332349,
+      "p50": 171803.332349,
+      "avg": 171803.332349,
+      "p90": 171803.332349,
+      "p95": 171803.332349,
+      "p99": 171803.332349,
+      "max": 171803.332349
+    }
+  }
+}

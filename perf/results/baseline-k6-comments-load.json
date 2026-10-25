@@ -1,0 +1,22 @@
+{
+  "label": "baseline",
+  "endpoint": "comments",
+  "mode": "load",
+  "vus": 10,
+  "duration": "30s",
+  "iterations": 7333,
+  "rps": 244.06836241267663,
+  "errorRate": 0,
+  "latencyMs": {
+    "comments": {
+      "count": 7333,
+      "min": 7.814864,
+      "p50": 30.05962,
+      "avg": 40.71643299209071,
+      "p90": 72.402197,
+      "p95": 75.8644316,
+      "p99": 80.68783828000001,
+      "max": 101.334216
+    }
+  }
+}

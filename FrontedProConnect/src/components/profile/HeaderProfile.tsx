@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { appendUnique } from "../../Service/pagination";
 import { avatarUrl, mediaUrl } from "../../Service/http";
 import { loadSession } from "../../Service/session";
 import { usersService } from "../../Service/users";
@@ -12,6 +13,27 @@ interface HeaderProfileProps {
 
 function HeaderProfile({ initialUser }: HeaderProfileProps) {
     const [user, setUser] = useState<UserProfileDTO | null>(initialUser ?? null);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    // Página siguiente de posts del perfil por cursor.
+    async function loadMore() {
+        if (!user?.nextCursor || loadingMore) return;
+        setLoadingMore(true);
+        try {
+            const page = await usersService.posts(user.id, user.nextCursor);
+            setUser((current) =>
+                current
+                    ? { ...current, posts: appendUnique(current.posts, page.items), nextCursor: page.nextCursor }
+                    : current,
+            );
+            setError(null);
+        } catch {
+            setError("No se pudieron cargar más publicaciones");
+        } finally {
+            setLoadingMore(false);
+        }
+    }
 
     useEffect(() => {
         if (initialUser) {
@@ -37,12 +59,12 @@ function HeaderProfile({ initialUser }: HeaderProfileProps) {
     return (
         <div className="flex flex-col justify-center items-center bg-white">
             <header className="relative w-full">
-                <a href={mediaUrl(user?.wallPhotoUrl)} target="_blank">
-                    <img src={mediaUrl(user?.wallPhotoUrl)} alt="Portada" className="w-full h-48 object-cover" />
+                <a href={mediaUrl(user?.coverUrl)} target="_blank">
+                    <img src={mediaUrl(user?.coverUrl)} alt="Portada" className="w-full h-48 object-cover" />
                 </a>
-                <a href={mediaUrl(user?.photoUrl)} target="_blank">
+                <a href={mediaUrl(user?.avatarUrl)} target="_blank">
                     <img
-                        src={avatarUrl(user?.photoUrl)}
+                        src={avatarUrl(user?.avatarUrl)}
                         alt="Foto de perfil"
                         className="w-24 h-24 rounded-full object-cover border-4 border-white absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bottom-0 z-10"
                     />
@@ -104,6 +126,24 @@ function HeaderProfile({ initialUser }: HeaderProfileProps) {
                     {user?.posts.map((post) => (
                         <Post key={post.id} post={post} />
                     ))}
+                    {error && (
+                        <p role="alert" data-testid="profile-error" className="text-red-600 my-4 text-center">
+                            {error}
+                        </p>
+                    )}
+                    {user?.nextCursor && (
+                        <div className="flex justify-center">
+                            <button
+                                type="button"
+                                data-testid="profile-load-more"
+                                onClick={() => void loadMore()}
+                                disabled={loadingMore}
+                                className="mb-8 px-6 py-2 rounded-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                            >
+                                {loadingMore ? "Cargando..." : "Cargar más"}
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

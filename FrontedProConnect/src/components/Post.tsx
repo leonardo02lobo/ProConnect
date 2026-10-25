@@ -6,6 +6,7 @@ import { ApiError, avatarUrl, mediaUrl } from "../Service/http";
 import { likesService } from "../Service/likes";
 import { commentsService } from "../Service/comments";
 import { $user } from "../Service/session";
+import { appendUnique } from "../Service/pagination";
 
 interface PostProps {
     post: FeedPostDTO;
@@ -22,12 +23,16 @@ function Post({ post }: PostProps) {
     const { id, title, content, imageUrl, user } = post;
 
     const [liked, setLiked] = useState<boolean>(post.userLiked);
-    const [likeCount, setLikeCount] = useState<number>(post.totalLikes);
+    const [likeCount, setLikeCount] = useState<number>(post.likeCount);
     const [likeBusy, setLikeBusy] = useState(false);
+    // Preview del feed (últimos 3); "Ver todos" carga la lista completa paginada por cursor.
     const [comments, setComments] = useState<ShownComment[]>(
-        post.comments.map((comment) => ({ comment, pending: false })),
+        post.commentsPreview.map((comment) => ({ comment, pending: false })),
     );
-    const [commentCount, setCommentCount] = useState<number>(post.totalComments);
+    const [commentCount, setCommentCount] = useState<number>(post.commentCount);
+    const [expanded, setExpanded] = useState(false);
+    const [commentsCursor, setCommentsCursor] = useState<string | null>(null);
+    const [commentsBusy, setCommentsBusy] = useState(false);
     const [newComment, setNewComment] = useState<string>("");
     const [error, setError] = useState<string | null>(null);
 
@@ -90,6 +95,35 @@ function Post({ post }: PostProps) {
         }
     }
 
+    // Lista completa: primera página al expandir, siguientes con "Cargar más comentarios".
+    async function loadComments(cursor: string | null) {
+        if (commentsBusy) return;
+        setCommentsBusy(true);
+        setError(null);
+        try {
+            const page = await commentsService.list(id, cursor);
+            const loaded = page.items.map((comment) => ({ comment, pending: false }));
+            setComments((list) => {
+                const pending = list.filter((item) => item.pending);
+                const confirmed = cursor
+                    ? appendUnique(
+                          list.filter((item) => !item.pending).map((item) => item.comment),
+                          page.items,
+                      ).map((comment) => ({ comment, pending: false }))
+                    : loaded;
+                return [...confirmed, ...pending];
+            });
+            setCommentsCursor(page.nextCursor);
+            setExpanded(true);
+        } catch {
+            setError("No se pudieron cargar los comentarios");
+        } finally {
+            setCommentsBusy(false);
+        }
+    }
+
+    const hiddenComments = !expanded && commentCount > comments.length;
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
             void sendComment();
@@ -104,7 +138,7 @@ function Post({ post }: PostProps) {
         >
             <div className="flex items-center gap-3 mb-4">
                 <img
-                    src={avatarUrl(user?.photoUrl)}
+                    src={avatarUrl(user?.avatarUrl)}
                     alt={`Foto de ${user?.name ?? "usuario"}`}
                     data-testid="post-author-photo"
                     className="w-12 h-12 rounded-full object-cover border"
@@ -149,11 +183,33 @@ function Post({ post }: PostProps) {
                     {error}
                 </p>
             )}
+            {hiddenComments && (
+                <button
+                    type="button"
+                    data-testid="post-comments-expand"
+                    onClick={() => void loadComments(null)}
+                    disabled={commentsBusy}
+                    className="mt-3 text-sm text-blue-600 hover:underline disabled:opacity-50"
+                >
+                    Ver los {commentCount} comentarios
+                </button>
+            )}
             <div className="mt-4 flex flex-col gap-2">
                 {comments.map(({ comment, pending }) => (
                     <Comment key={comment.id} comment={comment} pending={pending} />
                 ))}
             </div>
+            {expanded && commentsCursor && (
+                <button
+                    type="button"
+                    data-testid="post-comments-load-more"
+                    onClick={() => void loadComments(commentsCursor)}
+                    disabled={commentsBusy}
+                    className="mt-2 text-sm text-blue-600 hover:underline disabled:opacity-50"
+                >
+                    Cargar más comentarios
+                </button>
+            )}
             <div className="mt-4 flex items-center gap-2 border-t pt-3">
                 <input
                     type="text"

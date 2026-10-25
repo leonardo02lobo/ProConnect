@@ -8,6 +8,7 @@ import Proconnect.backProconnect.Entity.User;
 import Proconnect.backProconnect.exception.ConflictException;
 import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.mail.PostulationResolvedEvent;
+import Proconnect.backProconnect.model.PageResponse;
 import Proconnect.backProconnect.model.PostulationDto;
 import Proconnect.backProconnect.model.PostulationRequest;
 import Proconnect.backProconnect.repository.CompanyRepository;
@@ -15,14 +16,12 @@ import Proconnect.backProconnect.repository.JobRepository;
 import Proconnect.backProconnect.repository.PostulationRepository;
 import Proconnect.backProconnect.repository.UserRepository;
 import Proconnect.backProconnect.security.OwnershipGuard;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
 import java.util.Objects;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,40 +58,36 @@ public class PostulationService {
         this.events = events;
     }
 
-    /** El postulante sale de la sesión: 404 si el empleo no existe, 409 si ya se postuló a él. */
+    /**
+     * El postulante sale de la sesión: 404 si el empleo no existe, 409 si ya se postuló a él. El
+     * UNIQUE(user_id, job_id) hace atómico el 409 (sin carrera check-then-insert).
+     */
     @Transactional
     public PostulationDto create(Long applicantId, PostulationRequest request) {
         if (!jobRepository.existsById(request.jobId())) {
             throw new NotFoundException("Empleo no encontrado");
         }
-        if (postulationRepository.existsByUserIdAndJobId(applicantId, request.jobId())) {
+        try {
+            return toDto(
+                    postulationRepository.saveAndFlush(
+                            new Postulation(null, applicantId, request.jobId(), Instant.now())));
+        } catch (DataIntegrityViolationException duplicate) {
             throw new ConflictException("Ya te postulaste a este empleo");
         }
-        Postulation postulation = new Postulation(null, applicantId, request.jobId(), new Date());
-        return toDto(postulationRepository.save(postulation));
     }
 
-    /** ADMIN: todas. Resto: las propias más las recibidas en empleos de sus empresas. */
+    /**
+     * ADMIN: todas. Resto: las propias más las recibidas en empleos de sus empresas, en una sola
+     * query paginada.
+     */
     @Transactional(readOnly = true)
-    public List<PostulationDto> listVisible() {
-        if (guard.isAdmin()) {
-            return postulationRepository.findAll().stream().map(PostulationService::toDto).toList();
-        }
-        Long me = guard.currentUserId();
-        Map<Long, Postulation> visible = new LinkedHashMap<>();
-        postulationRepository.findByUserId(me).forEach(p -> visible.put(p.getId(), p));
-        List<Long> companyIds =
-                companyRepository.findByUserId(me).stream().map(Company::getId).toList();
-        if (!companyIds.isEmpty()) {
-            List<Long> jobIds =
-                    jobRepository.findByCompanyIdIn(companyIds).stream().map(Job::getId).toList();
-            if (!jobIds.isEmpty()) {
-                postulationRepository.findByJobIdIn(jobIds).forEach(p -> visible.put(p.getId(), p));
-            }
-        }
-        List<Postulation> result = new ArrayList<>(visible.values());
-        result.sort(Comparator.comparing(Postulation::getId));
-        return result.stream().map(PostulationService::toDto).toList();
+    public PageResponse<PostulationDto> listVisible(Integer page, Integer size) {
+        Pageable pageable = Paging.page(page, size);
+        Slice<Postulation> result =
+                guard.isAdmin()
+                        ? postulationRepository.findAllBy(pageable)
+                        : postulationRepository.visibleTo(guard.currentUserId(), pageable);
+        return PageResponse.of(result, PostulationService::toDto);
     }
 
     /**
@@ -100,15 +95,15 @@ public class PostulationService {
      * existe).
      */
     @Transactional(readOnly = true)
-    public List<PostulationDto> listByJob(Long jobId) {
+    public PageResponse<PostulationDto> listByJob(Long jobId, Integer page, Integer size) {
         Job job = jobId == null ? null : jobRepository.findById(jobId).orElse(null);
         if (job == null) {
             throw new NotFoundException("Empleo no encontrado");
         }
         companyService.assertCanManage(job.getCompanyId());
-        return postulationRepository.findByJobId(jobId).stream()
-                .map(PostulationService::toDto)
-                .toList();
+        return PageResponse.of(
+                postulationRepository.findByJobId(jobId, Paging.page(page, size)),
+                PostulationService::toDto);
     }
 
     /** 404 si no existe o si el actor no es postulante, propietario de la empresa ni ADMIN. */
@@ -213,6 +208,6 @@ public class PostulationService {
 
     private static PostulationDto toDto(Postulation p) {
         return new PostulationDto(
-                p.getId(), p.getUserId(), p.getJobId(), p.getDate(), p.getStatus());
+                p.getId(), p.getUserId(), p.getJobId(), p.getCreatedAt(), p.getStatus());
     }
 }

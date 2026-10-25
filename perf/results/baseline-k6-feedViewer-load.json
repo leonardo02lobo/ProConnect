@@ -1,0 +1,22 @@
+{
+  "label": "baseline",
+  "endpoint": "feedViewer",
+  "mode": "load",
+  "vus": 3,
+  "duration": "30s",
+  "iterations": 3,
+  "rps": 0.00885543207292478,
+  "errorRate": 0,
+  "latencyMs": {
+    "feedViewer": {
+      "count": 3,
+      "min": 338139.276574,
+      "p50": 338253.946951,
+      "avg": 338389.1369696667,
+      "p90": 338670.1392974,
+      "p95": 338722.1633407,
+      "p99": 338763.78257534,
+      "max": 338774.187384
+    }
+  }
+}

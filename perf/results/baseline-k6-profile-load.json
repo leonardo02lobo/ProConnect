@@ -1,0 +1,22 @@
+{
+  "label": "baseline",
+  "endpoint": "profile",
+  "mode": "load",
+  "vus": 10,
+  "duration": "30s",
+  "iterations": 103,
+  "rps": 3.158930532601577,
+  "errorRate": 0,
+  "latencyMs": {
+    "profile": {
+      "count": 103,
+      "min": 1099.280034,
+      "p50": 2717.641495,
+      "avg": 3076.5724087864082,
+      "p90": 4007.1280272,
+      "p95": 4089.42242,
+      "p99": 4167.10642588,
+      "max": 5116.253607
+    }
+  }
+}

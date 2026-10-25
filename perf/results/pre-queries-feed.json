@@ -1,0 +1,95 @@
+{
+  "label": "pre",
+  "api": "http://127.0.0.1:28080",
+  "measuredAt": "2026-10-25T13:07:40.811Z",
+  "repeat": 1,
+  "warmup": 0,
+  "targets": {
+    "viewerId": 1,
+    "viewerEmail": "perf.user1@proconnect.test",
+    "feedDeepOffset": 5000,
+    "feedDeepCursor": "MTc0OTMyMjU1MjAyODAwMDo1MDAw",
+    "profileUserId": 3,
+    "profileUserPosts": 10,
+    "profileUserCommentRows": 26,
+    "usersWithProfile500": 376,
+    "commentsPostId": 354,
+    "commentsPostCount": 12,
+    "likePostId": 9999,
+    "likeUserId": 1
+  },
+  "results": [
+    {
+      "key": "feed",
+      "endpoint": "GET /api/posts (feed, 1.ª página)",
+      "url": "/api/posts?limit=20",
+      "status": [
+        200
+      ],
+      "statementsDml": 10001,
+      "statementsTotal": 10006,
+      "statementsStable": true,
+      "warmLatencyMs": {
+        "min": 218006.389805,
+        "p50": 218006.389805,
+        "max": 218006.389805,
+        "samples": [
+          218006.4
+        ]
+      },
+      "dbTimeMs": 211917,
+      "rowsExamined": 1704974868,
+      "responseBytes": 14657750,
+      "events": {
+        "select": 10001,
+        "set_option": 4,
+        "commit": 1
+      },
+      "topDigests": [
+        {
+          "query": "SELECT `com` . `id` AS `id` , `com` . `post_id` AS `postId` , `com` . `user_id` AS `userId` , `com` . `content` AS `content` , `com` . `date` AS DATE , `us` . `",
+          "count": 10000,
+          "ms": 71230,
+          "rowsExamined": 378695512,
+          "rowsSent": 30000
+        },
+        {
+          "query": "SET `autocommit` = ?",
+          "count": 2,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SELECT `pos` . `id` AS `id` , `pos` . `title` AS `title` , `pos` . `content` AS `content` , `pos` . `date` AS DATE , `pos` . `image_url` AS `imageUrl` , `us` . ",
+          "count": 1,
+          "ms": 140686.8,
+          "rowsExamined": 1326279356,
+          "rowsSent": 10000
+        },
+        {
+          "query": "SET SESSION TRANSACTION READ ONLY",
+          "count": 1,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "COMMIT",
+          "count": 1,
+          "ms": 0.1,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        },
+        {
+          "query": "SET SESSION TRANSACTION READ WRITE",
+          "count": 1,
+          "ms": 0,
+          "rowsExamined": 0,
+          "rowsSent": 0
+        }
+      ],
+      "responseSample": "[{\"id\":10000,\"userId\":674,\"user\":{\"id\":674,\"name\":\"Bo Runolfsdottir\",\"userName\":\"bo.runolfsdottir.674\",\"role\":\"USER\",\"photoUrl\":\"/upload/uploads/avatar-674.jpg\""
+    }
+  ]
+}

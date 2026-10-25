@@ -4,11 +4,12 @@ import Proconnect.backProconnect.Entity.Job;
 import Proconnect.backProconnect.exception.NotFoundException;
 import Proconnect.backProconnect.model.JobDto;
 import Proconnect.backProconnect.model.JobRequest;
+import Proconnect.backProconnect.model.PageResponse;
 import Proconnect.backProconnect.repository.JobRepository;
-import Proconnect.backProconnect.specification.JobSpecification;
-import java.util.Date;
-import java.util.List;
+import java.time.Instant;
 import java.util.Optional;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,18 +37,19 @@ public class JobService {
                         request.title().trim(),
                         request.description().trim(),
                         request.workStation().trim(),
-                        request.date() != null ? request.date() : new Date());
+                        request.date() != null ? request.date() : Instant.now());
         return toDto(jobRepository.save(job));
     }
 
     /** Todos los empleos, o los que contienen {@code query} en el título o la descripción. */
     @Transactional(readOnly = true)
-    public List<JobDto> list(Optional<String> query) {
-        List<Job> jobs =
+    public PageResponse<JobDto> list(Optional<String> query, Integer page, Integer size) {
+        Pageable pageable = Paging.page(page, size);
+        Slice<Job> jobs =
                 query.filter(q -> !q.isBlank())
-                        .map(q -> jobRepository.findAll(JobSpecification.hasKeyWord(q.trim())))
-                        .orElseGet(jobRepository::findAll);
-        return jobs.stream().map(JobService::toDto).toList();
+                        .map(q -> jobRepository.search(UserService.likePattern(q), pageable))
+                        .orElseGet(() -> jobRepository.findAllBy(pageable));
+        return PageResponse.of(jobs, JobService::toDto);
     }
 
     @Transactional(readOnly = true)
@@ -79,6 +81,6 @@ public class JobService {
                 j.getTitle(),
                 j.getDescription(),
                 j.getWorkStation(),
-                j.getDate());
+                j.getCreatedAt());
     }
 }

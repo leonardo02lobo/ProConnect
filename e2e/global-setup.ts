@@ -67,7 +67,7 @@ export default async function globalSetup(_config: FullConfig) {
 
   const asBob = await bob.findPostByTitle(SEED_POST_TITLE);
   if (asBob && !asBob.userLiked) await bob.like(post.id);
-  if (!post.comments?.some((c) => c.content === SEED_COMMENT)) {
+  if (!(await alice.comments(post.id)).items.some((c) => c.content === SEED_COMMENT)) {
     await bob.comment(post.id, SEED_COMMENT);
   }
 

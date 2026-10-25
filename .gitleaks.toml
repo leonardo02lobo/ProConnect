@@ -41,4 +41,5 @@ regexes = [
   '''e2e-local-''',
   '''proconnect-dev''',
   '''perfroot''',            # password desechable del stack local de perf (pc-perf)
+  '''PerfPass#2026''',       # password común (documentado) de los usuarios sintéticos de perf/seed
 ]

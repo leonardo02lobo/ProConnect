@@ -8,8 +8,23 @@ export interface UserDTO {
     name: string;
     role: "USER" | "COMPANY_ADMIN" | "ADMIN" | string;
     userName: string;
-    photoUrl: string | null;
-    wallPhotoUrl: string | null;
+    /** Nombre de archivo del servicio de media (columna user.avatar_url). */
+    avatarUrl: string | null;
+    coverUrl: string | null;
+}
+
+/** Página por cursor (feed, posts de un perfil, comentarios). nextCursor = null en la última. */
+export interface CursorPage<T> {
+    items: T[];
+    nextCursor: string | null;
+}
+
+/** Página de un listado (?page=&size=, máx. 100). */
+export interface PageResponse<T> {
+    items: T[];
+    page: number;
+    size: number;
+    hasNext: boolean;
 }
 
 /** Post sin agregados (PostDto). */
@@ -25,10 +40,11 @@ export interface PostDTO {
 /** Post del feed o de un perfil (FeedPostDto). */
 export interface FeedPostDTO extends PostDTO {
     user: UserDTO;
-    totalLikes: number;
-    totalComments: number;
+    likeCount: number;
+    commentCount: number;
     userLiked: boolean;
-    comments: CommentDTO[];
+    /** Últimos 3 comentarios (orden cronológico); la lista completa: GET /api/posts/{id}/comments. */
+    commentsPreview: CommentDTO[];
 }
 
 export interface CommentDTO {
@@ -54,9 +70,11 @@ export interface UserProfileDTO {
     name: string;
     role: string;
     userName: string;
-    photoUrl: string | null;
-    wallPhotoUrl: string | null;
+    avatarUrl: string | null;
+    coverUrl: string | null;
+    /** Primera página de posts; las siguientes con usersService.posts(id, nextCursor). */
     posts: FeedPostDTO[];
+    nextCursor: string | null;
 }
 
 /** Error de la API (application/problem+json, RFC 7807). */

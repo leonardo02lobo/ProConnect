@@ -1,5 +1,5 @@
 package Proconnect.backProconnect.model;
 
-import java.util.Date;
+import java.time.Instant;
 
-public record LikeDto(Long id, Long userId, Long postId, Date date) {}
+public record LikeDto(Long id, Long userId, Long postId, Instant date) {}

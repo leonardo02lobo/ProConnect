@@ -1,0 +1,118 @@
+{
+  "label": "baseline",
+  "api": "http://127.0.0.1:28080",
+  "measuredAt": "2026-10-24T21:07:26.101Z",
+  "repeat": 1,
+  "warmup": 0,
+  "targets": {
+    "viewerId": 1,
+    "profileUserId": 3,
+    "profileUserPosts": 10,
+    "profileUserCommentRows": 26,
+    "usersWithProfile500": 376,
+    "commentsPostId": 354,
+    "commentsPostCount": 12,
+    "likePostId": 9999,
+    "likeUserId": 1
+  },
+  "results": [
+    {
+      "key": "feedViewer",
+      "endpoint": "GET /api/posts/{userId} (feed con viewer)",
+      "url": "/api/posts/1",
+      "status": [
+        200
+      ],
+      "statementsDml": 40001,
+      "statementsTotal": 40001,
+      "statementsStable": true,
+      "warmLatencyMs": {
+        "min": 223707.916748,
+        "p50": 223707.916748,
+        "max": 223707.916748,
+        "samples": [
+          223707.9
+        ]
+      },
+      "dbTimeMs": 213117,
+      "rowsExamined": 1627680922,
+      "responseBytes": 18506661,
+      "events": {
+        "select": 40001
+      },
+      "topDigests": [
+        {
+          "query": "SELECT `us` . `id` , `us` . `email` , `us` . `name` , `us` . `role` , `us` . `user_name` , `prof` . `id` , `prof` . `photo_url` , `prof` . `wall_photo_url` FROM",
+          "count": 30000,
+          "ms": 11817.8,
+          "rowsExamined": 27660000,
+          "rowsSent": 30000
+        },
+        {
+          "query": "SELECT `c1_0` . `id` , `c1_0` . `content` , `c1_0` . `date` , `c1_0` . `post_id` , `c1_0` . `user_id` FROM `comments` `c1_0` WHERE `c1_0` . `post_id` = ?",
+          "count": 10000,
+          "ms": 61380.1,
+          "rowsExamined": 300000000,
+          "rowsSent": 30000
+        },
+        {
+          "query": "SELECT `pos` . `id` , `pos` . `title` , `pos` . `content` , `pos` . `date` , `pos` . `image_url` , `us` . `id` AS `userId` , `us` . `email` , `us` . `name` , `u",
+          "count": 1,
+          "ms": 139919.4,
+          "rowsExamined": 1300020922,
+          "rowsSent": 10000
+        }
+      ],
+      "responseSample": "[{\"id\":1,\"userId\":828,\"user\":{\"id\":828,\"name\":\"Philip Thompson-Mante\",\"userName\":\"philip.thompsonmante.828\",\"email\":\"perf.user828@proconnect.test\",\"password\":\"\""
+    },
+    {
+      "key": "feedAll",
+      "endpoint": "GET /api/posts (feed sin viewer)",
+      "url": "/api/posts",
+      "status": [
+        200
+      ],
+      "statementsDml": 40001,
+      "statementsTotal": 40001,
+      "statementsStable": true,
+      "warmLatencyMs": {
+        "min": 155702.559681,
+        "p50": 155702.559681,
+        "max": 155702.559681,
+        "samples": [
+          155702.6
+        ]
+      },
+      "dbTimeMs": 146433,
+      "rowsExamined": 1127680922,
+      "responseBytes": 18506701,
+      "events": {
+        "select": 40001
+      },
+      "topDigests": [
+        {
+          "query": "SELECT `us` . `id` , `us` . `email` , `us` . `name` , `us` . `role` , `us` . `user_name` , `prof` . `id` , `prof` . `photo_url` , `prof` . `wall_photo_url` FROM",
+          "count": 30000,
+          "ms": 9445.7,
+          "rowsExamined": 27660000,
+          "rowsSent": 30000
+        },
+        {
+          "query": "SELECT `c1_0` . `id` , `c1_0` . `content` , `c1_0` . `date` , `c1_0` . `post_id` , `c1_0` . `user_id` FROM `comments` `c1_0` WHERE `c1_0` . `post_id` = ?",
+          "count": 10000,
+          "ms": 56089,
+          "rowsExamined": 300000000,
+          "rowsSent": 30000
+        },
+        {
+          "query": "SELECT `pos` . `id` , `pos` . `title` , `pos` . `content` , `pos` . `date` , `pos` . `image_url` , `us` . `id` AS `userId` , `us` . `email` , `us` . `name` , `u",
+          "count": 1,
+          "ms": 80898.3,
+          "rowsExamined": 800020922,
+          "rowsSent": 10000
+        }
+      ],
+      "responseSample": "[{\"id\":1,\"userId\":828,\"user\":{\"id\":828,\"name\":\"Philip Thompson-Mante\",\"userName\":\"philip.thompsonmante.828\",\"email\":\"perf.user828@proconnect.test\",\"password\":\"\""
+    }
+  ]
+}

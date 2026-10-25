@@ -1,0 +1,17 @@
+{
+  "name": "proconnect-perf",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Generador determinista del dataset de referencia de rendimiento (restructure-models-performance)",
+  "type": "module",
+  "scripts": {
+    "seed": "node seed/seed.mjs",
+    "checksum": "node seed/seed.mjs --checksum-only",
+    "count-queries": "node bench/count-queries.mjs"
+  },
+  "dependencies": {
+    "@faker-js/faker": "9.9.0",
+    "bcryptjs": "2.4.3",
+    "mysql2": "3.11.5"
+  }
+}

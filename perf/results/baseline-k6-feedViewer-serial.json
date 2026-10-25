@@ -1,0 +1,22 @@
+{
+  "label": "baseline",
+  "endpoint": "feedViewer",
+  "mode": "serial",
+  "vus": 1,
+  "duration": "30s",
+  "iterations": 1,
+  "rps": 0.004151663054638665,
+  "errorRate": 0,
+  "latencyMs": {
+    "feedViewer": {
+      "count": 1,
+      "min": 240860.744095,
+      "p50": 240860.744095,
+      "avg": 240860.744095,
+      "p90": 240860.744095,
+      "p95": 240860.744095,
+      "p99": 240860.744095,
+      "max": 240860.744095
+    }
+  }
+}
