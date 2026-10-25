@@ -72,6 +72,8 @@ class UnauthenticatedSweepTests {
             }
         }
         assertThat(checked).hasSizeGreaterThan(40);
+        // add-role-management: las rutas de administración también entran en el barrido.
+        assertThat(checked).contains("GET /api/admin/users", "PUT /api/admin/users/{id}/role");
         assertThat(failures).as("endpoints accesibles sin sesión").isEmpty();
     }
 }

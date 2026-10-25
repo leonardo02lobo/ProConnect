@@ -1,11 +1,11 @@
 ## 1. Backend: gestión de roles
 
-- [ ] 1.1 Entidad `RoleChange` y `RoleChangeRepository` (solo inserción)
-- [ ] 1.2 `UserRepository.countByRole` y búsqueda paginada por `q` (name/userName/email); lock pesimista para el cambio de rol
-- [ ] 1.3 `RoleService.changeRole(targetId, role)`: guard ADMIN, validación de rol (400), salvaguardas de auto-degradación y último ADMIN (409), auditoría e invalidación de cache tras el commit
-- [ ] 1.4 `AdminController`: `GET /api/admin/users` (paginado, máx. 100) y `PUT /api/admin/users/{id}/role`; `/api/admin/**` con `hasRole('ADMIN')` en `SecurityConfig`
-- [ ] 1.5 `RoleResolver` (Caffeine 30 s) y uso en `JwtAuthFilter` para el rol efectivo
-- [ ] 1.6 Tests: promoción, 403 para no-admin, 400 por rol inválido, 409 por auto-degradación y por último ADMIN, auditoría, efecto inmediato con sesión abierta, y que `UnauthenticatedSweepTests` cubre las rutas nuevas
+- [x] 1.1 Entidad `RoleChange` y `RoleChangeRepository` (solo inserción)
+- [x] 1.2 `UserRepository.countByRole` y búsqueda paginada por `q` (name/userName/email); lock pesimista para el cambio de rol
+- [x] 1.3 `RoleService.changeRole(targetId, role)`: guard ADMIN, validación de rol (400), salvaguardas de auto-degradación y último ADMIN (409), auditoría e invalidación de cache tras el commit
+- [x] 1.4 `AdminController`: `GET /api/admin/users` (paginado, máx. 100) y `PUT /api/admin/users/{id}/role`; `/api/admin/**` con `hasRole('ADMIN')` en `SecurityConfig`
+- [x] 1.5 `RoleResolver` (Caffeine 30 s) y uso en `JwtAuthFilter` para el rol efectivo
+- [x] 1.6 Tests: promoción, 403 para no-admin, 400 por rol inválido, 409 por auto-degradación y por último ADMIN, auditoría, efecto inmediato con sesión abierta, y que `UnauthenticatedSweepTests` cubre las rutas nuevas
 
 ## 2. AdminBootstrap
 
