@@ -54,10 +54,41 @@ export class FeedPage {
   }
 
   post(title: string): Locator {
-    return this.page.getByTestId('post-card').filter({
-      has: this.page.getByTestId('post-title').getByText(title, { exact: true }),
-    });
+    return postCard(this.page, title);
   }
+
+  /** The feed is paginated (20 per page): clicks "Cargar más" until the post is rendered. */
+  async reveal(title: string): Promise<Locator> {
+    return revealPost(this.page, title);
+  }
+}
+
+export function postCard(page: Page, title: string): Locator {
+  return page.getByTestId('post-card').filter({
+    has: page.getByTestId('post-title').getByText(title, { exact: true }),
+  });
+}
+
+/**
+ * Feed and profile are paginated by cursor: click the "load more" button (`feed-load-more` or
+ * `profile-load-more`) until the post appears or there are no more pages.
+ */
+export async function revealPost(page: Page, title: string, maxPages = 30): Promise<Locator> {
+  const card = postCard(page, title);
+  const more = page.getByTestId('feed-load-more').or(page.getByTestId('profile-load-more'));
+  for (let i = 0; i < maxPages; i++) {
+    // A page renders its posts and the "load more" button together: wait for either.
+    try {
+      await expect(card.or(more).first()).toBeVisible({ timeout: 10_000 });
+    } catch {
+      break; // no such post and no more pages: let the caller's assertion report it
+    }
+    if ((await card.count()) > 0) break;
+    const before = await page.getByTestId('post-card').count();
+    await more.click();
+    await expect.poll(() => page.getByTestId('post-card').count()).toBeGreaterThan(before);
+  }
+  return card;
 }
 
 /** Locators scoped to one post card. */
@@ -73,5 +104,7 @@ export function postParts(card: Locator) {
     commentInput: card.getByTestId('post-comment-input'),
     commentSubmit: card.getByTestId('post-comment-submit'),
     comments: card.getByTestId('comment-item'),
+    commentsExpand: card.getByTestId('post-comments-expand'),
+    commentsLoadMore: card.getByTestId('post-comments-load-more'),
   };
 }

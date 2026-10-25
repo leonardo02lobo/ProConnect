@@ -16,7 +16,7 @@ function Comment({ comment, pending = false }: CommentProps) {
             className={`flex gap-3 items-start bg-gray-50 p-3 rounded-xl hover:bg-gray-100 transition ${pending ? "opacity-60" : ""}`}
         >
             <img
-                src={avatarUrl(user?.photoUrl)}
+                src={avatarUrl(user?.avatarUrl)}
                 alt={`Foto de ${user?.name ?? "usuario"}`}
                 className="w-10 h-10 rounded-full object-cover"
             />

@@ -43,10 +43,10 @@
 
 ## 7. Frontend y E2E
 
-- [ ] 7.1 Feed y perfil con "cargar más" o scroll infinito usando `nextCursor`
-- [ ] 7.2 Modal o página de comentarios completos paginados
-- [ ] 7.3 Usar `avatarUrl`/`coverUrl` en los componentes
-- [ ] 7.4 Actualizar y ampliar los E2E (paginación del feed y contadores tras like/unlike)
+- [x] 7.1 Feed y perfil con "cargar más" o scroll infinito usando `nextCursor` — botón "Cargar más" (`feed-load-more`, `profile-load-more`), sin duplicados
+- [x] 7.2 Modal o página de comentarios completos paginados — en la tarjeta: preview de 3 + "Ver los N comentarios" (`post-comments-expand`) y "Cargar más comentarios" por cursor
+- [x] 7.3 Usar `avatarUrl`/`coverUrl` en los componentes
+- [x] 7.4 Actualizar y ampliar los E2E (paginación del feed y contadores tras like/unlike) — `tests/pagination.spec.ts` (2 tests) + `revealPost` para localizar posts en el feed/perfil paginados; 29/29 ×4 pasadas con 4 workers
 
 ## 8. Contract y cierre
 

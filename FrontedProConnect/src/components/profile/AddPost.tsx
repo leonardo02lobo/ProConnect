@@ -65,7 +65,7 @@ function AddPost({ onCreated }: AddPostProps) {
         <section className="w-full max-w-lg bg-white border border-gray-200 rounded-xl shadow-sm p-4">
             <div className="flex gap-4">
                 <img
-                    src={avatarUrl(user?.photoUrl)}
+                    src={avatarUrl(user?.avatarUrl)}
                     alt={user?.name ?? "Usuario"}
                     className="w-12 h-12 rounded-full object-cover border"
                 />
