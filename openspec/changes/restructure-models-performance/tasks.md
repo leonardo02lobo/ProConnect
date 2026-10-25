@@ -15,7 +15,7 @@
 ## 3. Integridad e índices
 
 - [x] 3.1 `V2__constraints_and_indexes.sql`: auditar y limpiar duplicados y huérfanos, y crear FKs (CASCADE/RESTRICT según el diseño), `UNIQUE` e índices
-- [ ] 3.2 Probar la migración V2 sobre una copia con el dataset de referencia, con backup previo documentado
+- [x] 3.2 Probar la migración V2 sobre una copia con el dataset de referencia, con backup previo documentado — stack pc-perf con la base "pre" creada por Hibernate (10k posts): `mysqldump` previo, baseline V1 + V2 en 1,9 s, auditoría sin huérfanos/duplicados (`perf/results/after-v2-run.log`); datos sucios cubiertos por `LegacyDatabaseMigrationIT`
 - [x] 3.3 Test: un doble like concurrente produce un solo registro y un 409
 
 ## 4. Entidades
