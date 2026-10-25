@@ -39,4 +39,4 @@
 ## 6. Entrega
 
 - [x] 6.1 `make ci-local`, `make lint-workflows` y `actionlint` verdes
-- [ ] 6.2 Push y PR draft apilado sobre `leonardo02lobo/restructure-models-performance`; los 16 checks requeridos en verde en GitHub (salvo `sca maven` si aún falta `NVD_API_KEY`)
+- [x] 6.2 Push y PR draft apilado sobre `leonardo02lobo/restructure-models-performance`; los 16 checks requeridos en verde en GitHub (salvo `sca maven` si aún falta `NVD_API_KEY`)
