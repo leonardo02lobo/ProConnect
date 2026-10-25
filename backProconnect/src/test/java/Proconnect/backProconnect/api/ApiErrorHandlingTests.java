@@ -12,6 +12,7 @@ import Proconnect.backProconnect.Entity.Posts;
 import Proconnect.backProconnect.security.SecurityTestSupport;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.servlet.http.Cookie;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -166,5 +167,53 @@ class ApiErrorHandlingTests extends SecurityTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors[?(@.field == 'email')]").exists())
                 .andExpect(jsonPath("$.errors[?(@.field == 'password')]").exists());
+    }
+
+    /**
+     * Pendiente de verify-web-security: imageUrl/photoUrl solo admiten nombres de archivo de media.
+     */
+    @Test
+    void imageReferencesMustBeMediaFileNames() throws Exception {
+        createUser("ana", "USER");
+        Cookie ana = login("ana");
+        for (String bad :
+                List.of(
+                        "../../etc/passwd.png",
+                        "https://evil.example/x.png",
+                        "javascript:alert(1)",
+                        "x.svg",
+                        "a/b.png")) {
+            mvc.perform(
+                            post("/api/posts")
+                                    .cookie(ana)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(
+                                            "{\"title\":\"t\",\"content\":\"c\",\"imageUrl\":\""
+                                                    + bad
+                                                    + "\"}"))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.errors[0].field").value("imageUrl"));
+            mvc.perform(
+                            post("/api/profile-photos")
+                                    .cookie(ana)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content("{\"photoUrl\":\"" + bad + "\"}"))
+                    .andExpect(status().isBadRequest());
+        }
+        mvc.perform(
+                        post("/api/posts")
+                                .cookie(ana)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        "{\"title\":\"t\",\"content\":\"c\",\"imageUrl\":"
+                                                + "\"3f2a9c1e-7b4d-4e8a-9f00-1a2b3c4d5e6f.webp\"}"))
+                .andExpect(status().isCreated());
+        mvc.perform(
+                        post("/api/profile-photos")
+                                .cookie(ana)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"photoUrl\":\"avatar.PNG\",\"wallPhotoUrl\":null}"))
+                .andExpect(status().isCreated());
+        assertThat(posts.count()).isEqualTo(1);
     }
 }

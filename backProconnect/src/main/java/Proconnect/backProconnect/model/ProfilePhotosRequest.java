@@ -1,5 +1,6 @@
 package Proconnect.backProconnect.model;
 
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -7,5 +8,5 @@ import jakarta.validation.constraints.Size;
  * /api/profile-photos/{id} (en el PUT, un campo null no se modifica).
  */
 public record ProfilePhotosRequest(
-        @Size(max = 255, message = "Máximo 255 caracteres") String photoUrl,
-        @Size(max = 255, message = "Máximo 255 caracteres") String wallPhotoUrl) {}
+        @Size(max = 255, message = "Máximo 255 caracteres") @Pattern(regexp = MediaFileName.PATTERN, message = MediaFileName.MESSAGE) String photoUrl,
+        @Size(max = 255, message = "Máximo 255 caracteres") @Pattern(regexp = MediaFileName.PATTERN, message = MediaFileName.MESSAGE) String wallPhotoUrl) {}

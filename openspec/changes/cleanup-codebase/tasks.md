@@ -62,6 +62,7 @@ Cada uno con su test de regresión (`backProconnect/src/test/.../api/InheritedBu
 - [x] 7.9 La búsqueda del header no hacía nada al pulsar Enter → página `/search`; E2E `search.spec.ts`
 - [x] 7.10 Avatar por defecto desde CDN externo (flaticon, además bloqueado por la CSP) → `public/assets/avatar-default.svg`; cubierto por `feed.spec.ts` (`post-author-photo` visible)
 - [x] 7.11 `Profile.astro` con `client:only` sin framework → `client:only="react"`; E2E `profile.spec.ts`
+- [x] 7.13 `imageUrl`/`photoUrl` sin validación de formato (pendiente de verify-web-security): solo nombres de archivo de media (`<uuid>.<jpg|png|webp|gif>`), sin rutas ni URLs → `ApiErrorHandlingTests.imageReferencesMustBeMediaFileNames`
 - [x] 7.12 Lockfile del frontend incompatible con el npm 10 de `node:22-alpine` (heredado del upgrade a Astro 7) → regenerado; lo valida el build de la imagen web en E2E/CI
 
 ## 6. Verificación
