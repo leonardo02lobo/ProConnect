@@ -23,6 +23,7 @@
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcryptjs';
 import mysql from 'mysql2/promise';
+import { PERF_PASSWORD } from '../dataset.mjs';
 
 const SEED = Number(process.env.PERF_SEED ?? 20261024);
 const SIZES = {
@@ -37,8 +38,7 @@ const WALL_PHOTO_RATIO = 0.6;
 const POST_IMAGE_RATIO = 0.3;
 const BATCH = 1000;
 
-// Credenciales de prueba conocidas para todos los usuarios sembrados.
-export const PERF_PASSWORD = 'PerfPass#2026';
+// Credenciales de prueba conocidas para todos los usuarios sembrados: PERF_PASSWORD (perf/dataset.mjs).
 // Salt BCrypt fijo => hash idéntico en cada ejecución (determinismo). Cost 12,
 // el mismo que usa SecurityConfig (BCryptPasswordEncoder(12)).
 const FIXED_SALT = '$2a$12$ProConnectPerfSeedSalt';

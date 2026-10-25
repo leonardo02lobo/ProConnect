@@ -22,7 +22,9 @@ const T = {
   likePostId: Number(__ENV.LIKE_POST_ID),
   feedDeepCursor: __ENV.FEED_DEEP_CURSOR,
 };
-const PASSWORD = __ENV.PERF_PASSWORD || 'PerfPass#2026';
+// Password del dataset sintético (perf/dataset.mjs), la pasa run-k6.sh.
+const PASSWORD = __ENV.PERF_PASSWORD;
+if (!PASSWORD) throw new Error('PERF_PASSWORD no definido (usar perf/bench/run-k6.sh)');
 
 const dur = {
   main: new Trend('ep_duration', true),
