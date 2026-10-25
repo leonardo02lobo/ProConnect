@@ -14,4 +14,5 @@ docker run --rm --network "${PROJECT}_default" --user "$(id -u):$(id -g)" \
   -e BASE_URL=http://api:8080 -e ENDPOINT="$EP" -e MODE="$MODE" -e VUS="$VUS" -e DURATION="$DURATION" -e LABEL="$LABEL" \
   -e VIEWER_ID="$(get viewerId)" -e PROFILE_USER_ID="$(get profileUserId)" \
   -e COMMENTS_POST_ID="$(get commentsPostId)" -e LIKE_POST_ID="$(get likePostId)" \
+  -e FEED_DEEP_CURSOR="$(get feedDeepCursor)" \
   grafana/k6:0.54.0 run --quiet /scripts/hot-endpoints.js | tail -1

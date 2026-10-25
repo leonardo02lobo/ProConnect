@@ -15,7 +15,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import mysql from 'mysql2/promise';
-import { dbConfig, resolveTargets } from './targets.mjs';
+import { dbConfig, login, resolveTargets } from './targets.mjs';
 
 const args = process.argv.slice(2);
 const arg = (name, def) => {
@@ -32,27 +32,25 @@ const REPEAT = Number(arg('repeat', 3));
 const WARMUP = Number(arg('warmup', 1));
 const TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS ?? 900_000);
 
-const json = (o) => ({ 'Content-Type': 'application/json', body: JSON.stringify(o) });
-
+// Rutas REST de cleanup-codebase (docs/api-routes.md). El viewer y el autor del like
+// salen de la sesión (cookie pc_session del usuario `likeUserId` = viewer).
+// Equivalencias con la línea base (fase 1): feed ↔ feedViewer, profile ↔ profile, etc.
 function endpoints(t) {
-  const likeBody = { userId: t.likeUserId, postId: t.likePostId };
   return [
-    { key: 'feedViewer', name: 'GET /api/posts/{userId} (feed con viewer)', method: 'GET', url: `/api/posts/${t.viewerId}` },
-    { key: 'feedAll', name: 'GET /api/posts (feed sin viewer)', method: 'GET', url: '/api/posts' },
-    { key: 'profile', name: 'GET /api/user/{userId}/profiles-posts (perfil)', method: 'GET', url: `/api/user/${t.profileUserId}/profiles-posts` },
-    { key: 'comments', name: 'GET /api/comment/find/{postId} (comentarios)', method: 'GET', url: `/api/comment/find/${t.commentsPostId}` },
+    { key: 'feed', name: 'GET /api/posts (feed, 1.ª página)', method: 'GET', url: '/api/posts?limit=20' },
+    { key: 'feedDeep', name: `GET /api/posts?cursor (feed, página tras ${t.feedDeepOffset} posts)`, method: 'GET', url: `/api/posts?limit=20&cursor=${t.feedDeepCursor}` },
+    { key: 'profile', name: 'GET /api/users/{id}/profile (perfil)', method: 'GET', url: `/api/users/${t.profileUserId}/profile` },
+    { key: 'comments', name: 'GET /api/posts/{postId}/comments (comentarios)', method: 'GET', url: `/api/posts/${t.commentsPostId}/comments` },
     // like: cada repetición es create + delete del mismo par, para dejar la BD limpia.
-    { key: 'likeCreate', name: 'POST /api/like/create', method: 'POST', url: '/api/like/create', body: likeBody, pairedWith: 'likeDelete' },
-    { key: 'likeDelete', name: 'DELETE /api/like/delete', method: 'DELETE', url: '/api/like/delete', body: likeBody, paired: true },
+    { key: 'likeCreate', name: 'POST /api/posts/{postId}/likes', method: 'POST', url: `/api/posts/${t.likePostId}/likes`, pairedWith: 'likeDelete' },
+    { key: 'likeDelete', name: 'DELETE /api/posts/{postId}/likes', method: 'DELETE', url: `/api/posts/${t.likePostId}/likes`, paired: true },
   ];
 }
 
+let COOKIE = '';
+
 async function http(ep) {
-  const init = { method: ep.method, signal: AbortSignal.timeout(TIMEOUT_MS) };
-  if (ep.body) {
-    init.headers = { 'Content-Type': 'application/json' };
-    init.body = JSON.stringify(ep.body);
-  }
+  const init = { method: ep.method, signal: AbortSignal.timeout(TIMEOUT_MS), headers: { Cookie: COOKIE } };
   const t0 = process.hrtime.bigint();
   const res = await fetch(API + ep.url, init);
   const buf = Buffer.from(await res.arrayBuffer());
@@ -148,6 +146,7 @@ async function measure(conn, ep, eps) {
 async function main() {
   const conn = await mysql.createConnection(dbConfig);
   const targets = await resolveTargets(conn);
+  COOKIE = await login(API, targets.viewerEmail);
   const eps = endpoints(targets);
   const selected = eps.filter((e) => !e.paired && (ONLY.length === 0 || ONLY.includes(e.key)));
   const results = [];

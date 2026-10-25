@@ -54,8 +54,29 @@ export async function resolveTargets(conn) {
       ORDER BY p.id DESC LIMIT 1`,
   );
 
+  // Feed paginado (fase 2): cursor de una página profunda (tras el post nº FEED_DEEP_OFFSET
+  // en orden created_at DESC, id DESC). Mismo formato opaco que PostsService:
+  // base64url("<epochMicros>:<id>"). Antes de la fase 2 el feed no pagina y se ignora.
+  const deepOffset = Number(process.env.FEED_DEEP_OFFSET ?? 5000);
+  const [cols] = await conn.query(
+    "SELECT COLUMN_NAME c FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'posts'",
+  );
+  const dateCol = cols.some((c) => c.c === 'created_at') ? 'created_at' : 'date';
+  await conn.query("SET time_zone = '+00:00'");
+  const [[deep]] = await conn.query(
+    `SELECT id, CAST(ROUND(UNIX_TIMESTAMP(${dateCol}) * 1000000) AS UNSIGNED) AS micros
+       FROM posts ORDER BY ${dateCol} DESC, id DESC LIMIT 1 OFFSET ?`,
+    [deepOffset],
+  );
+  const feedDeepCursor = deep
+    ? Buffer.from(`${deep.micros}:${deep.id}`).toString('base64url')
+    : null;
+
   return {
     viewerId,
+    viewerEmail: `perf.user${viewerId}@proconnect.test`,
+    feedDeepOffset: deepOffset,
+    feedDeepCursor,
     profileUserId: Number(profileRows[0].user_id),
     profileUserPosts: Number(profileRows[0].posts),
     profileUserCommentRows: Number(profileRows[0].comment_rows),
@@ -65,6 +86,23 @@ export async function resolveTargets(conn) {
     likePostId: Number(likePost.id),
     likeUserId: 1,
   };
+}
+
+// Toda la API exige sesión desde fix-critical-risks: login con un usuario sembrado
+// (password común del dataset) y devuelve la cabecera Cookie con pc_session.
+export const PERF_PASSWORD = process.env.PERF_PASSWORD ?? 'PerfPass#2026';
+export async function login(api, email) {
+  const res = await fetch(`${api}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password: PERF_PASSWORD }),
+  });
+  if (res.status !== 200) throw new Error(`login ${email} → HTTP ${res.status}`);
+  const cookie = (res.headers.getSetCookie?.() ?? [res.headers.get('set-cookie')])
+    .map((c) => c?.split(';')[0])
+    .find((c) => c?.startsWith('pc_session='));
+  if (!cookie) throw new Error(`login ${email}: sin cookie pc_session`);
+  return cookie;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

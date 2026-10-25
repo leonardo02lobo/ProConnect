@@ -1,6 +1,8 @@
 // Benchmark de latencia de los endpoints calientes (k6).
 // Un endpoint por ejecución (ENDPOINT), VUs constantes durante DURATION.
-//   ENDPOINT: feedViewer | feedAll | profile | comments | like
+//   ENDPOINT: feed | feedDeep | profile | comments | like   (rutas REST de cleanup-codebase)
+// Toda la API exige sesión: setup() hace login (password común del dataset) del viewer
+// y de un usuario por VU para el like, y cada petición lleva la cookie pc_session.
 //   MODE:     serial (1 VU, peticiones secuenciales en caliente) | load (VUS concurrentes)
 // Las ids salen de perf/bench/targets.mjs (el runner las pasa por env).
 import http from 'k6/http';
@@ -18,7 +20,9 @@ const T = {
   profileUserId: __ENV.PROFILE_USER_ID,
   commentsPostId: __ENV.COMMENTS_POST_ID,
   likePostId: Number(__ENV.LIKE_POST_ID),
+  feedDeepCursor: __ENV.FEED_DEEP_CURSOR,
 };
+const PASSWORD = __ENV.PERF_PASSWORD || 'PerfPass#2026';
 
 const dur = {
   main: new Trend('ep_duration', true),
@@ -41,36 +45,55 @@ export const options = {
   discardResponseBodies: true,
 };
 
-const params = (name) => ({ tags: { name }, timeout: __ENV.REQ_TIMEOUT || '20m' });
-const jsonParams = (name) => ({ ...params(name), headers: { 'Content-Type': 'application/json' } });
+function login(userId) {
+  const r = http.post(
+    `${BASE}/api/auth/login`,
+    JSON.stringify({ email: `perf.user${userId}@proconnect.test`, password: PASSWORD }),
+    { headers: { 'Content-Type': 'application/json' }, responseType: 'none' },
+  );
+  const c = r.cookies.pc_session;
+  if (r.status !== 200 || !c || !c.length) throw new Error(`login perf.user${userId} → HTTP ${r.status}`);
+  return `pc_session=${c[0].value}`;
+}
 
-function get(url, name) {
-  const r = http.get(`${BASE}${url}`, params(name));
+// Cookie del viewer (lecturas) y una por VU (like: usuario = nº de VU, 1..VUS).
+export function setup() {
+  const users = {};
+  users[T.viewerId] = login(T.viewerId);
+  if (ENDPOINT === 'like') for (let u = 1; u <= VUS; u++) users[u] = users[u] || login(u);
+  return { users };
+}
+
+const params = (name, cookie) => ({ tags: { name }, timeout: __ENV.REQ_TIMEOUT || '20m', headers: { Cookie: cookie } });
+
+function get(url, name, cookie) {
+  const r = http.get(`${BASE}${url}`, params(name, cookie));
   const ok = check(r, { 'status 2xx': (x) => x.status >= 200 && x.status < 300 });
   errors.add(!ok);
   dur.main.add(r.timings.duration);
 }
 
-export default function () {
+export default function (data) {
+  const viewer = data.users[T.viewerId];
   switch (ENDPOINT) {
-    case 'feedViewer':
-      return get(`/api/posts/${T.viewerId}`, 'feedViewer');
-    case 'feedAll':
-      return get('/api/posts', 'feedAll');
+    case 'feed':
+      return get('/api/posts?limit=20', 'feed', viewer);
+    case 'feedDeep':
+      return get(`/api/posts?limit=20&cursor=${T.feedDeepCursor}`, 'feedDeep', viewer);
     case 'profile':
-      return get(`/api/user/${T.profileUserId}/profiles-posts`, 'profile');
+      return get(`/api/users/${T.profileUserId}/profile`, 'profile', viewer);
     case 'comments':
-      return get(`/api/comment/find/${T.commentsPostId}`, 'comments');
+      return get(`/api/posts/${T.commentsPostId}/comments`, 'comments', viewer);
     case 'like': {
       // Cada VU usa su propio usuario (1..64) sobre un post sin likes de esos usuarios:
-      // create + delete deja la BD como estaba.
-      const body = JSON.stringify({ userId: __VU, postId: T.likePostId });
-      const c = http.post(`${BASE}/api/like/create`, body, jsonParams('likeCreate'));
+      // create + delete deja la BD como estaba. Sin body: post de la ruta, usuario de la sesión.
+      const cookie = data.users[__VU];
+      const c = http.post(`${BASE}/api/posts/${T.likePostId}/likes`, null, params('likeCreate', cookie));
       const okC = check(c, { 'create 201': (x) => x.status === 201 });
       dur.likeCreate.add(c.timings.duration);
       dur.main.add(c.timings.duration);
-      const d = http.del(`${BASE}/api/like/delete`, body, jsonParams('likeDelete'));
-      const okD = check(d, { 'delete 200': (x) => x.status === 200 });
+      const d = http.del(`${BASE}/api/posts/${T.likePostId}/likes`, null, params('likeDelete', cookie));
+      const okD = check(d, { 'delete 204': (x) => x.status === 204 });
       dur.likeDelete.add(d.timings.duration);
       errors.add(!(okC && okD));
       return;

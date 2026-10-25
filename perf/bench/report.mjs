@@ -10,7 +10,16 @@ const label = process.argv[2] ?? 'baseline';
 const ci = process.argv.indexOf('--compare');
 const base = ci > 0 ? process.argv[ci + 1] : null;
 
+// [clave, nombre, endpoint k6, clave equivalente en la línea base de la fase 1 (rutas de 03a4ba7)]
 const ORDER = [
+  ['feed', 'GET /api/posts (feed)', 'feed', 'feedViewer'],
+  ['feedDeep', 'GET /api/posts?cursor= (página profunda)', 'feedDeep', 'feedViewer'],
+  ['profile', 'GET /api/users/{id}/profile', 'profile', 'profile'],
+  ['comments', 'GET /api/posts/{postId}/comments', 'comments', 'comments'],
+  ['likeCreate', 'POST /api/posts/{postId}/likes', 'like', 'likeCreate'],
+  ['likeDelete', 'DELETE /api/posts/{postId}/likes', 'like', 'likeDelete'],
+];
+const LEGACY = [
   ['feedViewer', 'GET /api/posts/{userId}', 'feedViewer'],
   ['feedAll', 'GET /api/posts', 'feedAll'],
   ['profile', 'GET /api/user/{userId}/profiles-posts', 'profile'],
@@ -18,6 +27,8 @@ const ORDER = [
   ['likeCreate', 'POST /api/like/create', 'like'],
   ['likeDelete', 'DELETE /api/like/delete', 'like'],
 ];
+// La línea base usa las rutas antiguas: se detecta por sus claves.
+const isLegacy = (data) => Boolean(data.q.feedViewer || data.k6['feedViewer:serial']);
 
 function load(lbl) {
   const files = fs.readdirSync(dir).filter((f) => f.startsWith(`${lbl}-`) && f.endsWith('.json') && (f.includes('-queries') || f.includes('-k6-')));
@@ -47,11 +58,12 @@ function row(data, key, k6ep) {
 
 function table(lbl) {
   const data = load(lbl);
+  const order = isLegacy(data) ? LEGACY : ORDER;
   const lines = [
     '| Endpoint | Sentencias SQL / req (DML · total) | Tiempo BD / req | Filas examinadas / req | Req. única en caliente (p50) | Serial 1 VU 30 s p50 / p95 (n) | Carga N VUs 30 s p50 / p95 (rps) | Tamaño respuesta | HTTP |',
     '|---|---|---|---|---|---|---|---|---|',
   ];
-  for (const [key, name, k6ep] of ORDER) {
+  for (const [key, name, k6ep] of order) {
     const { q, serial, load: ld } = row(data, key, k6ep);
     if (!q && !serial && !ld) continue;
     lines.push(
@@ -65,11 +77,13 @@ let md = `## Resumen \`${label}\`\n\n${table(label)}\n`;
 if (base) {
   const a = load(base);
   const b = load(label);
-  md += `\n## Comparación \`${base}\` → \`${label}\`\n\n| Endpoint | Sentencias (antes → después) | Serial p95 (antes → después) |\n|---|---|---|\n`;
-  for (const [key, name, k6ep] of ORDER) {
-    const ra = row(a, key, k6ep);
+  md += `\n## Comparación \`${base}\` → \`${label}\`\n\n| Endpoint | Sentencias DML (antes → después) | Serial p50 (antes → después) | Serial p95 (antes → después) | Carga p95 (antes → después) | Tamaño (antes → después) |\n|---|---|---|---|---|---|\n`;
+  for (const [key, name, k6ep, legacyKey] of ORDER) {
+    const legacyEp = LEGACY.find((l) => l[0] === legacyKey);
+    const ra = isLegacy(a) ? row(a, legacyKey, legacyEp[2]) : row(a, key, k6ep);
     const rb = row(b, key, k6ep);
-    md += `| \`${name}\` | ${ra.q?.statementsDml ?? '—'} → ${rb.q?.statementsDml ?? '—'} | ${ms(ra.serial?.p95)} → ${ms(rb.serial?.p95)} |\n`;
+    if (!rb.q && !rb.serial) continue;
+    md += `| \`${name}\` | ${ra.q?.statementsDml ?? '—'} → ${rb.q?.statementsDml ?? '—'} | ${ms(ra.serial?.p50)} → ${ms(rb.serial?.p50)} | ${ms(ra.serial?.p95)} → ${ms(rb.serial?.p95)} | ${ms(ra.load?.p95)} → ${ms(rb.load?.p95)} | ${size(ra.q?.responseBytes)} → ${size(rb.q?.responseBytes)} |\n`;
   }
 }
 fs.writeFileSync(path.join(dir, `${label}-summary.md`), md);
