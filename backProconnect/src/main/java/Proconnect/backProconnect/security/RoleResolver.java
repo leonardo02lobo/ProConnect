@@ -45,6 +45,10 @@ public class RoleResolver {
         }
     }
 
+    public void invalidateAll() {
+        cache.invalidateAll();
+    }
+
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onRoleChanged(RoleChangedEvent event) {
         invalidate(event.userId());

@@ -30,11 +30,13 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.ResultActions;
 
 /** add-role-management: asignación de roles por un ADMIN, salvaguardas, auditoría y efecto. */
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestPropertySource(properties = "proconnect.security.role-cache-ttl=PT30S")
 class RoleManagementTests extends SecurityTestSupport {
 
     private static final String COMPANY =
@@ -55,6 +57,9 @@ class RoleManagementTests extends SecurityTestSupport {
 
     @BeforeEach
     void users() throws Exception {
+        // Contexto propio con la cache real; otro contexto pudo recrear el schema (ids
+        // reutilizados).
+        roleResolver.invalidateAll();
         anaId = createUser("ana", "USER");
         carlaId = createUser("carla", "COMPANY_ADMIN");
         rootId = createUser("root", "ADMIN");
