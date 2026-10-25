@@ -67,6 +67,9 @@ public class SecurityConfig {
                                         .permitAll()
                                         .requestMatchers(HttpMethod.GET, "/actuator/health")
                                         .permitAll()
+                                        // Defensa en profundidad: RoleService también exige ADMIN.
+                                        .requestMatchers("/api/admin/**")
+                                        .hasRole("ADMIN")
                                         .requestMatchers("/error")
                                         .permitAll()
                                         .anyRequest()

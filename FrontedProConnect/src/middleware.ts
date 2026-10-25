@@ -1,5 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
-import { SESSION_COOKIE } from "./Service/server";
+import { SESSION_COOKIE, serverApiUrl } from "./Service/server";
 
 // Páginas accesibles sin sesión. Todo lo demás redirige a /login si no hay cookie pc_session.
 // La validez del token la comprueba el backend: un 401 en SSR o en apiFetch también lleva a /login.
@@ -59,6 +59,27 @@ function withSecurityHeaders(response: Response): Response {
     return response;
 }
 
+/** /admin/** solo para ADMIN: la UI no se sirve al resto (la API, en cualquier caso, responde 403). */
+function isAdminPath(pathname: string): boolean {
+    return pathname === "/admin" || pathname.startsWith("/admin/");
+}
+
+/** Rol vigente según GET /api/auth/me (null = sin sesión válida). */
+async function sessionRole(cookieHeader: string | null): Promise<string | null> {
+    try {
+        const response = await fetch(`${serverApiUrl()}/api/auth/me`, {
+            headers: cookieHeader ? { cookie: cookieHeader } : {},
+        });
+        if (!response.ok) {
+            return null;
+        }
+        const me = (await response.json()) as { role?: string };
+        return me.role ?? null;
+    } catch {
+        return null;
+    }
+}
+
 export const onRequest = defineMiddleware(async (context, next) => {
     const { pathname } = context.url;
     if (PUBLIC_PATHS.has(pathname) || STATIC_PREFIXES.some((p) => pathname.startsWith(p))) {
@@ -66,6 +87,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
     if (!context.cookies.get(SESSION_COOKIE)?.value) {
         return withSecurityHeaders(context.redirect("/login"));
+    }
+    if (isAdminPath(pathname)) {
+        const role = await sessionRole(context.request.headers.get("cookie"));
+        if (role === null) {
+            return withSecurityHeaders(context.redirect("/login"));
+        }
+        if (role !== "ADMIN") {
+            return withSecurityHeaders(context.redirect("/"));
+        }
     }
     return withSecurityHeaders(await next());
 });

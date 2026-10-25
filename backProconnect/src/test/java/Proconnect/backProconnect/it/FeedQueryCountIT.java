@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.TestPropertySource;
 
 /**
  * Umbral bloqueante del change (spec feed-performance / performance-baseline): el feed y el perfil
@@ -26,7 +27,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * comentarios y likes tenga la página. Si un cambio introduce un N+1 (p. ej. cargar el autor de
  * cada comentario con su propia query), estos tests fallan en CI. Cuenta sentencias DML que llegan
  * al driver (datasource-proxy), contra MySQL real con el esquema de Flyway.
+ *
+ * <p>El filtro JWT resuelve el rol vigente con {@code RoleResolver} (add-role-management). Aquí se
+ * usa la cache real de producción (30 s; la suite general la desactiva con PT0S), así que la
+ * petición de calentamiento de {@link #getCounted} deja el rol de la sesión cacheado y el umbral
+ * mide solo las sentencias de la página, como en producción con una sesión activa.
  */
+@TestPropertySource(properties = "proconnect.security.role-cache-ttl=PT30S")
 class FeedQueryCountIT extends MySqlIntegrationTest {
 
     private static final int MAX_STATEMENTS = 4;

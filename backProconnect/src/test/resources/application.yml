@@ -21,7 +21,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-    database-platform: org.hibernate.dialect.H2Dialect
     properties:
       hibernate:
         # Las queries nativas usan el schema literal "proconnect."
@@ -32,6 +31,11 @@ spring:
           preferred_instant_jdbc_type: TIMESTAMP
 
 proconnect:
+  security:
+    # Sin cache de rol en la suite general: los contextos con otra configuración recrean el schema
+    # (create-drop) y los ids se reutilizan, así que un rol cacheado por id quedaría obsoleto entre
+    # clases. RoleManagementTests usa la cache real (30 s) en su propio contexto.
+    role-cache-ttl: PT0S
   mail:
     from: no-reply@proconnect.test
     retry:

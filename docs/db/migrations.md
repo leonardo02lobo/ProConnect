@@ -12,6 +12,7 @@ Desde `restructure-models-performance` el esquema de MySQL lo gestiona **solo Fl
 | V3 | `V3__user_media_columns.sql` | (expand) `user.avatar_url`/`cover_url` ← `profile_photos` | No |
 | V4 | `V4__post_counters.sql` | `posts.like_count`/`comment_count` + backfill; auditoría `counter_mismatch_after_backfill` = 0 | No |
 | V5 | `V5__drop_profile_photos.sql` | (contract) `DROP TABLE profile_photos` — solo cuando todos los entornos corren ≥ V3 | **Sí** (U5 la recrea desde `user`, sin ids originales) |
+| V6 | `V6__role_changes.sql` | Tabla de auditoría `role_changes` (add-role-management), sin FKs a `user` para que sobreviva al borrado | No (U6 la borra) |
 
 ## Bases nuevas y existentes
 

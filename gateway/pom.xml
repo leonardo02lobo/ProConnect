@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.16</version>
+		<version>4.1.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>Proconnect</groupId>
@@ -20,13 +20,13 @@
 		<google-java-format.version>1.25.2</google-java-format.version>
 		<maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
 		<checkstyle.version>10.26.1</checkstyle.version>
-		<spring-cloud.version>2025.0.3</spring-cloud.version>
-		<jjwt.version>0.12.6</jjwt.version>
-		<!-- verify-web-security: parches de seguridad sobre el BOM de Spring Boot 3.5.16 (ver docs/security/audit-2026-10-24.md, SEC-24) -->
-		<tomcat.version>10.1.61</tomcat.version>
-		<netty.version>4.1.139.Final</netty.version>
+		<spring-cloud.version>2025.1.4</spring-cloud.version>
+		<jjwt.version>0.13.0</jjwt.version>
+		<!-- upgrade-spring-boot-4: Spring Boot 4.1.2 + Spring Cloud 2025.1.4 GA (compatibilidad oficial 2025.1.x ↔ Boot 4.0.x/4.1.x,
+		     ver openspec/changes/upgrade-spring-boot-4/design.md D1). Netty 4.2 y Jackson 3 salen del BOM (sin overrides).
+		     Solo se fijan versiones más nuevas que las del BOM: Jackson 2 (lo usa jjwt-jackson) y log4j-api. -->
+		<jackson-2-bom.version>2.21.8</jackson-2-bom.version>
 		<log4j2.version>2.26.1</log4j2.version>
-		<jackson-bom.version>2.21.8</jackson-bom.version>
 	</properties>
 
 	<dependencies>
@@ -58,6 +58,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- Boot 4 (starters de test modulares): WebTestClient y @AutoConfigureWebTestClient -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

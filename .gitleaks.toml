@@ -34,6 +34,9 @@ paths = [
   '''(^|/)package-lock\.json$''',
   '''\.env\.example$''',
   '''(^|/)target/''',
+  # JWT de prueba firmado con el secreto de test (test-secret-test-secret...) para comprobar que
+  # los tokens emitidos con Spring Boot 3.5 siguen validando tras upgrade-spring-boot-4.
+  '''LegacyTokenCompatibilityTests\.java$''',
 ]
 regexes = [
   '''change-me''',

@@ -7,6 +7,7 @@ name: pc-e2e
 
 x-jwt: &jwt_secret ${E2E_JWT_SECRET:-e2e-local-only-jwt-secret-not-for-prod-0123456789}
 x-db-password: &db_password ${E2E_DB_PASSWORD:-e2e-local-db-password}
+# Bootstrap ADMIN password: must satisfy the bootstrap policy (>= 12 chars, 3 of 4 classes) or the API won't start.
 x-admin-password: &admin_password ${E2E_ADMIN_PASSWORD:-E2e-Admin-Passw0rd!}
 
 services:
@@ -54,7 +55,7 @@ services:
       MAIL_HOST: mailpit
       MAIL_PORT: "1025"
       MAIL_FROM: '"Respuesta a su solicitud de empleo" <no-reply@proconnect.test>'
-      # ADMIN de la suite (dueño de empresa en el test de correos); se crea al arrancar.
+      # ADMIN de la suite (promueve usuarios a COMPANY_ADMIN en admin/company-flow); se crea al arrancar.
       BOOTSTRAP_ADMIN_EMAIL: admin.e2e@proconnect.test
       BOOTSTRAP_ADMIN_PASSWORD: *admin_password
       BOOTSTRAP_ADMIN_NAME: Admin E2E

@@ -72,11 +72,18 @@ proconnect:
   security:
     # Proxies cuyo X-Forwarded-For se acepta (IP o CIDR, separados por comas). Pon aquí la red del gateway.
     trusted-proxies: ${TRUSTED_PROXIES:127.0.0.1/32,::1/128}
+    # Cache del rol vigente (RoleResolver). Con varias instancias, bájalo: la invalidación es local.
+    role-cache-ttl: ${ROLE_CACHE_TTL:PT30S}
   bootstrap:
     # Primer ADMIN (opcional): se crea al arrancar si no existe. Vacío = desactivado.
+    # Password: BOOTSTRAP_ADMIN_PASSWORD o BOOTSTRAP_ADMIN_PASSWORD_FILE (Docker secret), nunca ambas;
+    # >= 12 caracteres y 3 de 4 clases (minúsculas, mayúsculas, dígitos, símbolos).
+    # Retira estas variables tras el primer arranque.
     admin:
       email: ${BOOTSTRAP_ADMIN_EMAIL:}
       password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+      password-file: ${BOOTSTRAP_ADMIN_PASSWORD_FILE:}
+      username: ${BOOTSTRAP_ADMIN_USERNAME:}
       name: ${BOOTSTRAP_ADMIN_NAME:Administrador}
   mail:
     from: '${MAIL_FROM:"Respuesta a su solicitud de empleo" <no-reply@proconnect.local>}'

@@ -128,3 +128,18 @@ Cambios de campos:
 
 Like y comentario mantienen sus rutas; un doble like (también concurrente) responde 409 y no altera `likeCount`.
 
+## Administración (add-role-management)
+
+Solo `ADMIN` (403 para el resto, también con `hasRole('ADMIN')` sobre `/api/admin/**` en la cadena de seguridad).
+El rol de cada petición es el vigente en la BD (cache ≤ 30 s, invalidada al cambiar), no el claim del JWT:
+un cambio de rol se aplica a las sesiones abiertas en la siguiente petición.
+
+| Ruta | Notas |
+|---|---|
+| `GET /api/admin/users?q=&page=&size=` | `{content:[{id,name,userName,email,role}], page, size, totalElements, totalPages}`; `q` busca en nombre, userName y email; `page` desde 0; `size` 1–100 (por defecto 20) |
+| `PUT /api/admin/users/{id}/role` | body `{"role":"USER"\|"COMPANY_ADMIN"\|"ADMIN"}` → 200 con el usuario; 400 rol inválido; 404 usuario inexistente; 409 si un ADMIN se quita su propio rol o si el cambio deja 0 ADMIN; mismo rol → 200 sin auditoría. Cada cambio queda en `role_changes` (actor, usuario, de, a, fecha), que no tiene rutas de modificación |
+
+> **Forma de `GET /api/admin/users` (decisión de integración, upgrade-spring-boot-4):** se mantiene
+> `{content, page, size, totalElements, totalPages}` y no el `{items, page, size, hasNext}` de los listados
+> públicos, porque la UI de administración (`/admin/users`) muestra el total y el número de páginas. Es la
+> única ruta con `COUNT(*)`: solo la usan ADMIN y es una consulta de backoffice, fuera del camino caliente.

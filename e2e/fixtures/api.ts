@@ -165,6 +165,20 @@ export class ApiClient {
     await ensureOk(await this.ctx.delete(`/api/posts/${postId}/likes`), 'unlike');
   }
 
+  /** PUT /api/admin/users/{id}/role (ADMIN only). Returns the raw response so tests can assert 403/409. */
+  async setRole(userId: number, role: 'USER' | 'COMPANY_ADMIN' | 'ADMIN'): Promise<APIResponse> {
+    return this.ctx.put(`/api/admin/users/${userId}/role`, { data: { role } });
+  }
+
+  /** Registers a throwaway user (unique per test) and logs it in. Returns its public data. */
+  async registerAndLogin(uid: string, prefix: string, password: string): Promise<PublicUser> {
+    const tag = `${prefix}_${uid}`.replace(/-/g, '_');
+    const email = `${prefix}-${uid}@proconnect.test`;
+    const status = await this.register({ name: `${prefix} ${uid}`, userName: tag, email, password });
+    if (status !== 201 && status !== 200) throw new Error(`register ${email} → HTTP ${status}`);
+    return this.login(email, password);
+  }
+
   async comment(postId: number, content: string): Promise<void> {
     await ensureOk(await this.ctx.post(`/api/posts/${postId}/comments`, { data: { content } }), 'comment');
   }

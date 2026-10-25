@@ -1,34 +1,45 @@
 # Actualizaciones de dependencias (verify-web-security, tarea 1.1). Semanal, agrupando parches/minors.
+# upgrade-spring-boot-4 (ci-supply-chain): cooldown en TODAS las entradas para no adoptar versiones recién
+# publicadas (posibles paquetes comprometidos): 7 días para todo (cubre el mínimo de 3 y los 7 de mayores de la spec;
+# Semgrep dependabot-missing-cooldown exige >= 7). Las alertas de seguridad de Dependabot no esperan. Las actions van
+# fijadas por SHA con comentario "# vX.Y.Z": Dependabot actualiza SHA y comentario.
 version: 2
 updates:
   - package-ecosystem: maven
     directory: /backProconnect
     schedule: { interval: weekly, day: monday }
+    cooldown: { default-days: 7 }
     groups:
       maven-minor-patch: { update-types: [minor, patch] }
   - package-ecosystem: maven
     directory: /gateway
     schedule: { interval: weekly, day: monday }
+    cooldown: { default-days: 7 }
     groups:
       maven-minor-patch: { update-types: [minor, patch] }
   - package-ecosystem: npm
     directory: /FrontedProConnect
     schedule: { interval: weekly, day: monday }
+    cooldown: { default-days: 7 }
     groups:
       npm-minor-patch: { update-types: [minor, patch] }
   - package-ecosystem: npm
     directory: /NodeTsPosts
     schedule: { interval: weekly, day: monday }
+    cooldown: { default-days: 7 }
     groups:
       npm-minor-patch: { update-types: [minor, patch] }
   - package-ecosystem: npm
     directory: /e2e
     schedule: { interval: weekly, day: monday }
+    cooldown: { default-days: 7 }
     groups:
       npm-minor-patch: { update-types: [minor, patch] }
   - package-ecosystem: docker
     directories: [/backProconnect, /gateway, /NodeTsPosts, /FrontedProConnect]
     schedule: { interval: weekly, day: monday }
+    cooldown: { default-days: 7 }
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly, day: monday }
+    cooldown: { default-days: 7 }

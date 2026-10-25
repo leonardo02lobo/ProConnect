@@ -1,12 +1,12 @@
 package Proconnect.backProconnect.it;
 
 import Proconnect.backProconnect.security.SecurityTestSupport;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.mysql.MySQLContainer;
 
 /**
  * Base de los tests de integración ({@code *IT}, maven-failsafe) contra un MySQL 8.4 real con el
@@ -24,12 +24,12 @@ import org.testcontainers.containers.MySQLContainer;
 public abstract class MySqlIntegrationTest extends SecurityTestSupport {
 
     private static final String EXTERNAL_URL = System.getenv("IT_DB_URL");
-    static final MySQLContainer<?> MYSQL;
+    static final MySQLContainer MYSQL;
 
     static {
         if (EXTERNAL_URL == null || EXTERNAL_URL.isBlank()) {
             MYSQL =
-                    new MySQLContainer<>("mysql:8.4")
+                    new MySQLContainer("mysql:8.4")
                             .withDatabaseName("proconnect")
                             .withUsername("app")
                             .withPassword("app-it-password")
@@ -66,6 +66,5 @@ public abstract class MySqlIntegrationTest extends SecurityTestSupport {
         registry.add("spring.datasource.driver-class-name", () -> "com.mysql.cj.jdbc.Driver");
         registry.add("spring.flyway.enabled", () -> "true");
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "validate");
-        registry.add("spring.jpa.database-platform", () -> "org.hibernate.dialect.MySQLDialect");
     }
 }

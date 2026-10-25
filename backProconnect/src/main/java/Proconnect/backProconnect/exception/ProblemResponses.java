@@ -1,7 +1,6 @@
 package Proconnect.backProconnect.exception;
 
 import Proconnect.backProconnect.web.TraceIdFilter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -11,6 +10,8 @@ import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Construcción de respuestas RFC 7807 ({@code application/problem+json}) compartida por el {@link
@@ -20,7 +21,7 @@ import org.springframework.http.ProblemDetail;
 public final class ProblemResponses {
 
     public static final MediaType PROBLEM_JSON = MediaType.APPLICATION_PROBLEM_JSON;
-    private static final ObjectMapper JSON = new ObjectMapper();
+    private static final ObjectMapper JSON = new JsonMapper();
 
     private ProblemResponses() {}
 

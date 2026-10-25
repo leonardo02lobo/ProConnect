@@ -1,5 +1,7 @@
 // Tipos alineados con los DTOs del backend (backProconnect/model).
 
+export type Role = "USER" | "COMPANY_ADMIN" | "ADMIN";
+
 /** Usuario público (UserPublicDto). Nunca incluye password. */
 export interface UserDTO {
     id: number;
@@ -86,4 +88,22 @@ export interface ProblemDetail {
     instance?: string;
     traceId?: string;
     errors?: Array<{ field: string; message: string }>;
+}
+
+/** Usuario en las rutas de administración (AdminUserDto). */
+export interface AdminUserDTO {
+    id: number;
+    name: string;
+    userName: string;
+    email: string;
+    role: Role;
+}
+
+/** Página de GET /api/admin/users (AdminUserPage). */
+export interface AdminUserPageDTO {
+    content: AdminUserDTO[];
+    page: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
 }

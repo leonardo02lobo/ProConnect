@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -27,9 +28,8 @@ public interface CommentsRepository extends JpaRepository<Comments, Long> {
      * recientes de cada post (ROW_NUMBER por post), con su autor, en orden cronológico. Evita el
      * N+1 de una query por post (design D4, Q3).
      */
-    @Query(
-            value =
-                    """
+    @NativeQuery(
+            """
             SELECT t.id AS id, t.post_id AS postId, t.user_id AS userId, t.content AS content,
                    t.created_at AS createdAt, t.name AS authorName, t.user_name AS authorUserName,
                    t.email AS authorEmail, t.role AS authorRole, t.avatar_url AS authorAvatarUrl,
@@ -44,8 +44,7 @@ public interface CommentsRepository extends JpaRepository<Comments, Long> {
             ) t
             WHERE t.rn <= :perPost
             ORDER BY t.post_id, t.created_at, t.id
-            """,
-            nativeQuery = true)
+            """)
     List<CommentRow> latestPerPost(
             @Param("postIds") Collection<Long> postIds, @Param("perPost") int perPost);
 
