@@ -1,0 +1,724 @@
+{
+  "POST /api/auth/register": {
+    "status": 201,
+    "contentType": "application/json",
+    "body": {
+      "avatarUrl": "null",
+      "coverUrl": "null",
+      "email": "string",
+      "id": "number",
+      "name": "string",
+      "role": "string",
+      "userName": "string"
+    }
+  },
+  "POST /api/auth/register (duplicate 409)": {
+    "status": 409,
+    "contentType": "application/problem+json",
+    "body": {
+      "detail": "string",
+      "instance": "string",
+      "status": "number",
+      "title": "string",
+      "traceId": "string",
+      "type": "string"
+    },
+    "title": "Conflict"
+  },
+  "POST /api/auth/register (invalid 400)": {
+    "status": 400,
+    "contentType": "application/problem+json",
+    "body": {
+      "detail": "string",
+      "errors": [
+        {
+          "field": "string",
+          "message": "string"
+        }
+      ],
+      "instance": "string",
+      "status": "number",
+      "title": "string",
+      "traceId": "string",
+      "type": "string"
+    },
+    "title": "Bad Request"
+  },
+  "POST /api/auth/login (bad 401)": {
+    "status": 401,
+    "contentType": "application/problem+json",
+    "body": {
+      "detail": "string",
+      "instance": "string",
+      "status": "number",
+      "title": "string",
+      "traceId": "string",
+      "type": "string"
+    },
+    "title": "Unauthorized"
+  },
+  "POST /api/auth/login": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "avatarUrl": "null",
+      "coverUrl": "null",
+      "email": "string",
+      "id": "number",
+      "name": "string",
+      "role": "string",
+      "userName": "string"
+    }
+  },
+  "GET /api/auth/me": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "avatarUrl": "null",
+      "coverUrl": "null",
+      "email": "string",
+      "id": "number",
+      "name": "string",
+      "role": "string",
+      "userName": "string"
+    }
+  },
+  "GET /api/auth/me (anonymous 401)": {
+    "status": 401,
+    "contentType": "application/problem+json",
+    "body": {
+      "detail": "string",
+      "instance": "string",
+      "status": "number",
+      "title": "string",
+      "traceId": "string",
+      "type": "string"
+    },
+    "title": "Unauthorized"
+  },
+  "PUT /api/users/{id}/media": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "avatarUrl": "string",
+      "coverUrl": "string",
+      "email": "string",
+      "id": "number",
+      "name": "string",
+      "role": "string",
+      "userName": "string"
+    }
+  },
+  "PUT /api/users/{id}/media (other user 403)": {
+    "status": 403,
+    "contentType": "application/problem+json",
+    "body": {
+      "detail": "string",
+      "instance": "string",
+      "status": "number",
+      "title": "string",
+      "traceId": "string",
+      "type": "string"
+    },
+    "title": "Forbidden"
+  },
+  "POST /api/posts": {
+    "status": 201,
+    "contentType": "application/json",
+    "body": {
+      "content": "string",
+      "date": "datetime:iso.fracZ",
+      "id": "number",
+      "imageUrl": "string",
+      "title": "string",
+      "userId": "number"
+    }
+  },
+  "POST /api/posts (invalid 400)": {
+    "status": 400,
+    "contentType": "application/problem+json",
+    "body": {
+      "detail": "string",
+      "errors": [
+        {
+          "field": "string",
+          "message": "string"
+        }
+      ],
+      "instance": "string",
+      "status": "number",
+      "title": "string",
+      "traceId": "string",
+      "type": "string"
+    },
+    "title": "Bad Request"
+  },
+  "POST /api/posts/{id}/likes": {
+    "status": 201,
+    "contentType": "application/json",
+    "body": {
+      "date": "datetime:iso.fracZ",
+      "id": "number",
+      "postId": "number",
+      "userId": "number"
+    }
+  },
+  "POST /api/posts/{id}/likes (duplicate 409)": {
+    "status": 409,
+    "contentType": "application/problem+json",
+    "body": {
+      "detail": "string",
+      "instance": "string",
+      "status": "number",
+      "title": "string",
+      "traceId": "string",
+      "type": "string"
+    },
+    "title": "Conflict"
+  },
+  "POST /api/posts/{id}/comments": {
+    "status": 201,
+    "contentType": "application/json",
+    "body": {
+      "content": "string",
+      "date": "datetime:iso.fracZ",
+      "id": "number",
+      "postId": "number",
+      "user": {
+        "avatarUrl": "null",
+        "coverUrl": "null",
+        "email": "string",
+        "id": "number",
+        "name": "string",
+        "role": "string",
+        "userName": "string"
+      },
+      "userId": "number"
+    }
+  },
+  "GET /api/posts (feed)": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "items": [
+        {
+          "commentCount": "number",
+          "commentsPreview": [
+            {
+              "content": "string",
+              "date": "datetime:iso.fracZ",
+              "id": "number",
+              "postId": "number",
+              "user": {
+                "avatarUrl": "null",
+                "coverUrl": "null",
+                "email": "string",
+                "id": "number",
+                "name": "string",
+                "role": "string",
+                "userName": "string"
+              },
+              "userId": "number"
+            }
+          ],
+          "content": "string",
+          "date": "datetime:iso.fracZ",
+          "id": "number",
+          "imageUrl": "string",
+          "likeCount": "number",
+          "title": "string",
+          "user": {
+            "avatarUrl": "string",
+            "coverUrl": "string",
+            "id": "number",
+            "name": "string",
+            "role": "string",
+            "userName": "string"
+          },
+          "userId": "number",
+          "userLiked": "boolean"
+        }
+      ],
+      "nextCursor": "string"
+    }
+  },
+  "GET /api/posts?cursor=bad (400)": {
+    "status": 400,
+    "contentType": "application/problem+json",
+    "body": {
+      "detail": "string",
+      "errors": [
+        {
+          "field": "string",
+          "message": "string"
+        }
+      ],
+      "instance": "string",
+      "status": "number",
+      "title": "string",
+      "traceId": "string",
+      "type": "string"
+    },
+    "title": "Bad Request"
+  },
+  "GET /api/posts/{id}": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "content": "string",
+      "date": "datetime:iso.fracZ",
+      "id": "number",
+      "imageUrl": "string",
+      "title": "string",
+      "userId": "number"
+    }
+  },
+  "GET /api/posts/{id} (404)": {
+    "status": 404,
+    "contentType": "application/problem+json",
+    "body": {
+      "detail": "string",
+      "instance": "string",
+      "status": "number",
+      "title": "string",
+      "traceId": "string",
+      "type": "string"
+    },
+    "title": "Not Found"
+  },
+  "GET /api/posts/{id}/comments": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "items": [
+        {
+          "content": "string",
+          "date": "datetime:iso.fracZ",
+          "id": "number",
+          "postId": "number",
+          "user": {
+            "avatarUrl": "null",
+            "coverUrl": "null",
+            "email": "string",
+            "id": "number",
+            "name": "string",
+            "role": "string",
+            "userName": "string"
+          },
+          "userId": "number"
+        }
+      ],
+      "nextCursor": "null"
+    }
+  },
+  "GET /api/posts/{id}/likes": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "hasNext": "boolean",
+      "items": [
+        {
+          "date": "datetime:iso.fracZ",
+          "id": "number",
+          "postId": "number",
+          "userId": "number"
+        }
+      ],
+      "page": "number",
+      "size": "number"
+    }
+  },
+  "GET /api/users/{id}/profile": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "avatarUrl": "string",
+      "coverUrl": "string",
+      "id": "number",
+      "name": "string",
+      "nextCursor": "null",
+      "posts": [
+        {
+          "commentCount": "number",
+          "commentsPreview": [
+            {
+              "content": "string",
+              "date": "datetime:iso.fracZ",
+              "id": "number",
+              "postId": "number",
+              "user": {
+                "avatarUrl": "null",
+                "coverUrl": "null",
+                "email": "string",
+                "id": "number",
+                "name": "string",
+                "role": "string",
+                "userName": "string"
+              },
+              "userId": "number"
+            }
+          ],
+          "content": "string",
+          "date": "datetime:iso.fracZ",
+          "id": "number",
+          "imageUrl": "string",
+          "likeCount": "number",
+          "title": "string",
+          "user": {
+            "avatarUrl": "string",
+            "coverUrl": "string",
+            "id": "number",
+            "name": "string",
+            "role": "string",
+            "userName": "string"
+          },
+          "userId": "number",
+          "userLiked": "boolean"
+        }
+      ],
+      "role": "string",
+      "userName": "string"
+    }
+  },
+  "GET /api/users/{id}/profile (404)": {
+    "status": 404,
+    "contentType": "application/problem+json",
+    "body": {
+      "detail": "string",
+      "instance": "string",
+      "status": "number",
+      "title": "string",
+      "traceId": "string",
+      "type": "string"
+    },
+    "title": "Not Found"
+  },
+  "GET /api/users/{id}/posts": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "items": [
+        {
+          "commentCount": "number",
+          "commentsPreview": [
+            {
+              "content": "string",
+              "date": "datetime:iso.fracZ",
+              "id": "number",
+              "postId": "number",
+              "user": {
+                "avatarUrl": "null",
+                "coverUrl": "null",
+                "email": "string",
+                "id": "number",
+                "name": "string",
+                "role": "string",
+                "userName": "string"
+              },
+              "userId": "number"
+            }
+          ],
+          "content": "string",
+          "date": "datetime:iso.fracZ",
+          "id": "number",
+          "imageUrl": "string",
+          "likeCount": "number",
+          "title": "string",
+          "user": {
+            "avatarUrl": "string",
+            "coverUrl": "string",
+            "id": "number",
+            "name": "string",
+            "role": "string",
+            "userName": "string"
+          },
+          "userId": "number",
+          "userLiked": "boolean"
+        }
+      ],
+      "nextCursor": "null"
+    }
+  },
+  "GET /api/users?q=": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "hasNext": "boolean",
+      "items": [
+        {
+          "avatarUrl": "null",
+          "coverUrl": "null",
+          "email": "string",
+          "id": "number",
+          "name": "string",
+          "role": "string",
+          "userName": "string"
+        },
+        {
+          "avatarUrl": "string",
+          "coverUrl": "string",
+          "id": "number",
+          "name": "string",
+          "role": "string",
+          "userName": "string"
+        }
+      ],
+      "page": "number",
+      "size": "number"
+    }
+  },
+  "GET /api/users/{id}": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "avatarUrl": "string",
+      "coverUrl": "string",
+      "id": "number",
+      "name": "string",
+      "role": "string",
+      "userName": "string"
+    }
+  },
+  "POST /api/friends/requests": {
+    "status": 201,
+    "contentType": "application/json",
+    "body": {
+      "id": "number",
+      "recipientId": "number",
+      "requesterId": "number",
+      "status": "string"
+    }
+  },
+  "GET /api/friends/requests": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "hasNext": "boolean",
+      "items": [
+        {
+          "id": "number",
+          "recipientId": "number",
+          "requesterId": "number",
+          "status": "string"
+        }
+      ],
+      "page": "number",
+      "size": "number"
+    }
+  },
+  "POST /api/messages": {
+    "status": 201,
+    "contentType": "application/json",
+    "body": {
+      "content": "string",
+      "id": "number",
+      "receiverId": "number",
+      "senderId": "number",
+      "timestamp": "datetime:iso.fracZ"
+    }
+  },
+  "GET /api/messages": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "hasNext": "boolean",
+      "items": [
+        {
+          "content": "string",
+          "id": "number",
+          "receiverId": "number",
+          "senderId": "number",
+          "timestamp": "datetime:iso.fracZ"
+        }
+      ],
+      "page": "number",
+      "size": "number"
+    }
+  },
+  "POST /api/companies (USER 403)": {
+    "status": 403,
+    "contentType": "application/problem+json",
+    "body": {
+      "detail": "string",
+      "instance": "string",
+      "status": "number",
+      "title": "string",
+      "traceId": "string",
+      "type": "string"
+    },
+    "title": "Forbidden"
+  },
+  "GET /api/admin/users": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "content": [
+        {
+          "email": "string",
+          "id": "number",
+          "name": "string",
+          "role": "string",
+          "userName": "string"
+        }
+      ],
+      "page": "number",
+      "size": "number",
+      "totalElements": "number",
+      "totalPages": "number"
+    }
+  },
+  "PUT /api/admin/users/{id}/role": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "email": "string",
+      "id": "number",
+      "name": "string",
+      "role": "string",
+      "userName": "string"
+    }
+  },
+  "PUT /api/admin/users/{id}/role (invalid 400)": {
+    "status": 400,
+    "contentType": "application/problem+json",
+    "body": {
+      "detail": "string",
+      "errors": [
+        {
+          "field": "string",
+          "message": "string"
+        }
+      ],
+      "instance": "string",
+      "status": "number",
+      "title": "string",
+      "traceId": "string",
+      "type": "string"
+    },
+    "title": "Bad Request"
+  },
+  "GET /api/admin/users (USER 403)": {
+    "status": 403,
+    "contentType": "application/problem+json",
+    "body": {
+      "detail": "string",
+      "instance": "string",
+      "status": "number",
+      "title": "string",
+      "traceId": "string",
+      "type": "string"
+    },
+    "title": "Forbidden"
+  },
+  "POST /api/companies": {
+    "status": 201,
+    "contentType": "application/json",
+    "body": {
+      "description": "string",
+      "id": "number",
+      "location": "string",
+      "name": "string",
+      "userId": "number"
+    }
+  },
+  "POST /api/jobs": {
+    "status": 201,
+    "contentType": "application/json",
+    "body": {
+      "companyId": "number",
+      "date": "datetime:iso.fracZ",
+      "description": "string",
+      "id": "number",
+      "title": "string",
+      "workStation": "string"
+    }
+  },
+  "GET /api/jobs/{id}": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "companyId": "number",
+      "date": "datetime:iso.fracZ",
+      "description": "string",
+      "id": "number",
+      "title": "string",
+      "workStation": "string"
+    }
+  },
+  "POST /api/postulations": {
+    "status": 201,
+    "contentType": "application/json",
+    "body": {
+      "date": "datetime:iso.fracZ",
+      "id": "number",
+      "jobId": "number",
+      "status": "string",
+      "userId": "number"
+    }
+  },
+  "POST /api/postulations (duplicate 409)": {
+    "status": 409,
+    "contentType": "application/problem+json",
+    "body": {
+      "detail": "string",
+      "instance": "string",
+      "status": "number",
+      "title": "string",
+      "traceId": "string",
+      "type": "string"
+    },
+    "title": "Conflict"
+  },
+  "GET /api/postulations/{id}": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "date": "datetime:iso.fracZ",
+      "id": "number",
+      "jobId": "number",
+      "status": "string",
+      "userId": "number"
+    }
+  },
+  "GET /api/jobs/{id}/postulations": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "hasNext": "boolean",
+      "items": [
+        {
+          "date": "datetime:iso.fracZ",
+          "id": "number",
+          "jobId": "number",
+          "status": "string",
+          "userId": "number"
+        }
+      ],
+      "page": "number",
+      "size": "number"
+    }
+  },
+  "GET /api/companies": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": {
+      "hasNext": "boolean",
+      "items": [
+        {
+          "description": "string",
+          "id": "number",
+          "location": "string",
+          "name": "string",
+          "userId": "number"
+        }
+      ],
+      "page": "number",
+      "size": "number"
+    }
+  },
+  "POST /api/auth/logout": {
+    "status": 204,
+    "contentType": "",
+    "body": "null"
+  }
+}
