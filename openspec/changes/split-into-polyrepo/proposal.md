@@ -27,6 +27,13 @@ Hoy ProConnect es un monorepo con frontend, API, gateway, servicio de media, E2E
 - **Repos privados sin code scanning** (necesita GitHub Code Security, de pago): CodeQL y Semgrep se ejecutan sin subir SARIF y **fallan el job** ante hallazgos. Branch protection en `main` de los 4 repos.
 - **OpenSpec**: se archivan las 7 changes completadas para consolidar `openspec/specs/` como fuente de verdad antes de dividir.
 
+## Repos
+
+- **platform** (`ProConnect`): submódulos, rutas, workflows de integración, gestor de IA en la raíz y documentación.
+- **frontend** (`proconnect-frontend`, nuevo): historial de `FrontedProConnect/` y su CI propio.
+- **backend** (`proconnect-backend`, nuevo): historial de `backProconnect/` y su CI propio.
+- **services** (`proconnect-services`, nuevo): historial de `gateway/` y `NodeTsPosts/` (→ `media/`) y su CI propio.
+
 ## Capabilities
 
 ### New Capabilities
@@ -35,7 +42,9 @@ Hoy ProConnect es un monorepo con frontend, API, gateway, servicio de media, E2E
 - `ai-orchestration`: gestor de IA en la raíz del principal (agentes por repo, protocolo, scripts y OpenSpec multi-repo).
 
 ### Modified Capabilities
-<!-- `ci-pipeline` y `security-scanning` (archivadas en este mismo change, tarea 1) se ajustan como deltas si su texto menciona rutas o la subida de SARIF. -->
+- `ci-pipeline`: el build y los tests por servicio pasan al `ci.yml` de cada repo hijo; el principal conserva un `ci.yml` de raíz.
+- `security-scanning`: CodeQL y Semgrep sin subir SARIF (repos privados) y con fallo del job por severidad.
+- `platform-support`: rutas de los `pom.xml` en los repos hijos.
 
 ## Impact
 

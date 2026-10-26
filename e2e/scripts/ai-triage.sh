@@ -2,6 +2,8 @@
 # Local AI triage of a failed E2E run with Claude Code (`claude -p`).
 # Same prompt as .github/workflows/ai-e2e-triage.yml (e2e/prompts/triage.md via build-prompt.sh).
 #   e2e/scripts/ai-triage.sh [test-results dir] [artifacts dir] [output file]
+# Env: ISSUES=1 opens/updates an issue in the component repo of each APP_BUG
+#      (e2e/scripts/open-component-issues.sh; DRY_RUN=1 to only print it).
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
@@ -19,7 +21,7 @@ PROMPT="$("$ROOT/e2e/scripts/build-prompt.sh" triage "$RESULTS_DIR" "$ARTIFACTS_
 
 # Read-only toolset: it may read code/artifacts, unzip traces into the artifacts dir and
 # write ONLY the output file. No Edit, no git, no network.
-ALLOWED=(Read Glob Grep LS "Edit(${OUT})" "Bash(unzip:*)" "Bash(ls:*)" "Bash(grep:*)" "Bash(head:*)" "Bash(tail:*)" "Bash(wc:*)" "Bash(find:*)" "Bash(cat:*)")
+ALLOWED=(Read Glob Grep LS "Write(${OUT})" "Edit(${OUT})" "Bash(unzip:*)" "Bash(ls:*)" "Bash(grep:*)" "Bash(head:*)" "Bash(tail:*)" "Bash(wc:*)" "Bash(find:*)" "Bash(cat:*)")
 
 echo "[ai-triage] running claude -p (model: ${CLAUDE_MODEL:-default}) ..." >&2
 answer="$(claude -p "$PROMPT" \
@@ -34,3 +36,7 @@ echo
 cat "$OUT"
 echo
 echo "[ai-triage] diagnosis saved to $OUT" >&2
+
+if [[ "${ISSUES:-0}" == "1" ]]; then
+  "$ROOT/e2e/scripts/open-component-issues.sh" "$OUT" "Triage local de $(git rev-parse --short HEAD)"
+fi

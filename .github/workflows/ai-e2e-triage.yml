@@ -2,6 +2,8 @@ name: ai-e2e-triage
 
 # AI diagnosis of a failed e2e run, posted as a PR comment. READ-ONLY on the repo:
 # Claude only reads code/artifacts and writes e2e/ai-triage.md; a plain step posts it.
+# split-into-polyrepo: the diagnosis names the responsible component and, with PLATFORM_TOKEN
+# (Issues R/W on the component repos), opens/updates an issue there. No code is ever pushed.
 # Same prompt as local `e2e/scripts/ai-triage.sh` (e2e/prompts/triage.md + build-prompt.sh).
 on:
   workflow_call:
@@ -12,6 +14,7 @@ on:
     secrets:
       ANTHROPIC_API_KEY: { required: false }
       CLAUDE_CODE_OAUTH_TOKEN: { required: false }
+      PLATFORM_TOKEN: { required: false }
   workflow_dispatch:
     inputs:
       run_id: { description: 'ID of the failed e2e run', type: string, required: true }
@@ -33,6 +36,7 @@ jobs:
       actions: read
     env:
       HAS_CLAUDE_AUTH: ${{ secrets.ANTHROPIC_API_KEY != '' || secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+      HAS_PLATFORM_TOKEN: ${{ secrets.PLATFORM_TOKEN != '' }}
     steps:
       - name: Skip when no Claude credentials are configured
         if: env.HAS_CLAUDE_AUTH != 'true'
@@ -43,6 +47,9 @@ jobs:
         with:
           ref: ${{ inputs.head_sha }}
           persist-credentials: false
+          # Code of the private submodules only with PLATFORM_TOKEN; without it the triage still reads e2e/ and logs.
+          submodules: ${{ env.HAS_PLATFORM_TOKEN == 'true' && 'recursive' || 'false' }}
+          token: ${{ secrets.PLATFORM_TOKEN || github.token }}
 
       - name: Download e2e artifacts of the failed run
         if: env.HAS_CLAUDE_AUTH == 'true'
@@ -79,7 +86,7 @@ jobs:
           prompt: ${{ steps.prompt.outputs.text }}
           claude_args: >-
             --max-turns 30
-            --allowedTools "Read,Glob,Grep,LS,Edit(e2e/ai-triage.md),Bash(unzip:*),Bash(ls:*),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(find:*),Bash(cat:*)"
+            --allowedTools "Read,Glob,Grep,LS,Write(e2e/ai-triage.md),Edit(e2e/ai-triage.md),Bash(unzip:*),Bash(ls:*),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(find:*),Bash(cat:*)"
             --disallowedTools "WebFetch,WebSearch,Bash(git push:*),Bash(git commit:*)"
 
       - name: Comment diagnosis on the PR
@@ -94,6 +101,19 @@ jobs:
           if [ ! -s e2e/ai-triage.md ]; then printf "## 🤖 Diagnóstico E2E\n\nEl agente no produjo diagnóstico. Revisa el run.\n" > e2e/ai-triage.md; fi
           { cat e2e/ai-triage.md; printf '\n\n---\n<sub>Generado por ai-e2e-triage sobre %s · %s. Revisión humana obligatoria: el bot no modifica la rama.</sub>\n' "$HEAD_SHA" "$RUN_URL"; } > comment.md
           gh pr comment "$PR" --body-file comment.md --edit-last --create-if-none
+
+      - name: Open issue in the responsible component repo
+        if: env.HAS_CLAUDE_AUTH == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.PLATFORM_TOKEN }}
+          TRIAGE_KEY: ${{ inputs.head_sha }}
+          CONTEXT: "PR ${{ github.server_url }}/${{ github.repository }}/pull/${{ inputs.pr_number }} · run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ inputs.run_id }}"
+        run: |
+          if [ "$HAS_PLATFORM_TOKEN" != "true" ]; then
+            echo "::warning title=PLATFORM_TOKEN::Sin PLATFORM_TOKEN no se abren issues en los repos hijos (el diagnóstico queda en el PR)."
+            exit 0
+          fi
+          TRIAGE_KEY="${TRIAGE_KEY:0:7}" ./e2e/scripts/open-component-issues.sh e2e/ai-triage.md "$CONTEXT"
 
       - name: Keep the diagnosis as artifact
         if: env.HAS_CLAUDE_AUTH == 'true' && always()

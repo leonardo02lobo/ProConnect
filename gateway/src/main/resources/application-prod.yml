@@ -1,5 +1,0 @@
-# Perfil de producción (SPRING_PROFILES_ACTIVE=prod): HSTS activado (requiere servir por HTTPS).
-proconnect:
-  security:
-    hsts:
-      enabled: true

@@ -12,7 +12,7 @@ indent_size = 4
 [*.{ts,tsx,js,mjs,cjs,astro,json,yml,yaml,css,md}]
 indent_size = 2
 
-[FrontedProConnect/**.{ts,tsx,astro}]
+[frontend/**.{ts,tsx,astro}]
 indent_size = 4
 
 [*.md]

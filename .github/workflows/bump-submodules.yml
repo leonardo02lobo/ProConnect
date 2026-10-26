@@ -1,0 +1,137 @@
+name: bump-submodules
+
+# Integración entre repos (split-into-polyrepo, D4). Mueve el puntero de un submódulo y abre/actualiza el PR
+# "bump <component> → <sha7>" (rama bump/<component>), sobre el que corren e2e, dast y contracts.
+# - repository_dispatch (submodule-updated) desde notify-platform.yml de cada hijo: {component, sha}.
+# - cron diario y manual: lleva cada submódulo a la punta de su `main` (respaldo si se perdió un evento).
+# El PR lo crea PLATFORM_TOKEN (no GITHUB_TOKEN) para que SÍ dispare los workflows del PR.
+# Sin PLATFORM_TOKEN el job se salta con un aviso.
+on:
+  repository_dispatch:
+    types: [submodule-updated]
+  schedule:
+    - cron: '23 5 * * *'   # diario 05:23 UTC
+  workflow_dispatch:
+    inputs:
+      component:
+        description: 'Submódulo (frontend, backend, services) o all'
+        type: choice
+        options: [all, frontend, backend, services]
+        default: all
+      sha:
+        description: 'Commit del hijo (vacío = punta de main)'
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bump-submodules-${{ github.event.client_payload.component || inputs.component || 'all' }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          P_COMPONENT: ${{ github.event.client_payload.component }}
+          P_SHA: ${{ github.event.client_payload.sha }}
+          I_COMPONENT: ${{ inputs.component }}
+          I_SHA: ${{ inputs.sha }}
+        run: |
+          valid='^(frontend|backend|services)$'
+          case "$EVENT" in
+            repository_dispatch) comp="$P_COMPONENT"; sha="$P_SHA" ;;
+            workflow_dispatch) comp="$I_COMPONENT"; sha="$I_SHA" ;;
+            *) comp=all; sha="" ;;
+          esac
+          if [ -n "$sha" ] && ! [[ "$sha" =~ ^[0-9a-f]{7,40}$ ]]; then echo "::error::sha inválido: $sha"; exit 1; fi
+          if [ "$comp" = "all" ]; then
+            matrix='[{"component":"frontend","sha":""},{"component":"backend","sha":""},{"component":"services","sha":""}]'
+          elif [[ "$comp" =~ $valid ]]; then
+            matrix=$(jq -cn --arg c "$comp" --arg s "$sha" '[{component:$c, sha:$s}]')
+          else
+            echo "::error::componente inválido: $comp"; exit 1
+          fi
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "plan: $matrix"
+
+  bump:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    env:
+      HAS_PLATFORM_TOKEN: ${{ secrets.PLATFORM_TOKEN != '' }}
+      COMPONENT: ${{ matrix.component }}
+      TARGET_SHA: ${{ matrix.sha }}
+    steps:
+      - name: Skip without PLATFORM_TOKEN
+        if: env.HAS_PLATFORM_TOKEN != 'true'
+        run: |
+          echo "::warning title=PLATFORM_TOKEN::Falta el secret PLATFORM_TOKEN (Contents R/W + Pull requests R/W en ProConnect, Contents: Read en los hijos); no se puede mover el submódulo $COMPONENT ni abrir el PR. Ver README → Acciones del mantenedor."
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        if: env.HAS_PLATFORM_TOKEN == 'true'
+        with:
+          submodules: recursive
+          token: ${{ secrets.PLATFORM_TOKEN }}
+
+      - name: Move ${{ matrix.component }} to the target commit
+        id: move
+        if: env.HAS_PLATFORM_TOKEN == 'true'
+        run: |
+          before=$(git -C "$COMPONENT" rev-parse HEAD)
+          git -C "$COMPONENT" fetch --quiet origin main
+          target="${TARGET_SHA:-$(git -C "$COMPONENT" rev-parse origin/main)}"
+          git -C "$COMPONENT" fetch --quiet origin "$target" 2>/dev/null || true
+          # Solo commits alcanzables desde main del hijo (nunca ramas sin mergear).
+          if ! git -C "$COMPONENT" merge-base --is-ancestor "$target" origin/main; then
+            echo "::error::$target no está en main de $COMPONENT"; exit 1
+          fi
+          git -C "$COMPONENT" checkout --quiet "$target"
+          after=$(git -C "$COMPONENT" rev-parse HEAD)
+          {
+            echo "before=$before"; echo "after=$after"; echo "short=${after:0:7}"
+            echo "changed=$([ "$before" != "$after" ] && echo true || echo false)"
+          } >> "$GITHUB_OUTPUT"
+          {
+            echo "log<<__LOG_EOF__"
+            git -C "$COMPONENT" log --oneline --no-decorate "$before..$after" | head -n 50
+            echo "__LOG_EOF__"
+          } >> "$GITHUB_OUTPUT"
+          echo "$COMPONENT: ${before:0:7} → ${after:0:7}"
+
+      - name: Open / update the bump PR
+        if: env.HAS_PLATFORM_TOKEN == 'true' && steps.move.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7.0.11
+        with:
+          token: ${{ secrets.PLATFORM_TOKEN }}
+          branch: bump/${{ matrix.component }}
+          base: main
+          add-paths: ${{ matrix.component }}
+          commit-message: "chore(${{ matrix.component }}): bump submodule to ${{ steps.move.outputs.short }}"
+          title: "bump ${{ matrix.component }} → ${{ steps.move.outputs.short }}"
+          body: |
+            Mueve el submódulo `${{ matrix.component }}` de `${{ steps.move.outputs.before }}` a `${{ steps.move.outputs.after }}`.
+
+            ```
+            ${{ steps.move.outputs.log }}
+            ```
+
+            Abierto por `bump-submodules` (${{ github.event_name }}). Se mergea solo con `e2e`, `dast` y `contracts` en verde.
+          labels: submodule-bump
+          delete-branch: true
+
+      - name: Already up to date
+        if: env.HAS_PLATFORM_TOKEN == 'true' && steps.move.outputs.changed != 'true'
+        run: echo "::notice::$COMPONENT ya está en ${{ steps.move.outputs.short }}"

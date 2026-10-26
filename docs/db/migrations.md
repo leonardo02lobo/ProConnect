@@ -1,7 +1,7 @@
 # Migraciones de base de datos (Flyway)
 
 Desde `restructure-models-performance` el esquema de MySQL lo gestiona **solo Flyway**
-(`backProconnect/src/main/resources/db/migration`). La API arranca con
+(`backend/src/main/resources/db/migration`). La API arranca con
 `spring.jpa.hibernate.ddl-auto=validate`: si una entidad no coincide con el esquema migrado, no arranca.
 
 | Versión | Script | Qué hace | Destructiva |
@@ -45,13 +45,13 @@ La auditoría (`migration_audit`) queda en la base: es la constancia de qué se 
 ## Rollback (manual)
 
 Flyway Community no ejecuta *undo*. Los scripts de vuelta atrás están en
-`backProconnect/src/main/resources/db/rollback/` (fuera de `db/migration`, nunca los aplica Flyway) y se
+`backend/src/main/resources/db/rollback/` (fuera de `db/migration`, nunca los aplica Flyway) y se
 ejecutan a mano, en orden inverso, con la versión anterior de la app desplegada:
 
 ```bash
 # p. ej. volver de V5 a V2: U5, U4, U3, U2_1 (y U2 si hace falta), borrando sus filas del historial
 for u in U5__drop_profile_photos U4__post_counters U3__user_media_columns U2_1__types_and_enums; do
-  mysql proconnect < backProconnect/src/main/resources/db/rollback/$u.sql
+  mysql proconnect < backend/src/main/resources/db/rollback/$u.sql
 done
 mysql proconnect -e "DELETE FROM flyway_schema_history WHERE version IN ('5','4','3','2.1')"
 ```

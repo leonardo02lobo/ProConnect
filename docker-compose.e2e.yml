@@ -37,7 +37,7 @@ services:
   api:
     image: ${E2E_IMAGE_PREFIX:-pc-e2e}/api:local
     build:
-      context: ./backProconnect
+      context: ./backend
     environment:
       SERVER_PORT: "8081"
       DB_URL: jdbc:mysql://mysql:3306/proconnect?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
@@ -86,7 +86,7 @@ services:
   media:
     image: ${E2E_IMAGE_PREFIX:-pc-e2e}/media:local
     build:
-      context: ./NodeTsPosts
+      context: ./services/media
     environment:
       PORT: "3001"
       UPLOAD_DIR: /data/upload
@@ -100,7 +100,7 @@ services:
   gateway:
     image: ${E2E_IMAGE_PREFIX:-pc-e2e}/gateway:local
     build:
-      context: ./gateway
+      context: ./services/gateway
     environment:
       PORT: "8080"
       API_URI: http://api:8081
@@ -119,7 +119,7 @@ services:
   web:
     image: ${E2E_IMAGE_PREFIX:-pc-e2e}/web:local
     build:
-      context: ./FrontedProConnect
+      context: ./frontend
       args:
         # Browser-facing gateway URL (baked into the client bundle).
         PUBLIC_API_URL: http://localhost:${E2E_GATEWAY_PORT:-18080}
