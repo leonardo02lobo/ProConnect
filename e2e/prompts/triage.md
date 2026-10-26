@@ -5,11 +5,25 @@ You are READ-ONLY on the code: do not edit any file except the output file named
 run context below. Do not run git commands that change state, do not push.
 
 ## Project map
-- `FrontedProConnect/` Astro + React islands (web, :4321). API calls go through the gateway.
-- `gateway/` Spring Cloud Gateway (:8080): `/api/**` → `backProconnect` (:8081), `/upload/**` → `NodeTsPosts` (:3001). Validates the JWT cookie `pc_session` on `/upload/**`.
-- `backProconnect/` Spring Boot + JPA + MySQL, JWT auth (cookie `pc_session`).
-- `NodeTsPosts/` Express + multer, image upload/serve.
-- `e2e/` Playwright suite: `global-setup.ts` seeds by API, `fixtures/`, `tests/*.spec.ts`. Rules in `e2e/CLAUDE.md`.
+The platform repo composes three component repos as git submodules (read their code there):
+- `frontend/` → repo `proconnect-frontend`: Astro + React islands (web, :4321). API calls go through the gateway.
+- `services/gateway/` → repo `proconnect-services`: Spring Cloud Gateway (:8080): `/api/**` → backend (:8081), `/upload/**` → media (:3001). Validates the JWT cookie `pc_session` on `/upload/**`, CORS and security headers.
+- `services/media/` → repo `proconnect-services`: Express + multer, image upload/serve.
+- `backend/` → repo `proconnect-backend`: Spring Boot + JPA + MySQL, JWT auth (cookie `pc_session`), roles, mail.
+- `e2e/` (platform repo): Playwright suite: `global-setup.ts` seeds by API, `fixtures/`, `tests/*.spec.ts`. Rules in `e2e/CLAUDE.md`.
+- `docker-compose.e2e.yml`, `e2e/scripts/` (platform repo): stack and runner.
+
+### Responsible component (map each failure to ONE)
+| Component | Repo | Typical evidence |
+|---|---|---|
+| `frontend` | `proconnect-frontend` | wrong rendering/markup, client error in the console, SSR 500 from `web`, missing `data-testid` |
+| `backend` | `proconnect-backend` | `/api/**` returns a wrong status/body, stack trace in `api` logs, DB/Flyway/mail errors |
+| `services` | `proconnect-services` | gateway 401/403/CORS/header issue on a valid request, `/upload/**` failure, `media`/`gateway` logs |
+| `platform` | `ProConnect` | the test, fixture, seed, compose file or runner is wrong (TEST_BROKEN, ENV) |
+
+Starting points by spec (confirm with evidence, never assume): `auth`, `register-validation`, `security` → backend/services;
+`feed`, `post`, `like`, `comment`, `profile`, `pagination`, `search` → backend + frontend; `admin`, `company-flow` → backend (roles) + frontend;
+`postulation-mail` → backend (mail) ; image upload/serve → services (media/gateway).
 
 ## How to investigate
 1. Start from the failure summary at the end of this prompt (errors, file:line, attachments).
@@ -34,7 +48,8 @@ run context below. Do not run git commands that change state, do not push.
 ### <título del test> — `<APP_BUG|TEST_BROKEN|ENV|FLAKY>`
 - **Causa:** una o dos frases con la causa raíz.
 - **Evidencia:** request/respuesta, línea de log o mensaje de error concreto (cita breve).
-- **Archivo probable:** `ruta/al/archivo.ext:línea` (código de la app o del test).
+- **Componente:** `frontend|backend|services|platform` (repo responsable).
+- **Archivo probable:** `ruta/al/archivo.ext:línea` (con el prefijo del submódulo, p. ej. `backend/src/...`).
 - **Sugerencia:** qué cambiar. Si aplica, un diff mínimo:
   ```diff
   ...
@@ -43,9 +58,13 @@ run context below. Do not run git commands that change state, do not push.
 ### Resumen
 - Tests afectados: ...
 - Siguiente paso recomendado: ...
+
+<!-- triage-components: <lista separada por comas de componentes con APP_BUG (frontend, backend, services) o none> -->
 ```
 
 ## Guardrails
+- The last line MUST be the `<!-- triage-components: ... -->` marker: only components with an `APP_BUG` of confidence alta/media
+  (they get an issue in their repo); `none` when every failure is `TEST_BROKEN`, `ENV` or `FLAKY`.
 - Never suggest `test.skip`, `test.fixme`, deleting tests or weakening assertions to get green.
   If the app is wrong, say so and point to the app code.
 - If the evidence is insufficient, say what is missing instead of guessing; mark confidence (alta/media/baja).

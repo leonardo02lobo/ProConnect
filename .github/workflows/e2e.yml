@@ -1,5 +1,7 @@
 name: e2e
 
+# E2E del sistema completo sobre los commits de submódulo fijados en el PR (split-into-polyrepo, cross-repo-ci).
+
 on:
   pull_request:          # every PR, whatever its base branch (stacked PRs included)
   push:
@@ -20,8 +22,21 @@ jobs:
     env:
       CI: 'true'
       COMPOSE: docker compose
+      HAS_PLATFORM_TOKEN: ${{ secrets.PLATFORM_TOKEN != '' }}
     steps:
+      # Submódulos privados (frontend/, backend/, services/): el checkout necesita PLATFORM_TOKEN
+      # (GitHub App o fine-grained con Contents: Read en los 3 repos hijos). GITHUB_TOKEN no puede leerlos.
+      - name: Require PLATFORM_TOKEN (private submodules)
+        if: env.HAS_PLATFORM_TOKEN != 'true'
+        run: |
+          echo "::error title=PLATFORM_TOKEN::Falta el secret PLATFORM_TOKEN: sin él no se pueden clonar los submódulos privados (proconnect-frontend/-backend/-services). Créalo (GitHub App o token fine-grained con Contents: Read en los 3 repos hijos) en Settings → Secrets and variables → Actions. Ver README → Acciones del mantenedor."
+          exit 1
+
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          submodules: recursive
+          token: ${{ secrets.PLATFORM_TOKEN }}
+          persist-credentials: false
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
@@ -97,3 +112,4 @@ jobs:
     secrets:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      PLATFORM_TOKEN: ${{ secrets.PLATFORM_TOKEN }}

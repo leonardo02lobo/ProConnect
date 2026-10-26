@@ -56,7 +56,7 @@ if [[ "${E2E_SKIP_UP:-0}" != "1" ]]; then
   fi
 fi
 
-cd "$E2E_DIR"
+cd "$E2E_DIR" || exit 1
 if [[ ! -d node_modules ]] || [[ package-lock.json -nt node_modules/.package-lock.json ]]; then
   log "Installing e2e dependencies"
   npm ci --no-audit --no-fund

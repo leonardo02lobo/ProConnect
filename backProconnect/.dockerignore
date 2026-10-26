@@ -1,6 +1,0 @@
-target/
-.mvn/wrapper/*.jar
-*.iml
-.idea/
-.vscode/
-.env

@@ -1,0 +1,12 @@
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/leonardo02lobo/proconnect-frontend.git
+	branch = main
+[submodule "backend"]
+	path = backend
+	url = https://github.com/leonardo02lobo/proconnect-backend.git
+	branch = main
+[submodule "services"]
+	path = services
+	url = https://github.com/leonardo02lobo/proconnect-services.git
+	branch = main

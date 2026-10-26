@@ -1,0 +1,74 @@
+name: contracts
+
+# Contratos JSON públicos (split-into-polyrepo, cross-repo-ci): levanta el stack E2E con los submódulos fijados
+# y compara la FORMA de las respuestas de la API con la línea base versionada (docs/upgrade/contracts-boot4.json,
+# e2e/scripts/contract-snapshot.mjs). Un cambio de contrato intencionado actualiza la línea base en el mismo PR.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: contracts-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  json-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      COMPOSE: docker compose
+      HAS_PLATFORM_TOKEN: ${{ secrets.PLATFORM_TOKEN != '' }}
+      CONTRACTS_BASELINE: docs/upgrade/contracts-boot4.json
+    steps:
+      # Submódulos privados (frontend/, backend/, services/): el checkout necesita PLATFORM_TOKEN
+      # (GitHub App o fine-grained con Contents: Read en los 3 repos hijos). GITHUB_TOKEN no puede leerlos.
+      - name: Require PLATFORM_TOKEN (private submodules)
+        if: env.HAS_PLATFORM_TOKEN != 'true'
+        run: |
+          echo "::error title=PLATFORM_TOKEN::Falta el secret PLATFORM_TOKEN: sin él no se pueden clonar los submódulos privados (proconnect-frontend/-backend/-services). Créalo (GitHub App o token fine-grained con Contents: Read en los 3 repos hijos) en Settings → Secrets and variables → Actions. Ver README → Acciones del mantenedor."
+          exit 1
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          submodules: recursive
+          token: ${{ secrets.PLATFORM_TOKEN }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+
+      - name: Generate throwaway stack secrets
+        run: |
+          jwt=$(openssl rand -hex 32); db=$(openssl rand -hex 16)
+          echo "::add-mask::$jwt"; echo "::add-mask::$db"
+          echo "E2E_JWT_SECRET=$jwt" >> "$GITHUB_ENV"
+          echo "E2E_DB_PASSWORD=$db" >> "$GITHUB_ENV"
+
+      - name: Start E2E stack
+        run: docker compose -p pc-contracts -f docker-compose.e2e.yml up -d --build --wait --wait-timeout 400
+
+      - name: Snapshot and compare JSON contracts
+        run: |
+          node e2e/scripts/contract-snapshot.mjs contracts-current.json
+          node e2e/scripts/contract-snapshot.mjs --diff "$CONTRACTS_BASELINE" contracts-current.json
+
+      - name: Upload snapshot
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: contracts-snapshot
+          path: contracts-current.json
+          if-no-files-found: ignore
+
+      - name: Stack logs on failure
+        if: failure()
+        run: docker compose -p pc-contracts -f docker-compose.e2e.yml logs --no-color --tail=200 | sed -E 's/(pc_session=)[^;[:space:]]+/\1***/g'
+
+      - name: Tear down
+        if: always()
+        run: docker compose -p pc-contracts -f docker-compose.e2e.yml down -v

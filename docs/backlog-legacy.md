@@ -2,7 +2,7 @@
 
 `BackendProConnect/` (Express + mysql2, puerto 3000) se retiró en `cleanup-codebase`. El código sigue
 accesible en el tag git **`legacy-express-backend`** (`git show legacy-express-backend:BackendProConnect/...`).
-Ningún cliente lo usaba: el frontend habla solo con el gateway → API Spring (`backProconnect`).
+Ningún cliente lo usaba: el frontend habla solo con el gateway → API Spring (`backend/`, repo `proconnect-backend`).
 
 ## Ya cubierto por la API Spring
 
@@ -21,7 +21,7 @@ Ningún cliente lo usaba: el frontend habla solo con el gateway → API Spring (
 | `Publicacion/Publicacion/DarLike/:id`, `EliminarLike/:id`, `BuscarLikes/:id` | `POST\|DELETE\|GET /api/posts/{id}/likes` | el legacy mutaba con GET |
 | `Comentarios/CrearComentario`, `Comentarios/ObtenerComentariosPorPublicacion/:id` | `POST\|GET /api/posts/{id}/comments` | |
 | `Amigos/AgregarAmigos`, `AceptarSolicitud`, `RechazarSolicitud`, `BuscarSolicitudes`, `BuscarTodosLosAmigos/:id`, `EliminarSolicitud/:id` | `/api/friends/requests[...]`, `/api/users/{id}/friends`, `DELETE /api/friends/{userId}` | el legacy borraba con GET |
-| `upload` (multer local) | servicio de media `NodeTsPosts` (`/upload/**` en el gateway) | |
+| `upload` (multer local) | servicio de media `services/media` (repo `proconnect-services`) (`/upload/**` en el gateway) | |
 
 ## Pendiente (solo existía en el legacy)
 

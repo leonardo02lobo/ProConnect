@@ -29,6 +29,7 @@ jobs:
       CI: 'true'
       COMPOSE: docker compose
       HAS_CLAUDE_AUTH: ${{ secrets.ANTHROPIC_API_KEY != '' || secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+      HAS_PLATFORM_TOKEN: ${{ secrets.PLATFORM_TOKEN != '' }}
     steps:
       - name: Require Claude credentials
         if: env.HAS_CLAUDE_AUTH != 'true'
@@ -36,9 +37,19 @@ jobs:
           echo "::error::Configure ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN to use ai-e2e-heal."
           exit 1
 
+      - name: Require PLATFORM_TOKEN (private submodules)
+        if: env.HAS_PLATFORM_TOKEN != 'true'
+        run: |
+          echo "::error title=PLATFORM_TOKEN::Falta el secret PLATFORM_TOKEN (Contents: Read en proconnect-frontend/-backend/-services) para clonar los submódulos. Ver README → Acciones del mantenedor."
+          exit 1
+
+      # Only e2e/** is healed here; markup fixes for frontend/ go to a proconnect-frontend PR (see e2e/prompts/heal.md).
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: ${{ inputs.ref }}
+          submodules: recursive
+          token: ${{ secrets.PLATFORM_TOKEN }}
+          persist-credentials: false
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
@@ -87,7 +98,7 @@ jobs:
           claude_args: >-
             --max-turns 60
             --mcp-config e2e/mcp.heal.json
-            --allowedTools "Read,Glob,Grep,LS,Edit(e2e/tests/**),Edit(e2e/fixtures/**),Edit(FrontedProConnect/src/**),Edit(e2e/ai-heal.md),Bash(npx --prefix e2e playwright test:*),Bash(ls:*),Bash(grep:*),Bash(cat:*),Bash(git diff:*),Bash(git status:*),mcp__playwright-test"
+            --allowedTools "Read,Glob,Grep,LS,Edit(e2e/tests/**),Edit(e2e/fixtures/**),Edit(e2e/ai-heal.md),Bash(npx --prefix e2e playwright test:*),Bash(ls:*),Bash(grep:*),Bash(cat:*),Bash(git diff:*),Bash(git status:*),mcp__playwright-test"
             --disallowedTools "WebFetch,WebSearch,Bash(git push:*),Bash(git commit:*),Bash(git reset:*),Bash(git checkout:*)"
 
       - name: Guardrails (no skip/fixme/only, no removed expects/specs)
@@ -115,7 +126,6 @@ jobs:
           add-paths: |
             e2e/tests/**
             e2e/fixtures/**
-            FrontedProConnect/src/**
           body-path: e2e/ai-heal.md
           labels: ai-heal
 

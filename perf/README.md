@@ -1,10 +1,10 @@
 # perf/ — medición de rendimiento (restructure-models-performance)
 
 Herramientas para medir **queries SQL por petición** y **latencia p50/p95** de los endpoints
-calientes de `backProconnect` sobre un dataset sintético determinista. Se usan para la línea base
+calientes del backend (`backend/`) sobre un dataset sintético determinista. Se usan para la línea base
 (fase 1, sobre el código actual) y se reutilizan tal cual al final del change para la comparación.
 
-Nada de esto modifica código de la app: la API se compila desde `backProconnect/` tal como está en
+Nada de esto modifica código de la app: la API se compila desde el submódulo `backend/` tal como está en
 el commit, la configuración se sobrescribe por variables de entorno y el conteo de sentencias se hace
 desde MySQL (`performance_schema`), sin instrumentar la aplicación.
 
@@ -23,7 +23,7 @@ usuarios sembrados (`PerfPass#2026`) y envían la cookie `pc_session`; el compos
 ```
 perf/
 ├── docker-compose.perf.yml   # stack pc-perf: mysql:8.4 (23306) + api (28080)
-├── docker/api.Dockerfile     # build de backProconnect con maven:3.9-eclipse-temurin-17
+├── docker/api.Dockerfile     # build del backend con maven:3.9-eclipse-temurin-17
 ├── mysql/perf.cnf            # performance_schema + buffer pool
 ├── package.json              # deps Node (mysql2, @faker-js/faker, bcryptjs) con versiones fijas
 ├── seed/seed.mjs             # generador determinista del dataset de referencia

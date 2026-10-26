@@ -20,8 +20,9 @@ MUST follow these rules.
 3. FORBIDDEN: CSS classes (`locator('.foo')`, Tailwind classes), `xpath=`, positional
    selectors (`nth-child`, `.nth()` to pick "the 3rd post"). Scope by content instead:
    `feed.post(title)`.
-4. If a needed `data-testid` does not exist, add it to the component in
-   `FrontedProConnect/src` (kebab-case) rather than using a brittle selector.
+4. If a needed `data-testid` does not exist, add it (kebab-case) to the component in
+   `frontend/src` through a PR in the `proconnect-frontend` repo (the `frontend/`
+   submodule) rather than using a brittle selector; then bump the submodule here.
 
 ## Waiting
 - Never `page.waitForTimeout`. Wait on web-first assertions (`toBeVisible`,

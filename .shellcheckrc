@@ -1,0 +1,3 @@
+# shellcheck (ci.yml → lint): seguir los `source` relativos al script (orchestration/scripts/lib.sh).
+external-sources=true
+source-path=SCRIPTDIR

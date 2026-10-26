@@ -9,10 +9,6 @@ target/
 .env.*
 !.env.example
 
-# Archivos subidos por usuarios (servicio de media)
-NodeTsPosts/upload/*
-!NodeTsPosts/upload/.gitkeep
-
 # Varios
 .DS_Store
 *.log
