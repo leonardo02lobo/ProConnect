@@ -60,7 +60,7 @@
 
 - [x] 8.1 Push de la rama del change y apertura de un PR en draft (apilado sobre `leonardo02lobo/fix-critical-risks`, PR #2; pasará a `main` al mergear #1)
 - [x] 8.2 Verificar `ci` y `e2e` en verde en GitHub Actions
-- [ ] 8.3 (Usuario) configurar el secret `ANTHROPIC_API_KEY` o `CLAUDE_CODE_OAUTH_TOKEN`
-- [ ] 8.4 Provocar un fallo intencional en un commit temporal del PR, verificar que el bot comenta el diagnóstico y revertir el commit
-- [ ] 8.5 (Usuario) activar branch protection en `main` con `ci` y `e2e` como checks requeridos
+- [ ] 8.3 (Usuario) configurar el secret `ANTHROPIC_API_KEY` o `CLAUDE_CODE_OAUTH_TOKEN` — PENDIENTE DEL USUARIO al archivar (split-into-polyrepo): ahora en el repo principal
+- [ ] 8.4 Provocar un fallo intencional en un commit temporal del PR, verificar que el bot comenta el diagnóstico y revertir el commit — PENDIENTE (depende de 8.3, acción del usuario); se valida en el principal tras split-into-polyrepo
+- [ ] 8.5 (Usuario) activar branch protection en `main` con `ci` y `e2e` como checks requeridos — PENDIENTE: lo cubre split-into-polyrepo 5.3 (4 repos)
 - [x] 8.6 Documentar en el README raíz cómo correr todo en local y en CI

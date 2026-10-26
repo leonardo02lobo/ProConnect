@@ -1,8 +1,8 @@
 ## 1. Preparación en el monorepo
 
-- [ ] 1.1 Archivar las 7 changes completadas con `openspec archive` (anotando en cada una las tareas que eran del usuario) y validar `openspec/specs/`
-- [ ] 1.2 Crear y subir el tag `pre-split-monorepo` sobre `main`
-- [ ] 1.3 Instalar `git-filter-repo` y generar fuera del repo la lista de reemplazo de secretos a partir de gitleaks (sin mostrar ni commitear los valores)
+- [x] 1.1 Archivar las 7 changes completadas con `openspec archive` (anotando en cada una las tareas que eran del usuario) y validar `openspec/specs/`
+- [x] 1.2 Crear y subir el tag `pre-split-monorepo` sobre `main`
+- [x] 1.3 Instalar `git-filter-repo` y generar fuera del repo la lista de reemplazo de secretos a partir de gitleaks (sin mostrar ni commitear los valores)
 
 ## 2. Repos hijos
 
