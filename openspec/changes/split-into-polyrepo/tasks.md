@@ -23,11 +23,11 @@
 
 ## 4. Gestor de IA en la raíz
 
-- [ ] 4.1 `CLAUDE.md` raíz con el protocolo de orquestación multi-repo
-- [ ] 4.2 `.claude/agents/`: `frontend-dev`, `backend-dev`, `services-dev`, `qa-e2e` y `security-auditor`
-- [ ] 4.3 `orchestration/`: `CONTRACT.md` actualizado, `BOARD.md` nuevo con el histórico en `archive/`, `templates/agent-prompt.md` y los scripts `start-change.sh` y `finish-change.sh` (probados con un change ficticio que luego se limpia)
-- [ ] 4.4 Añadir a `openspec/config.yaml` la regla de declarar `## Repos` en cada proposal
-- [ ] 4.5 Triage con IA: mapeo de tests a componentes y apertura de issue en el repo hijo con `PLATFORM_TOKEN` (validado en local con `claude -p` sobre un fallo provocado)
+- [x] 4.1 `CLAUDE.md` raíz con el protocolo de orquestación multi-repo
+- [x] 4.2 `.claude/agents/`: `frontend-dev`, `backend-dev`, `services-dev`, `qa-e2e` y `security-auditor`
+- [x] 4.3 `orchestration/`: `CONTRACT.md` actualizado, `BOARD.md` nuevo con el histórico en `archive/`, `templates/agent-prompt.md` y los scripts `start-change.sh` y `finish-change.sh` (probados con un change ficticio que luego se limpia)
+- [x] 4.4 Añadir a `openspec/config.yaml` la regla de declarar `## Repos` en cada proposal
+- [x] 4.5 Triage con IA: mapeo de tests a componentes y apertura de issue en el repo hijo con `PLATFORM_TOKEN` (validado en local con `claude -p` sobre un fallo provocado)
 
 ## 5. Publicación
 

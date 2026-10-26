@@ -2,11 +2,14 @@ schema: spec-driven
 
 context: |
   ProConnect: red social profesional cerrada (estilo LinkedIn). Toda la app requiere login.
-  Stack: Astro 5 + React 19 + Tailwind 4 (FrontedProConnect), Spring Boot 3.3 / Java 17 + JPA + MySQL
-  (backProconnect, API core), Spring Cloud Gateway (gateway/), Express 5 + multer (NodeTsPosts, media).
+  Stack: Astro 5 + React 19 + Tailwind 4 (frontend/ → repo proconnect-frontend), Spring Boot 4 / Java 17 + JPA + MySQL
+  (backend/ → proconnect-backend, API core), Spring Cloud Gateway y Express 5 + multer (services/gateway y
+  services/media → proconnect-services). Este repo (ProConnect) es el principal: compone los 3 como submódulos
+  y aloja OpenSpec, los agentes (.claude/agents) y el protocolo de orquestación (orchestration/).
   BackendProConnect (Express legacy) se retiró en cleanup-codebase tras migrar los correos de postulación (tag git legacy-express-backend).
   Roles: USER, COMPANY_ADMIN, ADMIN. Feed global cronológico.
-  Cada change se implementa en su propia rama leonardo02lobo/<change> y worktree propio.
+  Cada change se implementa en la rama leonardo02lobo/<change> (mismo nombre en el principal y en cada repo hijo
+  afectado) con orchestration/scripts/start-change.sh, que crea el worktree y registra el change en el tablero.
   Artefactos y comunicación en español; código e identificadores en inglés.
 
 # Project context (optional)
@@ -17,6 +20,12 @@ context: |
 #     Tech stack: TypeScript, React, Node.js
 #     We use conventional commits
 #     Domain: e-commerce platform
+
+rules:
+  proposal:
+    - "Incluir una sección `## Repos` que liste los repos afectados (frontend, backend, services, platform) y, por cada uno, qué cambia; la valida orchestration/scripts/check-proposals.sh en ci.yml"
+  tasks:
+    - "Agrupar las tareas por repo cuando el change toque varios, para poder repartirlas entre los agentes frontend-dev, backend-dev y services-dev"
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.
